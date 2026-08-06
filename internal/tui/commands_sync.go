@@ -12,9 +12,16 @@ import (
 	"github.com/Nano-AI/leetui/internal/syncer"
 )
 
-// beginSync starts the background sync and returns the command that pumps its progress.
-// It is a no-op if a sync is already running.
-func (m *Model) beginSync() tea.Cmd {
+// syncJob is one unit of background pulling. Every job has the same shape — emit
+// Progress, close the channel — so one set of plumbing drives all of them.
+type syncJob func(ctx context.Context, out chan<- syncer.Progress) error
+
+// beginJob starts a background sync and returns the command that pumps its progress.
+//
+// It is a no-op if a sync is already running: one job at a time, because they all share
+// the client's single rate limiter and running two would only make both slower while
+// making the rail's progress line ambiguous.
+func (m *Model) beginJob(job syncJob) tea.Cmd {
 	if m.syncing {
 		return nil
 	}
@@ -27,14 +34,37 @@ func (m *Model) beginSync() tea.Cmd {
 	m.syncCancel = cancel
 	m.syncProgress = syncer.Progress{}
 
-	sy := m.sync
 	go func() {
 		// Errors are reported through the channel's final Progress, so the return value
 		// is intentionally discarded here.
-		_ = sy.Problems(ctx, ch, true)
+		_ = job(ctx, ch)
 	}()
 
 	return waitForSync(ch)
+}
+
+// beginSync starts the full problem-list sync, resuming from its checkpoint.
+func (m *Model) beginSync() tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.Problems(ctx, out, true)
+	})
+}
+
+// beginPack pulls one company's list for one timeframe (D-006).
+func (m *Model) beginPack(company string, tf leetcode.Timeframe) tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.Pack(ctx, company, tf, out)
+	})
+}
+
+// beginRegistry refreshes the company list. One request, and it works signed out.
+func (m *Model) beginRegistry() tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.CompanyRegistry(ctx, out)
+	})
 }
 
 // startSync is the sync key's handler.
@@ -74,12 +104,16 @@ func (m Model) openInBrowser() (tea.Model, tea.Cmd) {
 	return m, openURL(leetcode.BaseURL + "/problems/" + slug + "/")
 }
 
-// openImage opens the nth bracket marker's image (1-indexed, matching the label).
+// openImage opens the nth bracket marker (1-indexed, matching the label).
+//
+// It reads whichever pane is on screen — statement or editorial — because the two have
+// different marker lists and pressing 2 must open the one that is visible.
 func (m Model) openImage(n int) (tea.Model, tea.Cmd) {
-	if n < 1 || n > len(m.detailImages) {
+	images := m.paneImages()
+	if n < 1 || n > len(images) {
 		return m, nil
 	}
-	return m, openURL(m.detailImages[n-1].URL)
+	return m, openURL(images[n-1].URL)
 }
 
 // openURL hands a URL to the OS.

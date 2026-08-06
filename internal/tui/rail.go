@@ -30,6 +30,12 @@ func (m Model) viewRail() string {
 		right = append(right, theme.Label.Render("⟳ "+note))
 	}
 
+	// An active company pack is announced here as well as on the board bezel: it changes
+	// what every row means, and the rail is where the app's current state lives.
+	if m.pack.Active() {
+		right = append(right, theme.Label.Render("◈ "+m.pack.Name))
+	}
+
 	timer := theme.Meta.Render("⏱ --:--:--")
 	if m.timerRunning || m.elapsed > 0 {
 		timer = theme.Label.Render("⏱ " + formatDuration(m.elapsed))

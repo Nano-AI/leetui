@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"github.com/Nano-AI/leetui/internal/store"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -34,6 +33,15 @@ func (m Model) moveCursorTo(i int) (tea.Model, tea.Cmd) {
 	m.cursor = i
 	m.clampScroll()
 	m.detailScroll = 0
+
+	// The editorial pane stays open across a cursor move, so its content has to follow
+	// the cursor or it would show one problem's write-up under another's heading.
+	slug := m.currentSlug()
+	m.dropEditorial(slug)
+	if m.showEditorial && m.editorial == nil && slug != "" {
+		m.editorialLoading = true
+		return m, tea.Batch(m.loadDetailForCursor(), m.fetchEditorial(slug))
+	}
 	return m, m.loadDetailForCursor()
 }
 
@@ -71,9 +79,9 @@ func (m Model) toggleDifficulty(n int) (tea.Model, tea.Cmd) {
 	var want string
 	switch n {
 	case 0:
-		m.filter = store.Filter{}
-		m.cursor, m.scroll = 0, 0
-		return m, m.loadRows()
+		// 0 means "clear", and a company pack is a filter like any other — leaving it in
+		// place would contradict a board that says it has none.
+		return m.clearPack()
 	case 1:
 		want = "Easy"
 	case 2:

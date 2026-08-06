@@ -2,7 +2,6 @@ package tui
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,7 +23,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width, m.height = msg.Width, msg.Height
 		m.search.Width = maxInt(m.width-20, 20)
 		m.authInput.Width = maxInt(m.width-20, 20)
-		// Re-render the statement at the new width.
+		m.companyFilter.Width = maxInt(m.width-20, 20)
+
+		// Re-render whichever reading is on screen at the new width. Rendering both
+		// would wrap the hidden one to a width it may never be shown at.
+		if m.showEditorial && m.editorial != nil {
+			return m, m.fetchEditorial(m.editorial.Slug)
+		}
 		if m.detail != nil {
 			return m, m.renderDetail(m.detail)
 		}
@@ -93,6 +98,40 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, m.fetchDetail(msg.slug, msg.seq)
 
+	case editorialMsg:
+		// A response for a problem the cursor already left is dropped, for the same
+		// reason detailMsg drops one: showing the wrong write-up is worse than none.
+		if msg.slug != m.currentSlug() {
+			return m, nil
+		}
+		m.editorialLoading = false
+		m.editorial, m.editorialMD, m.editorialImages = msg.editorial, msg.markdown, msg.images
+		if msg.err != nil && msg.editorial == nil {
+			if errors.Is(msg.err, leetcode.ErrNotFound) {
+				return m, status("LeetCode has no editorial for this problem.", false)
+			}
+			return m, status("Could not load the editorial: "+msg.err.Error(), true)
+		}
+		return m, nil
+
+	case companiesMsg:
+		if msg.err != nil {
+			return m, status("Could not read the company list: "+msg.err.Error(), true)
+		}
+		m.companies = msg.companies
+		if m.companyIdx >= len(m.companies) {
+			m.companyIdx = maxInt(len(m.companies)-1, 0)
+		}
+		return m, nil
+
+	case packCountsMsg:
+		// Stale: another company was picked while this was in flight.
+		if msg.err != nil || msg.company != m.packChoice.Slug {
+			return m, nil
+		}
+		m.packCounts = msg.counts
+		return m, nil
+
 	case browserImportMsg:
 		m.importing = ""
 		if msg.err != nil {
@@ -158,44 +197,4 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
-}
-
-func (m Model) handleSyncProgress(p syncer.Progress) (tea.Model, tea.Cmd) {
-	m.syncProgress = p
-
-	if !p.Finished {
-		// Refresh the board as the first pages land, so the setup screen hands over to
-		// a populated list rather than an empty one.
-		if m.mode == modeSetup && p.Done > 0 && p.Done%500 == 0 {
-			return m, tea.Batch(waitForSync(m.syncCh), m.loadRows())
-		}
-		return m, waitForSync(m.syncCh)
-	}
-
-	m.syncing = false
-	m.syncCh = nil
-	m.syncCancel = nil
-	if m.mode == modeSetup {
-		m.mode = modeBoard
-	}
-
-	if p.Err != nil {
-		if errors.Is(p.Err, leetcode.ErrSessionExpired) {
-			return m, status("Session expired mid-sync. Press a to re-authenticate, then S to resume.", true)
-		}
-		return m, tea.Batch(
-			m.loadRows(),
-			status("Sync stopped: "+p.Err.Error()+" Press S to resume.", true),
-		)
-	}
-	if p.Note == "paused" {
-		return m, tea.Batch(
-			m.loadRows(),
-			status(fmt.Sprintf("Sync paused at %d problems. Press S to resume.", p.Done), false),
-		)
-	}
-	return m, tea.Batch(
-		m.loadRows(),
-		status(fmt.Sprintf("Synced %d problems.", p.Done), false),
-	)
 }

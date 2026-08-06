@@ -43,6 +43,29 @@ type (
 		ready bool
 	}
 
+	// editorialMsg carries a problem's rendered official solution. A gated editorial
+	// arrives with editorial set and err ErrPremiumRequired — the pane needs both.
+	editorialMsg struct {
+		slug      string
+		editorial *store.Editorial
+		markdown  string
+		images    []render.Image
+		err       error
+	}
+
+	// companiesMsg carries the company registry from the store.
+	companiesMsg struct {
+		companies []store.Company
+		err       error
+	}
+
+	// packCountsMsg carries how much of each of a company's timeframes is stored.
+	packCountsMsg struct {
+		company string
+		counts  map[leetcode.Timeframe]int
+		err     error
+	}
+
 	// browserImportMsg carries the result of reading cookies out of a browser.
 	browserImportMsg struct {
 		from  auth.Browser

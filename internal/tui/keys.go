@@ -2,7 +2,6 @@ package tui
 
 import (
 	"github.com/Nano-AI/leetui/internal/auth"
-	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -33,6 +32,8 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case m.picking != pickNone:
 		return m.handlePickerKey(msg)
 
+	case m.mode == modeCompany:
+		return m.handleCompanyKey(msg)
 	case m.mode == modeAuth:
 		return m.handleAuthKey(msg)
 	case m.searching:
@@ -142,6 +143,11 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "editor":
 		return m.openEditorPicker()
 
+	case "editorial":
+		return m.toggleEditorial()
+	case "companies":
+		return m.openCompanies()
+
 	case "sync":
 		return m.startSync()
 
@@ -167,10 +173,13 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "back":
+		// esc peels one layer at a time, innermost first. Dropping straight to an
+		// unfiltered board would throw away a pack the user spent two choices building.
+		if m.showEditorial {
+			return m.toggleEditorial()
+		}
 		if m.filterActive() {
-			m.filter = store.Filter{}
-			m.cursor, m.scroll = 0, 0
-			return m, m.loadRows()
+			return m.clearPack()
 		}
 		return m, nil
 	}
@@ -178,17 +187,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	// Unbound single-letter conveniences that do not deserve a remappable action.
 	switch key {
 	case "u":
-		// Cycle: all -> unsolved -> solved -> all.
-		switch m.filter.Status {
-		case "":
-			m.filter.Status = "todo"
-		case "todo":
-			m.filter.Status = "ac"
-		default:
-			m.filter.Status = ""
-		}
-		m.cursor, m.scroll = 0, 0
-		return m, m.loadRows()
+		return m.cycleStatus()
+	case "p":
+		return m.cyclePremium()
 	}
 
 	return m, nil

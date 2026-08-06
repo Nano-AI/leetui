@@ -22,8 +22,12 @@ import (
 // Rendering the heading from the fetched detail meant every cursor move blanked the
 // whole pane and repainted it a moment later.
 func (m Model) viewDetail(w, h int) string {
+	title := "problem"
+	if m.showEditorial {
+		title = "editorial"
+	}
 	f := components.Frame{
-		Title:   "problem",
+		Title:   title,
 		Width:   w,
 		Height:  h,
 		Focused: m.focus == paneDetail,
@@ -65,6 +69,10 @@ func (m Model) viewDetail(w, h int) string {
 
 // detailBody picks what to show under the heading.
 func (m Model) detailBody(row store.Row) string {
+	if m.showEditorial {
+		return m.editorialBody(row)
+	}
+
 	// Only trust the rendered statement if it belongs to the row on screen.
 	if m.detailMD != "" && m.detail != nil && m.detail.Slug == row.Slug {
 		return m.detailMD

@@ -33,9 +33,10 @@ func (m Model) viewStatus() string {
 // viewHints is the key strip. Hints are ordered most-useful first and dropped from the
 // end when they do not fit — a truncated hint names a key without saying what it does.
 func (m Model) viewHints() string {
-	keys := []string{"e edit", "r run", "s submit", "l lang", "/ search", "u unsolved", "S sync", "o open", "? keys", "q quit"}
-	if m.focus == paneDetail && len(m.detailImages) > 0 {
-		keys[0] = fmt.Sprintf("1-%d images", minInt(len(m.detailImages), 9))
+	keys := []string{"e edit", "r run", "s submit", "d editorial", "c companies",
+		"l lang", "/ search", "u unsolved", "S sync", "o open", "? keys", "q quit"}
+	if imgs := m.paneImages(); m.focus == paneDetail && len(imgs) > 0 {
+		keys[0] = fmt.Sprintf("1-%d open", minInt(len(imgs), 9))
 	}
 
 	used := 1

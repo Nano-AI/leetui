@@ -11,25 +11,34 @@
 //
 // File map — state and behaviour:
 //
-//	model.go     the Model struct, New, Init
-//	messages.go  every tea.Msg this package defines
-//	update.go    Update dispatch and sync progress
-//	keys.go      the main keymap; keys_modal.go covers search and sign-in
-//	cursor.go    cursor movement, scrolling, filters
-//	commands.go  store and network commands; commands_sync.go covers the sync job
-//	panes.go     pane and mode enums, layout breakpoints
+//	model.go        the Model struct, New, Init
+//	messages.go     every tea.Msg this package defines
+//	update.go       Update dispatch; update_sync.go handles every background job,
+//	                update_solve.go the run and submit loop
+//	keys.go         the main keymap; keys_modal.go covers search and sign-in,
+//	                keys_filter.go the board's filter cycles
+//	cursor.go       cursor movement, scrolling, difficulty filters
+//	commands.go     store and network commands; commands_sync.go starts the jobs
+//	panes.go        pane and mode enums, layout breakpoints
+//	solve.go        edit, run, submit; solve_run.go and solve_actions.go
+//	watch.go        the solution-file poll
+//	picker.go       the selection lists — language, editor, company timeframe
+//	company.go      company packs (D-006); company_keys.go drives the browser
+//	editorial.go    the editorial pane's state and fetch
 //
 // File map — rendering:
 //
-//	layout.go    height and width arithmetic, View, viewBody
-//	rail.go      the header strip
-//	board.go     the problem grid; board_row.go renders one row
-//	detail.go    the statement pane
-//	queue.go     the submission queue
-//	search.go    the search panel
-//	setup.go     the first-run screen
-//	help.go      the key reference
-//	signin.go    the sign-in panel
-//	chrome.go    status line, hints, cell sizing
-//	format.go    small shared formatting helpers
+//	layout.go       height and width arithmetic, View, viewBody
+//	rail.go         the header strip
+//	board.go        the problem grid; board_row.go renders one row
+//	detail.go       the statement pane; editorial_view.go its editorial half
+//	result.go       the local-run diff panel
+//	queue.go        the submission queue; judge_text.go wording for verdicts
+//	search.go       the search panel
+//	setup.go        the first-run screen
+//	help.go         the key reference, folding to columns when it must
+//	signin.go       the sign-in panel
+//	company_view.go the company browser; picker_view.go the selection lists
+//	chrome.go       status line, hints, cell sizing
+//	format.go       small shared formatting helpers
 package tui

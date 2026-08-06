@@ -36,6 +36,11 @@ const (
 	modeSetup
 	modeAuth
 	modeHelp
+
+	// modeCompany is the premium company browser (D-006). It is a mode rather than a
+	// picker because it owns a text field: 984 companies need typing to narrow, and the
+	// pickers are pure selection lists.
+	modeCompany
 )
 
 // Layout breakpoints. Panes collapse rather than truncating mid-glyph.

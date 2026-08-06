@@ -1,8 +1,11 @@
 package tui
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/runner"
 )
 
@@ -22,6 +25,7 @@ const (
 	pickNone pickKind = iota
 	pickLang
 	pickEditor
+	pickTimeframe
 )
 
 // pickerRow is one entry, reduced to what the list needs to draw.
@@ -44,6 +48,20 @@ func (m Model) pickerRows() []pickerRow {
 				note, dim = "opens a window", true
 			}
 			rows = append(rows, pickerRow{label: e.Name, note: note, dim: dim})
+		}
+		return rows
+
+	case pickTimeframe:
+		tfs := leetcode.Timeframes()
+		rows := make([]pickerRow, 0, len(tfs))
+		for _, tf := range tfs {
+			// The note is what changes if you press enter: a stored pack filters
+			// instantly, an unstored one starts a pull.
+			note, dim := "not pulled yet", true
+			if n := m.packCounts[tf]; n > 0 {
+				note, dim = fmt.Sprintf("%d problems", n), false
+			}
+			rows = append(rows, pickerRow{label: tf.Label(), note: note, dim: dim})
 		}
 		return rows
 
@@ -115,6 +133,14 @@ func (m Model) choose() (tea.Model, tea.Cmd) {
 	m.picking = pickNone
 
 	switch kind {
+	case pickTimeframe:
+		tfs := leetcode.Timeframes()
+		if m.pickIdx >= len(tfs) {
+			return m, nil
+		}
+		tf := tfs[m.pickIdx]
+		return m.applyPack(m.packChoice, tf, m.packCounts[tf])
+
 	case pickEditor:
 		if m.pickIdx >= len(m.editors) {
 			return m, nil

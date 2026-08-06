@@ -58,6 +58,30 @@ type Model struct {
 	// user has already scrolled past can be recognised as stale and dropped.
 	detailSeq int
 
+	// Editorial (D-006). The detail pane shows either the statement or the editorial,
+	// never both; showEditorial says which.
+	showEditorial    bool
+	editorial        *store.Editorial
+	editorialMD      string
+	editorialImages  []render.Image
+	editorialLoading bool
+
+	// Company packs (D-006).
+	//
+	// pack is the pack currently filtering the board, zero when browsing everything.
+	// companies is the registry, loaded once and filtered in memory — 984 rows is
+	// nothing to search locally and a round trip per keystroke would be.
+	pack          pack
+	companies     []store.Company
+	companyIdx    int
+	companyFilter textinput.Model
+
+	// packChoice is the company picked in the browser, waiting on a timeframe.
+	// packCounts is how much of each of its timeframes is already stored, so the
+	// timeframe picker can say which are a keypress away and which need a pull.
+	packChoice store.Company
+	packCounts map[leetcode.Timeframe]int
+
 	// Auth.
 	authInput textinput.Model
 	authErr   string
@@ -129,22 +153,28 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 	// the screen or captured in a screen recording.
 	authIn.EchoMode = textinput.EchoPassword
 
+	companyIn := textinput.New()
+	companyIn.Prompt = ""
+	companyIn.Placeholder = "type to narrow"
+	companyIn.CharLimit = 60
+
 	lang, ok := runner.Lookup(cfg.DefaultLang)
 	if !ok {
 		lang, _ = runner.Lookup("python3")
 	}
 
 	return Model{
-		engine:    runner.NewLocal(),
-		lang:      lang,
-		cfg:       cfg,
-		store:     st,
-		client:    cl,
-		sync:      sy,
-		keys:      cfg.Actions(),
-		focus:     paneBoard,
-		search:    search,
-		authInput: authIn,
+		engine:        runner.NewLocal(),
+		lang:          lang,
+		cfg:           cfg,
+		store:         st,
+		client:        cl,
+		sync:          sy,
+		keys:          cfg.Actions(),
+		focus:         paneBoard,
+		search:        search,
+		authInput:     authIn,
+		companyFilter: companyIn,
 	}
 }
 

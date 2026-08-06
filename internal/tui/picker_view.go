@@ -15,8 +15,13 @@ func (m Model) viewPicker() string {
 	inner := minInt(maxInt(m.width-20, 36), 52)
 
 	title, right := "language", m.lang.Display
-	if m.picking == pickEditor {
+	switch m.picking {
+	case pickEditor:
 		title, right = "editor", "installed here"
+	case pickTimeframe:
+		// The company is named here rather than in every row: it is the same for all
+		// five, and repeating it would push the counts off the edge.
+		title, right = "asked by "+m.packChoice.Name, "how recently"
 	}
 
 	const visible = 12

@@ -156,6 +156,18 @@ func blankRows(widths []int, n int) string {
 // rows survived. The count on screen is never left unexplained.
 func (m Model) boardSummary() string {
 	var parts []string
+	// The pack comes first: it is the strongest claim about what the list is, and
+	// "Meta ┊ last 3 months" explains an ordering that would otherwise look arbitrary.
+	if m.pack.Active() {
+		parts = append(parts, m.pack.Label())
+	}
+	if m.filter.PaidOnly != nil {
+		if *m.filter.PaidOnly {
+			parts = append(parts, "premium")
+		} else {
+			parts = append(parts, "free")
+		}
+	}
 	if len(m.filter.Difficulty) > 0 {
 		parts = append(parts, strings.ToLower(strings.Join(m.filter.Difficulty, "+")))
 	}
