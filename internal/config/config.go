@@ -18,6 +18,25 @@ type Config struct {
 	// editor open in another pane drives the loop without touching leetui (D-012).
 	WatchSolution bool `toml:"watch_solution"`
 
+	// EditorPane opens the editor in a NEW PANE when leetui is running inside tmux,
+	// zellij, WezTerm, or Kitty, instead of taking over the terminal.
+	//
+	// This is what lets you read the statement while writing the solution: leetui stays
+	// on screen, and the watcher keeps re-running on save. Off falls back to handing the
+	// terminal over, which is also what happens outside a multiplexer.
+	EditorPane bool `toml:"editor_pane"`
+
+	// RunAfterEdit runs the tests once the editor exits, when the file actually changed.
+	//
+	// Only matters on the path where the editor took over the terminal — with a pane or
+	// a GUI window the watcher has already been running them on every save.
+	RunAfterEdit bool `toml:"run_after_edit"`
+
+	// OpenStatement opens README.md alongside the solution, so the problem is readable
+	// from inside an editor that has taken over the terminal. Editors with no known
+	// split flag ignore it rather than opening the file stacked.
+	OpenStatement bool `toml:"open_statement"`
+
 	UI   UI   `toml:"ui"`
 	Sync Sync `toml:"sync"`
 	Git  Git  `toml:"git"`

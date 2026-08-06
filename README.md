@@ -136,6 +136,14 @@ public:
 vscode-leetcode's `@lc code=start` markers are read too, so a workspace built with that
 extension works here unchanged.
 
+**Reading and writing at the same time.** Inside tmux (or zellij, WezTerm, Kitty), `e`
+opens your editor in a pane *beside* leetui rather than taking the terminal — the
+statement stays on screen and saving re-runs the tests, so you never switch back. A GUI
+editor gets the same deal via its own window. With a terminal editor and nowhere to put a
+pane, leetui hands over the terminal, opens `README.md` alongside the solution, and runs
+the tests when you quit. Turn any of it off with `editor_pane`, `open_statement`, and
+`run_after_edit`.
+
 A submission queue is a departure board — work is submitted, sits pending, gets judged,
 resolves. So verdicts **flip** into place rather than appearing. That flip is the app's
 entire motion budget and its only loading state; there are no spinners in leetui.
@@ -159,7 +167,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Solution files carry editor scaffolding** — imports and driver types above `@leetui code=start`; only the marked region is submitted
 - **Disk layout is problem-first** — `0146-lru-cache/{solution.go, README.md, notes.md}`
 - **Git** — auto-commit on Accepted, push only on an explicit keypress
-- **Editing** — delegate to `$EDITOR`, plus a file watcher for external editors
+- **Editing** — delegate to `$EDITOR`, in a pane beside leetui where the terminal allows it; a file watcher re-runs on save
 - **Keys** — vim-first, arrows always work, everything remappable
 
 ---

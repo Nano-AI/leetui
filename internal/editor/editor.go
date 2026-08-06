@@ -30,8 +30,44 @@ type Editor struct {
 }
 
 // Launch returns the command and full argument list for editing path.
-func (e Editor) Launch(path string) (string, []string) {
-	return e.Command, append(append([]string{}, e.Args...), path)
+//
+// Extra paths are opened alongside the first. Terminal editors split their window for
+// them, which is how the problem statement ends up next to the solution.
+func (e Editor) Launch(path string, also ...string) (string, []string) {
+	args := append(append([]string{}, e.Args...), path)
+	return e.Command, append(args, also...)
+}
+
+// LaunchDetached is Launch WITHOUT the blocking flag.
+//
+// The --wait flags exist so tea.ExecProcess does not resume the TUI over a file nobody
+// has typed in. When leetui is staying on screen instead — in another pane, or beside a
+// GUI window — blocking is exactly wrong: it would freeze the statement and the file
+// watcher for as long as the editor is open.
+func (e Editor) LaunchDetached(path string, also ...string) (string, []string) {
+	args := make([]string, 0, len(e.Args)+1+len(also))
+	for _, a := range e.Args {
+		if a == "--wait" || a == "-w" {
+			continue
+		}
+		args = append(args, a)
+	}
+	return e.Command, append(append(args, path), also...)
+}
+
+// SplitArgs returns the flags that make a terminal editor open its files side by side.
+//
+// Only editors whose split flag is known get one. Passing a second file to an editor that
+// does not understand the flag would open it stacked or, worse, not at all.
+func (e Editor) SplitArgs() []string {
+	switch base := filepath.Base(e.Command); base {
+	case "nvim", "vim", "vi", "mvim", "gvim":
+		return []string{"-O"} // vertical splits, one per file
+	case "hx":
+		return []string{"--vsplit"}
+	default:
+		return nil
+	}
 }
 
 // candidate is a known editor and where to look for it.

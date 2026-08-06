@@ -13,6 +13,9 @@ func Default() Config {
 		Workspace:     filepath.Join(home, "leetcode"),
 		DefaultLang:   "python3",
 		WatchSolution: true,
+		EditorPane:    true,
+		RunAfterEdit:  true,
+		OpenStatement: true,
 		UI: UI{
 			Mouse: true,
 		},

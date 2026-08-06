@@ -254,6 +254,32 @@ Short, specific, dev syntax. **The user is always the primary author.** Never ad
 
 **Note.** `$EDITOR` and `$VISUAL` are both unset on this machine — the fallback chain matters, and first-run setup should offer to set one.
 
+### D-012a — The editor goes beside leetui, not on top of it
+
+Settled 2026-08-06, after the first real solving session raised two complaints: *"how am I supposed to read the problem and work on it at the same time?"* and *"running test cases after exiting a problem is annoying."* Both are the same cause. `tea.ExecProcess` suspends leetui completely, so the statement disappears exactly when you start writing code against it, and the file watcher — which exists precisely to re-run on save — is dead for the whole editing session.
+
+**Decision.** Three routes, best first, chosen by what the terminal can actually do:
+
+| route | when | leetui |
+|---|---|---|
+| **pane** | inside tmux / zellij / WezTerm / Kitty | stays up beside the editor |
+| **detached** | a GUI editor | stays up; the editor has its own window |
+| **takeover** | a terminal editor with nowhere to go | suspended, as before |
+
+Only the last one suspends anything, and it is the only one that has to.
+
+**Detection is by environment variable**, not by looking for the binary. `$TMUX` is set only *inside* a session, so its presence is proof; `tmux` being on `PATH` says nothing about whether this terminal is in one.
+
+**GUI editors lose `--wait`.** Those flags exist so `ExecProcess` does not resume the TUI over a file nobody has typed in. When leetui is staying on screen, blocking is exactly wrong — it would freeze the statement and the watcher for as long as the window is open.
+
+**In takeover, `README.md` opens alongside** so the problem is still readable, but only for editors whose split flag is known (`nvim -O`, `hx --vsplit`). A second file opened *stacked* is a buffer in the way, not a statement to read, so editors without a known flag get one file.
+
+**And the tests run when the editor exits**, if the file changed. That path is the only one where the watcher saw nothing.
+
+**One save must run the tests once.** The watcher and the after-edit run share one timestamp map, so whichever notices a save first advances it and the other finds nothing to do. Two copies of that bookkeeping would run everything twice.
+
+Config: `editor_pane`, `run_after_edit`, `open_statement` — all default true, all independently switchable.
+
 ---
 
 ## D-013 — Keymap: vim-first, arrows always work, fully remappable

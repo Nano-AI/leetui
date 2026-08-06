@@ -114,9 +114,8 @@ func (m Model) editCmd(d *store.Detail, lang runner.Lang) tea.Cmd {
 			p := runner.Problem{Slug: d.Slug, Title: d.Title, MetaData: d.MetaData}
 			_ = engine.Generate(ctx, p, lang, dir)
 		}
-		ed := resolveEditor(cfg.Editor)
-		cmd, args := ed.Launch(file)
-		return editReadyMsg{name: ed.Name, argv: append([]string{cmd}, args...)}
+		plan := planEdit(cfg, resolveEditor(cfg.Editor), dir, file)
+		return editReadyMsg{plan: plan}
 	}
 }
 

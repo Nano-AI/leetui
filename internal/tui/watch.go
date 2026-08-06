@@ -4,8 +4,6 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-
-	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
 // Watching the solution file.
@@ -36,25 +34,10 @@ func (m Model) handleWatchTick() (tea.Model, tea.Cmd) {
 		return m, watchCmd()
 	}
 
-	ws, err := workspace.New(m.cfg.Workspace)
-	if err != nil {
-		return m, watchCmd()
-	}
-
-	mod, err := ws.ModTime(m.detail.NumericID, m.detail.Slug, m.lang.Filename())
-	if err != nil || mod.IsZero() {
-		return m, watchCmd()
-	}
-
-	key := m.detail.Slug + "/" + m.lang.Slug
-	previous, seen := m.watched[key]
-	if m.watched == nil {
-		m.watched = map[string]time.Time{}
-	}
-	m.watched[key] = mod
-
-	// First sighting: remember it, do not act on it.
-	if !seen || !mod.After(previous) {
+	// Shared with the after-edit run, deliberately: both read and advance the same
+	// timestamp, so whichever notices a save first claims it and the other sees nothing
+	// to do. Two copies of this bookkeeping would run the tests twice for one save.
+	if !m.noteSolutionChanged() {
 		return m, watchCmd()
 	}
 

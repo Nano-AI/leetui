@@ -74,12 +74,10 @@ type (
 	}
 
 	// editReadyMsg means the workspace is laid out and the editor can be launched.
-	editReadyMsg struct {
-		name string   // for messages
-		argv []string // command plus args, already including the file
-	}
+	// The plan carries where it opens — a pane, its own window, or this terminal.
+	editReadyMsg struct{ plan editPlan }
 
-	// editDoneMsg arrives when the editor exits.
+	// editDoneMsg arrives when an editor that took over the terminal exits.
 	editDoneMsg struct{ err error }
 
 	// runFinishedMsg carries a local run's result.

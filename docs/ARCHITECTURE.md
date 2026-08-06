@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 159 files, ~16,738 lines, mean 105, max 203.
+Current: 164 files, ~17,353 lines, mean 105, max 203.
 
 ## Package map
 
@@ -37,6 +37,7 @@ internal/
               scaffold.go the two-region solution file · extract.go what gets submitted
               testcase.go example inputs + scraped answers · overrides.go comparators
   editor/     editor.go detection and launch arguments (D-012)
+              pane.go tmux/zellij/WezTerm/Kitty splits (D-012a)
   workspace/  problem-folder layout on disk (D-010), never-overwrite writes
   vcs/        (Phase 4) git shell-out: status, commit-on-accepted, push
   tui/

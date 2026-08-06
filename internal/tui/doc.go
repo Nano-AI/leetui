@@ -22,6 +22,8 @@
 //	panes.go        pane and mode enums, layout breakpoints
 //	solve.go        edit, run, submit; solve_run.go and solve_actions.go
 //	solve_files.go  the two earned exceptions to never-overwrite (D-010a, D-014)
+//	solve_edit.go   where the editor opens — pane, own window, or this terminal
+//	                (D-012a); update_edit.go launches it
 //	watch.go        the solution-file poll
 //	picker.go       the selection lists — language, editor, company timeframe
 //	company.go      company packs (D-006); company_keys.go drives the browser

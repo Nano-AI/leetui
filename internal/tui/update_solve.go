@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"os/exec"
-
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -14,16 +12,7 @@ func (m Model) handleSolveMsg(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case editReadyMsg:
-		// Hand the terminal to the editor and take it back cleanly. Bubbletea restores
-		// the alt screen and mouse mode around the child process; leaving either on
-		// while a full-screen editor runs corrupts both.
-		//
-		// Arguments go as a slice, never a shell string — the path is built from a
-		// LeetCode slug.
-		cmd := exec.Command(msg.argv[0], msg.argv[1:]...)
-		return m, tea.ExecProcess(cmd, func(err error) tea.Msg {
-			return editDoneMsg{err: err}
-		})
+		return m.launchEditor(msg.plan)
 
 	case editDoneMsg:
 		if msg.err != nil {
@@ -31,7 +20,16 @@ func (m Model) handleSolveMsg(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// The file may have changed, so any previous run result is now stale.
 		m.runResult, m.runSlug = nil, ""
-		return m, nil
+
+		// Run the tests now rather than making the user press r.
+		//
+		// This path is the one where leetui was suspended, so the watcher saw nothing
+		// while the editing happened. Recording the new timestamp first is what stops
+		// the next watch tick firing a second, identical run.
+		if !m.cfg.RunAfterEdit || !m.noteSolutionChanged() {
+			return m, nil
+		}
+		return m.startRun()
 
 	case runFinishedMsg:
 		m.running = false

@@ -37,6 +37,8 @@ func helpGroups() []helpGroup {
 			{"s", "submit it to the judge"},
 			{"l", "choose the language"},
 			{"E", "choose the editor"},
+			{"", "inside tmux, e opens a pane beside leetui"},
+			{"", "saving re-runs the tests on its own"},
 		}},
 		{"premium", [][2]string{
 			{"c", "browse company lists, then a timeframe"},
