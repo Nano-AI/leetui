@@ -127,6 +127,10 @@ concession to convention here; the metaphor requires them.
   survives for anything that genuinely wants a bar rather than a number.
 - **Focused pane** is marked by its bezel turning `amber`. Not by a background shift, not
   by a border-weight change.
+- **Every column carries a header.** The board has now shipped an unlabelled glyph twice
+  — the acceptance sparkline (D-020) and the todo dot (D-022) — and both times the first
+  question asked of it was what the mark meant. A glyph is only allowed to be a glyph when
+  something else names it. `TestEveryColumnIsLabelled` enforces this.
 - **Rows are banded.** `#15171D` on every other row, `#2A2D36` under the cursor. Added
   2026-08-06 (D-021) because the vertical rules separate the columns but do nothing to
   carry the eye ACROSS a row — tracing a title to its state column meant counting. The

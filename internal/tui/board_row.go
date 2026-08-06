@@ -46,16 +46,21 @@ func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols
 	}
 }
 
-// todoMark is the one-cell column showing whether a problem is on the user's list.
+// todoMark shows whether a problem is on the user's list.
 //
-// A filled dot, in amber because it is the user's own annotation rather than LeetCode's
-// data. One cell wide: it is a yes-or-no, and anything larger would compete with the
-// title for the eye.
+// A dot rather than a word, because unlike SOLVED or TRIED this is a yes-or-no and a
+// column of "TODO TODO TODO" would compete with the titles for the eye.
+//
+// A glyph is only allowed to be a glyph when something else names it, and the FIRST thing
+// asked about this column was what the dot meant — because its header was blank. The
+// header is now "TODO"; the dot sits under it and needs no legend of its own. Do not
+// remove that header. Amber because it is the user's own annotation, not LeetCode's data.
 func todoMark(on bool) string {
 	if !on {
-		return " "
+		return ""
 	}
-	return lipgloss.NewStyle().Foreground(theme.Amber).Render("●")
+	// Indented one cell so it falls under the middle of the four-character header.
+	return " " + lipgloss.NewStyle().Foreground(theme.Amber).Render("●")
 }
 
 // rowState is the progress column.

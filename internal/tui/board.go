@@ -35,7 +35,7 @@ type boardCols struct {
 
 const (
 	colID     = theme.IDWidth
-	colTodo   = 1
+	colTodo   = 4
 	colDiff   = 3
 	colAC     = 4
 	colStatus = 7
@@ -104,7 +104,7 @@ func (m Model) viewBoard(w, h int) string {
 
 	head := []string{
 		cell(theme.Utility.Render(theme.UtilityText("#")), c.id),
-		cell(" ", c.todo),
+		cell(theme.Utility.Render(theme.UtilityText("todo")), c.todo),
 		cell(theme.Utility.Render(theme.UtilityText("problem")), c.title),
 		cell(theme.Utility.Render(theme.UtilityText("dif")), c.diff),
 		cell(theme.Utility.Render(theme.UtilityText("acc")), c.ac),

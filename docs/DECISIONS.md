@@ -469,6 +469,8 @@ Settled 2026-08-06. "A list of problems I want to do", plus a CLI so an agent ca
 
 **`--json` is a first-class output**, always an array and never `null`, so a loop over it needs no special case. `docs/AGENTS.md` documents the shape as stable.
 
+**The dot has a header.** It shipped under a blank one, and the first question asked was what it meant — the same failure as the acceptance sparkline one commit earlier. A glyph is only allowed to be a glyph when something else names it; the column header is `TODO` and `TestEveryColumnIsLabelled` now fails the build if any column ships without one.
+
 **In the app:** `m` marks the row under the cursor, `M` filters to the list. One key for both directions of the mark, because marking happens while scanning and remembering which of two keys applies would cost more thought than the action is worth. The mark is written to memory first and to SQLite in the background, so it appears on the same frame as the keypress.
 
 ### D-022a — `LEETUI_CONFIG_DIR`, and why it exists

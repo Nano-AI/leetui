@@ -157,3 +157,44 @@ func TestPremiumStatementIsNotGated(t *testing.T) {
 		t.Error("a Premium account is still shown the gate")
 	}
 }
+
+// TestEveryColumnIsLabelled guards the mistake this board has now made twice: a glyph
+// shipped with no header, so the first thing anyone asked was what it meant. First the
+// acceptance sparkline (D-020), then the todo dot (D-022).
+//
+// A glyph is only allowed to be a glyph when something else names it.
+func TestEveryColumnIsLabelled(t *testing.T) {
+	m := boot(t, true, 120, 20)
+
+	var header string
+	for _, line := range strings.Split(m.viewBoard(120, m.boardHeight()), "\n") {
+		// Both the frame's title bezel and the column header contain "PROBLEM"; only the
+		// column header also carries DIF.
+		plain := stripANSI(line)
+		if strings.Contains(plain, "PROBLEM") && strings.Contains(plain, "DIF") {
+			header = plain
+			break
+		}
+	}
+	if header == "" {
+		t.Fatal("no column header row found")
+	}
+
+	// Split on the vertical rules; every cell between them must carry a word.
+	cells := strings.Split(strings.Trim(header, "│ "), "│")
+	if len(cells) < 6 {
+		t.Fatalf("found %d columns, expected at least 6: %q", len(cells), header)
+	}
+	for i, c := range cells {
+		if strings.TrimSpace(c) == "" {
+			t.Errorf("column %d has a blank header — whatever it holds needs a name: %q",
+				i, header)
+		}
+	}
+
+	for _, want := range []string{"TODO", "PROBLEM", "DIF", "ACC", "STATE"} {
+		if !strings.Contains(header, want) {
+			t.Errorf("header is missing %q: %q", want, header)
+		}
+	}
+}
