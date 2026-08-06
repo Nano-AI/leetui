@@ -85,12 +85,20 @@ func (l *Local) runPython(ctx context.Context, dir string, cases []TestCase, rul
 }
 
 func (l *Local) runPythonCase(ctx context.Context, dir, entry string, tc TestCase, rule Rule) CaseResult {
+	return l.runBinaryCase(ctx, dir, "python3", []string{entry}, tc, rule)
+}
+
+// runBinaryCase executes one case against an already-built program.
+//
+// Shared by every compiled and interpreted language: the only difference between them is
+// what got built, not how a case is fed in and judged.
+func (l *Local) runBinaryCase(ctx context.Context, dir, bin string, args []string, tc TestCase, rule Rule) CaseResult {
 	caseCtx, cancel := context.WithTimeout(ctx, l.timeout())
 	defer cancel()
 
 	// Arguments are passed as a slice, never interpolated into a shell string: the
 	// problem slug and directory come from LeetCode and are not ours to trust.
-	cmd := exec.CommandContext(caseCtx, "python3", entry)
+	cmd := exec.CommandContext(caseCtx, bin, args...)
 	cmd.Dir = dir
 	cmd.Stdin = strings.NewReader(tc.Input + "\n")
 

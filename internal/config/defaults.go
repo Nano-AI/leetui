@@ -10,8 +10,9 @@ import (
 func Default() Config {
 	home, _ := os.UserHomeDir()
 	return Config{
-		Workspace:   filepath.Join(home, "leetcode"),
-		DefaultLang: "python3",
+		Workspace:     filepath.Join(home, "leetcode"),
+		DefaultLang:   "python3",
+		WatchSolution: true,
 		UI: UI{
 			Mouse: true,
 		},

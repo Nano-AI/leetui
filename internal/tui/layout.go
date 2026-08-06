@@ -116,8 +116,19 @@ func (m Model) viewBody() string {
 			m.viewBoard(m.width, boardH),
 			lipgloss.JoinHorizontal(lipgloss.Top,
 				m.viewDetail(detailW, lowerH),
-				m.viewQueue(queueW, lowerH),
+				m.viewSidePane(queueW, lowerH),
 			),
 		)
 	}
+}
+
+// viewSidePane shows a fresh local run in place of the submission queue.
+//
+// The run is what the user just asked for and is looking at; the queue is history. When
+// the result belongs to another problem it is not shown at all — see hasResult.
+func (m Model) viewSidePane(w, h int) string {
+	if m.hasResult() {
+		return m.viewResult(w, h)
+	}
+	return m.viewQueue(w, h)
 }

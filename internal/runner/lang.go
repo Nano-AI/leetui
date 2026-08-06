@@ -30,9 +30,10 @@ type Lang struct {
 var langs = []Lang{
 	{Slug: "python3", Display: "Python3", Ext: ".py", Local: true},
 
+	{Slug: "golang", Display: "Go", Ext: ".go", Local: true},
+
 	// Drivers not written yet — D-004 lists these as in scope, and they run on the
 	// judge until drivers/ has them.
-	{Slug: "golang", Display: "Go", Ext: ".go"},
 	{Slug: "cpp", Display: "C++", Ext: ".cpp"},
 	{Slug: "rust", Display: "Rust", Ext: ".rs"},
 
@@ -106,3 +107,20 @@ func Available(slugs []string) []Lang {
 // One file per language per problem folder, so a problem solved twice in two languages
 // keeps both (D-010).
 func (l Lang) Filename() string { return "solution" + l.Ext }
+
+// Preamble is prepended to a starter snippet when the language needs something
+// LeetCode's snippet omits.
+//
+// Go snippets are a bare function with no package clause, because LeetCode wraps them
+// server-side. Locally the file has to compile on its own.
+func (l Lang) Preamble() string {
+	if l.Slug == "golang" {
+		return "package main\n\n"
+	}
+	return ""
+}
+
+// SolutionFile returns the starter file's full contents for this language.
+func (l Lang) SolutionFile(snippet string) string {
+	return l.Preamble() + snippet
+}

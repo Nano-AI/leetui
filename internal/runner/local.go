@@ -45,6 +45,7 @@ func NewLocal() *Local { return &Local{Timeout: DefaultTimeout} }
 // but no driver would report "needs rustc" when the real answer is "no driver yet".
 var toolchains = map[string]string{
 	"python3": "python3",
+	"golang":  "go",
 }
 
 // detect probes PATH once, so a run does not pay for it per case.
@@ -103,6 +104,8 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 	switch lang.Slug {
 	case "python3":
 		return l.generatePython(p, meta, dir)
+	case "golang":
+		return l.generateGo(p, meta, dir)
 	default:
 		return fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}
@@ -124,6 +127,8 @@ func (l *Local) Run(ctx context.Context, dir string, lang Lang, cases []TestCase
 	switch lang.Slug {
 	case "python3":
 		return l.runPython(ctx, dir, cases, rule)
+	case "golang":
+		return l.runGo(ctx, dir, cases, rule)
 	default:
 		return Result{}, fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}

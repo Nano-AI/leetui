@@ -73,6 +73,9 @@ type Model struct {
 	runResult *runner.Result
 	runSlug   string
 	running   bool
+	// watched remembers each solution file's last modification time, keyed by
+	// slug/lang, so a save can be told apart from a first sighting.
+	watched map[string]time.Time
 
 	// Submission queue.
 	queue      []queueItem
@@ -149,6 +152,7 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		secondTick(),
+		watchCmd(),
 		m.loadRows(),
 		m.loadAccount(),
 	)

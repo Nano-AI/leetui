@@ -14,6 +14,10 @@ type Config struct {
 	// Editor overrides $EDITOR. Empty means use the environment (D-012).
 	Editor string `toml:"editor"`
 
+	// WatchSolution re-runs the tests when the solution file changes on disk, so an
+	// editor open in another pane drives the loop without touching leetui (D-012).
+	WatchSolution bool `toml:"watch_solution"`
+
 	UI   UI   `toml:"ui"`
 	Sync Sync `toml:"sync"`
 	Git  Git  `toml:"git"`

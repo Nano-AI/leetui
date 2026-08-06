@@ -50,7 +50,7 @@ func (m Model) prepare(ctx context.Context, d *store.Detail, lang runner.Lang) (
 		return dir, "", fmt.Errorf("%s does not offer %s", d.Title, lang.Display)
 	}
 
-	file, _, err = ws.WriteSolution(d.NumericID, d.Slug, lang.Filename(), snippet)
+	file, _, err = ws.WriteSolution(d.NumericID, d.Slug, lang.Filename(), lang.SolutionFile(snippet))
 	if err != nil {
 		return dir, "", err
 	}

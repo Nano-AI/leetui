@@ -115,6 +115,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case editReadyMsg, editDoneMsg, runFinishedMsg, judgeMsg:
 		return m.handleSolveMsg(msg)
 
+	case watchTick:
+		return m.handleWatchTick()
+
 	case syncProgressMsg:
 		return m.handleSyncProgress(syncer.Progress(msg))
 
