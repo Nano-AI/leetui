@@ -59,9 +59,37 @@ Settled: 2026-08-06.
 
 ---
 
-## D-005 — leetgo is a pinned dependency behind our own adapter interface
+## D-005 — REVISED 2026-08-06: vendor the drivers, do not import leetgo
 
-**Decision.** `go get github.com/j178/leetgo` at a **pinned tag**. Every call crosses our own `runner.Runner` / `runner.Generator` interfaces. No leetgo type appears outside `internal/runner/leetgo*.go`.
+> **This decision was reversed after measuring it.** The original text is kept below,
+> because the interface it produced is still the right shape and still in use.
+>
+> **What changed.** Importing `github.com/j178/leetgo/lang` compiles **144 packages** and
+> takes the module graph from 82 to 168. Among them: a full JavaScript interpreter
+> (`dop251/goja`), a second SQLite driver, `fsnotify`, `viper`/`afero`/`cast`, and
+> interactive survey prompts. None of that serves local code execution — it is a CLI
+> application's dependency tree, arriving because `lang/` reaches into the rest of the
+> app.
+>
+> **New decision.** Take **D-005's own option 4**: vendor the per-language driver
+> runtimes into `internal/runner/`, with MIT attribution, and write our own execution
+> layer. leetgo's Python runtime is 164 lines; the value was always the driver text and
+> the comparator knowledge, never the Go code wrapped around it.
+>
+> **Kept.** The `runner.Runner` / `runner.Generator` interfaces stay exactly as they
+> are. They were designed as a firewall against leetgo's unstable API; they now serve as
+> the seam between the TUI and however a language happens to execute. Writing them first
+> is what made this reversal a substitution instead of a rewrite.
+>
+> **Cost accepted.** We own the four drivers outright: upstream fixes must be hand-ported,
+> and comparator edge cases (in-place mutation, unordered results, float tolerance,
+> design problems) are ours to discover. That was already true — leetgo does not encode
+> them either, which is why D-003 promises a one-key remote verify on any local failure.
+>
+> **Attribution.** Vendored driver sources carry a header naming leetgo and its MIT
+> licence. `docs/` and the README credit it.
+
+**Original decision (superseded).** `go get github.com/j178/leetgo` at a **pinned tag**. Every call crosses our own `runner.Runner` / `runner.Generator` interfaces. No leetgo type appears outside `internal/runner/leetgo*.go`.
 
 **Why.** leetgo is MIT-licensed and has no `internal/` directory, so `lang/`, `leetcode/`, and `testutils/` are legitimately importable. But it is an **application, not a library** — its exported API carries no stability guarantee and will break under us.
 
