@@ -156,3 +156,53 @@ def run(solution_cls, method: str, param_types: List[str],
         return
 
     print(serialize(result))
+
+
+def run_design(cls, param_types_by_method) -> None:
+    """Run a design problem: a class, then a sequence of operations.
+
+    LeetCode sends these as two lines. The first names the operations, starting
+    with the constructor; the second gives each one's arguments:
+
+        ["LRUCache","put","put","get"]
+        [[2],[1,1],[2,2],[1]]
+
+    Output is one list holding each call's return value, with null for the
+    constructor and for methods that return nothing:
+
+        [null,null,null,1]
+
+    param_types_by_method maps a method name to its parameter types, so
+    arguments are deserialized the same way as for a plain function — a
+    TreeNode argument to a method still has to become a TreeNode.
+    """
+    lines = sys.stdin.read().splitlines()
+    if len(lines) < 2:
+        raise SystemExit("design problems need two input lines, got %d" % len(lines))
+
+    ops = json.loads(lines[0])
+    raw_args = json.loads(lines[1])
+    if len(ops) != len(raw_args):
+        raise SystemExit("got %d operations but %d argument lists" % (len(ops), len(raw_args)))
+
+    results: List[Any] = []
+    instance = None
+
+    for i, op in enumerate(ops):
+        types = param_types_by_method.get(op, [])
+        args = []
+        for j, raw in enumerate(raw_args[i]):
+            ty = types[j] if j < len(types) else None
+            # Re-encode: deserialize works on the textual form, and these arrived
+            # already parsed as part of the outer array.
+            args.append(deserialize(ty, json.dumps(raw)) if ty else raw)
+
+        if i == 0:
+            # The first operation is always the constructor.
+            instance = cls(*args)
+            results.append(None)
+            continue
+
+        results.append(getattr(instance, op)(*args))
+
+    print("[" + ",".join(serialize(r) for r in results) + "]")

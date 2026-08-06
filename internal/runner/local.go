@@ -43,6 +43,11 @@ func NewLocal() *Local { return &Local{Timeout: DefaultTimeout} }
 //
 // Only languages with a vendored driver belong here. A language listed with a toolchain
 // but no driver would report "needs rustc" when the real answer is "no driver yet".
+// designSupported lists languages whose driver handles class-with-operations problems.
+var designSupported = map[string]bool{
+	"python3": true,
+}
+
 var toolchains = map[string]string{
 	"python3": "python3",
 	"golang":  "go",
@@ -95,10 +100,12 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 	if err != nil {
 		return err
 	}
-	// Design problems need a driver shape this does not implement yet. Declining is
-	// honest; guessing would produce confident wrong answers.
-	if meta.IsDesign() {
-		return fmt.Errorf("%s is a design problem: %w", p.Slug, ErrLangNotLocal)
+	// Design problems need a different driver shape — a class plus an operation
+	// sequence. Languages whose driver does not implement it decline rather than guess,
+	// because guessing produces confidently wrong answers.
+	if meta.IsDesign() && !designSupported[lang.Slug] {
+		return fmt.Errorf("%s is a design problem and %s has no driver for those: %w",
+			p.Slug, lang.Display, ErrLangNotLocal)
 	}
 
 	switch lang.Slug {

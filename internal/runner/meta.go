@@ -36,6 +36,40 @@ type Param struct {
 	Type string `json:"type"`
 }
 
+// Method is one operation on a design problem's class.
+type Method struct {
+	Name   string  `json:"name"`
+	Params []Param `json:"params"`
+	Return struct {
+		Type string `json:"type"`
+	} `json:"return"`
+}
+
+// DesignMethods returns the class's operations, including the constructor under the
+// class's own name — which is how LeetCode names it in the operation list.
+func (m Meta) DesignMethods() ([]Method, error) {
+	if !m.IsDesign() {
+		return nil, nil
+	}
+
+	var methods []Method
+	if len(m.Methods) > 0 {
+		if err := json.Unmarshal(m.Methods, &methods); err != nil {
+			return nil, fmt.Errorf("parse design methods: %w", err)
+		}
+	}
+
+	if len(m.Constructor) > 0 {
+		var ctor Method
+		if err := json.Unmarshal(m.Constructor, &ctor); err != nil {
+			return nil, fmt.Errorf("parse constructor: %w", err)
+		}
+		ctor.Name = m.Classname
+		methods = append([]Method{ctor}, methods...)
+	}
+	return methods, nil
+}
+
 // ParseMeta decodes a metaData string.
 func ParseMeta(raw string) (Meta, error) {
 	var m Meta
