@@ -62,11 +62,15 @@ Not yet done in this phase:
 - Delta sync (a re-sync currently walks the whole list)
 - Tag and company filters exist in the store but have no UI yet
 
-## Phase 2 — Solve loop
+## Phase 2 — Solve loop ← **current**
 
 - [ ] `workspace` — problem-first folders (D-010), file watcher
 - [ ] `runner` — `Runner` interface + leetgo adapter (Go/Python/C++/Rust)
 - [ ] `$EDITOR` delegation via `tea.ExecProcess`
+- [ ] **Language picker** — choose the solution language per problem, defaulting to
+      `default_lang`. A selection list, not free text: only languages LeetCode offers
+      for that problem are valid, and the snippet table already names them. Mark which
+      ones run locally (D-004) so the choice is informed.
 - [ ] Local run + result diff
 - [ ] Submit to judge, poll, **the flip**
 - [ ] Queue view
@@ -78,7 +82,12 @@ Not yet done in this phase:
 - [ ] Premium detection + graceful lock states
 - [ ] Editorials — HTML → markdown → Glamour, LaTeX approximation
 - [ ] Company sync (invert company → problem, throttled, resumable)
-- [ ] Company packs view
+- [ ] **Company packs** — pick "Google" and work through Google's list, the way the
+      website's premium loop works. The schema is already in place
+      (`companies`, `problem_companies` with frequency and timeframe) and the board
+      already has an `ASKED BY` column reading from it; what is missing is the sync
+      job and a browse-by-company view. Timeframe buckets (6mo / 1yr / 2yr / all)
+      come along with the inverted sync for free.
 - [ ] Premium-only problems and lists
 - [ ] Timer / stopwatch in the rail
 
@@ -93,7 +102,11 @@ Not yet done in this phase:
 ## Phase 5 — Polish
 
 - [ ] Settings view (all config editable in-app)
-- [ ] `:` command palette
+- [ ] **`:` command palette that sets config** — `:set default_lang go`,
+      `:set workspace ~/code/leetcode`, `:sync companies`. One typed surface over the
+      same action table the keymap uses (D-013), so every action is reachable by name
+      and discoverable without memorising a key. Writes through to `config.toml`, so
+      what you set in the palette survives the session.
 - [ ] Keymap remapping UI
 - [ ] `NO_COLOR`, `--ascii`, `--no-motion`, 256-color fallback
 - [ ] 80×24 responsive collapse
@@ -115,6 +128,7 @@ Verified 2026-08-06 on this machine:
 | clang++ | 21.0.0 |
 | node | 25.9.0 |
 | deno | 2.7.14 |
-| rustc | **not checked — needed for D-004 local Rust** |
+| rustc | **not installed** — D-004 lists Rust as free from leetgo, but local Rust runs need the toolchain. Go/Python/C++ are the working set here until `rustup` is installed. |
 | java | pre-9 (rejects `--version`) — remote-only anyway per D-004 |
-| `$EDITOR` | **unset** — fallback chain matters (D-012) |
+| nvim | present at /opt/homebrew/bin/nvim |
+| `$EDITOR` | unset in the shell. `~/.config/leetui/config.toml` sets `editor = "nvim"`, which takes precedence, so leetui is covered. Setting `EDITOR` in the shell profile is still worth doing for everything else. |
