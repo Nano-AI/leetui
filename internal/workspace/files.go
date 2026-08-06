@@ -105,6 +105,23 @@ func (w Workspace) WriteTestcases(id int, slug, content string) (string, error) 
 	return path, createIfMissing(path, content)
 }
 
+// ReplaceTestcases overwrites testcases.txt.
+//
+// This is the ONE exception to the never-overwrite rule, and callers must earn it. It
+// exists for a single case: a file leetui itself wrote with no expected answers, which
+// carries nothing a user could have typed. The caller checks that before calling — see
+// the repair in the TUI's prepare. Anything else must go through WriteTestcases.
+func (w Workspace) ReplaceTestcases(id int, slug, content string) (string, error) {
+	path := w.Path(id, slug, TestcasesFile)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return "", fmt.Errorf("create problem folder: %w", err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		return path, fmt.Errorf("write %s: %w", TestcasesFile, err)
+	}
+	return path, nil
+}
+
 // ReadFile reads a file from a problem's folder.
 func (w Workspace) ReadFile(id int, slug, name string) (string, error) {
 	b, err := os.ReadFile(w.Path(id, slug, name))

@@ -81,6 +81,19 @@ func scrapeOutputs(markdown string) []string {
 	return out
 }
 
+// HasExpected reports whether any case carries an answer to check against.
+//
+// A set with none can still be run — it prints output instead of judging it — but it
+// cannot pass or fail, which is worth telling the caller apart from an empty set.
+func HasExpected(cases []TestCase) bool {
+	for _, c := range cases {
+		if strings.TrimSpace(c.Expected) != "" {
+			return true
+		}
+	}
+	return false
+}
+
 // FormatCases renders cases back into testcases.txt.
 //
 // The format is deliberately plain so it can be hand-edited: input lines, then a line

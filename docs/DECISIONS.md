@@ -212,6 +212,16 @@ Zero-padded 4-digit ID + slug.
 
 **Rule.** `notes.md` is user-owned. Sync may create it, must never overwrite it.
 
+**Rule.** `README.md` is derived and IS regenerated. It must be written from **markdown**, never from the pane's rendered form — Glamour's output is wrapped to a pane width and full of ANSI escape codes, which are garbage in a file people open in an editor. `prepare` converts the statement itself rather than reusing `detailMD`, for exactly this reason.
+
+### D-010a — One earned exception to never-overwrite: `testcases.txt`
+
+`testcases.txt` is user-editable and so falls under the never-overwrite rule. There is a single exception, and `workspace.ReplaceTestcases` exists to make it explicit rather than letting a caller quietly widen the rule.
+
+Expected answers are scraped from the statement prose (see `runner/testcase.go` — LeetCode's API gives inputs but no answers). Feeding that scraper the *rendered* statement matched nothing, so leetui wrote a full set of cases with every answer blank, and `createIfMissing` then preserved that file forever: every local run reported *"none had an expected answer to check against"* and no amount of re-running fixed it.
+
+**The exception.** A `testcases.txt` in which **every** case has an empty expected answer holds nothing a person could have typed, so it is replaced. One non-empty answer anywhere and the file is left alone. Anything else still goes through `WriteTestcases`.
+
 ---
 
 ## D-011 — Git: commit on Accepted, push on demand

@@ -11,6 +11,7 @@ import (
 
 	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/render"
 	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/workspace"
@@ -30,9 +31,23 @@ func (m Model) prepare(ctx context.Context, d *store.Detail, lang runner.Lang) (
 		return "", "", err
 	}
 
-	statement := m.detailMD
-	if statement == "" {
-		statement = "_Open this problem in leetui to sync its statement._\n"
+	// Convert the statement HERE rather than reusing m.detailMD.
+	//
+	// detailMD is Glamour's output: wrapped to the pane's width and full of ANSI escape
+	// codes. Two things read this statement and neither wants that. The README is a file
+	// people open in an editor, where escape codes are garbage. And ParseCases scrapes
+	// expected answers out of the prose with a line-anchored regex, which cannot match a
+	// line that begins with a colour code — every case came out with no answer, and a
+	// local run could only print output rather than judge it.
+	//
+	// It also removes a dependency on the detail pane having rendered this problem at
+	// all, which is not true when a run is fired straight after a cursor move.
+	statement := "_Open this problem in leetui to sync its statement._\n"
+	if strings.TrimSpace(d.Content) != "" {
+		doc, cErr := render.HTMLToMarkdown(d.Content)
+		if cErr == nil {
+			statement = doc.Markdown
+		}
 	}
 
 	dir, err = ws.Create(workspace.Problem{
@@ -54,16 +69,33 @@ func (m Model) prepare(ctx context.Context, d *store.Detail, lang runner.Lang) (
 		return dir, "", err
 	}
 
-	// Seed test cases from the examples. Existing cases are never replaced — the user
-	// may have added their own.
-	meta, mErr := runner.ParseMeta(d.MetaData)
-	if mErr == nil {
-		cases := runner.ParseCases(d.ExampleTestcases, statement, len(meta.Params))
-		if len(cases) > 0 {
-			_, _ = ws.WriteTestcases(d.NumericID, d.Slug, runner.FormatCases(cases))
-		}
+	if meta, mErr := runner.ParseMeta(d.MetaData); mErr == nil {
+		seedCases(ws, d, runner.ParseCases(d.ExampleTestcases, statement, len(meta.Params)))
 	}
 	return dir, file, nil
+}
+
+// seedCases writes testcases.txt, and repairs one written by an older leetui.
+//
+// Existing cases are never replaced — the user may have added their own. The single
+// exception is a file where EVERY case has an empty expected answer, which is what the
+// broken scrape produced: it holds nothing a person would have typed, and leaving it
+// would make every future run report that there was nothing to check against.
+func seedCases(ws workspace.Workspace, d *store.Detail, cases []runner.TestCase) {
+	if len(cases) == 0 {
+		return
+	}
+	formatted := runner.FormatCases(cases)
+
+	existing, err := ws.ReadFile(d.NumericID, d.Slug, workspace.TestcasesFile)
+	if err != nil {
+		_, _ = ws.WriteTestcases(d.NumericID, d.Slug, formatted)
+		return
+	}
+	if runner.HasExpected(runner.LoadCases(existing)) || !runner.HasExpected(cases) {
+		return
+	}
+	_, _ = ws.ReplaceTestcases(d.NumericID, d.Slug, formatted)
 }
 
 // editCmd opens the solution in the user's editor.
