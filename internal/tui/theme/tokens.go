@@ -20,6 +20,19 @@ const (
 	Dim   = lipgloss.Color("#6B7080") // secondary — metadata, disabled, hints
 )
 
+// Row banding.
+//
+// A dense list has vertical rules but nothing to carry the eye ACROSS a row, so tracing
+// from a title to its state column means counting. These two bands fix that.
+//
+// Band is deliberately near-invisible in isolation: it is doing its job when you never
+// notice it, only that the row you are reading stays together. Cursor is the opposite —
+// it must be unmistakable at a glance from the far side of the screen.
+const (
+	Band   = lipgloss.Color("#15171D") // every other row, one step off Ink
+	Cursor = lipgloss.Color("#2A2D36") // the row under the cursor
+)
+
 // Verdict tokens. Reserved for the judge. Do not use these for anything else.
 const (
 	AC  = lipgloss.Color("#4FB477") // Accepted

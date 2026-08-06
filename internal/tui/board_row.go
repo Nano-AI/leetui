@@ -10,7 +10,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func (m Model) viewProblemRow(r store.Row, selected bool, c boardCols, terms []string) string {
+// viewProblemRow renders one row, banded so the eye can track along it.
+//
+// index decides the band; selected overrides it. Without banding a wide row is a set of
+// columns that happen to be on the same line, and finding a title's state means counting
+// across — which is what the vertical rules alone could never fix.
+func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols, terms []string) string {
 	diff := difficultyOf(r.Difficulty)
 
 	title := truncate(r.Title, c.title)
@@ -23,13 +28,21 @@ func (m Model) viewProblemRow(r store.Row, selected bool, c boardCols, terms []s
 		cell(theme.Meta.Render(acceptance(r.AcRate)), c.ac),
 	}
 	if c.status > 0 {
-		cells = append(cells, cell(rowState(r), c.status))
+		cells = append(cells, cell(rowState(r, m.premium), c.status))
 	}
 	if c.comp > 0 {
 		cells = append(cells,
 			cell(theme.Meta.Render(truncate(strings.Join(r.Companies, " "), c.comp)), c.comp))
 	}
-	return components.Row(cells)
+	row := components.Row(cells)
+	switch {
+	case selected:
+		return components.Paint(row, theme.Cursor)
+	case index%2 == 1:
+		return components.Paint(row, theme.Band)
+	default:
+		return row
+	}
 }
 
 // rowState is the progress column.
@@ -38,14 +51,22 @@ func (m Model) viewProblemRow(r store.Row, selected bool, c boardCols, terms []s
 // have solved it, tried it, or cannot open it. Words rather than glyphs — a "✓" needs a
 // legend, "SOLVED" does not.
 //
+// LOCKED depends on the ACCOUNT, not on the problem.
+//
+// It used to read straight off PaidOnly, which meant a Premium subscriber saw "LOCKED"
+// on problems they could open perfectly well — the column was reporting a property of
+// the problem while claiming to report the reader's own state. With a subscription
+// nothing is locked, and leetcode.com shows no lock either; a premium problem is just a
+// problem. Signed out counts as locked, because signed out you genuinely cannot read it.
+//
 // Solved is bone, never green: green belongs to the judge alone.
-func rowState(r store.Row) string {
+func rowState(r store.Row, premium bool) string {
 	switch {
 	case r.Solved():
 		return lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render("SOLVED")
 	case r.Status == "notac":
 		return theme.Meta.Render("TRIED")
-	case r.PaidOnly:
+	case r.PaidOnly && !premium:
 		return theme.Meta.Render("LOCKED")
 	default:
 		return ""

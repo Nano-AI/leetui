@@ -133,7 +133,7 @@ func (m Model) viewBoard(w, h int) string {
 	end := minInt(m.scroll+visible, len(m.rows))
 	terms := searchTerms(m.filter.Text)
 	for i := m.scroll; i < end; i++ {
-		b.WriteString(m.viewProblemRow(m.rows[i], i == m.cursor, c, terms))
+		b.WriteString(m.viewProblemRow(m.rows[i], i, i == m.cursor, c, terms))
 		b.WriteString("\n")
 	}
 	// Pad short result sets so the grid stays a solid block down to the bezel.

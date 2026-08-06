@@ -447,6 +447,16 @@ Both found by someone reading the board for the first time, which is the only wa
 
 ---
 
+## D-021 — Two more corrections from first use
+
+**Rows are banded.** The board had vertical rules and nothing horizontal, so tracing from a title across to its state column meant counting cells. `#15171D` on alternate rows, `#2A2D36` under the cursor, which outranks the band so the selection stays unmistakable.
+
+Painting an already-styled row needed care: lipgloss closes every cell with a full reset, so a background set on the finished string survives only to the first cell and then gives out. `components.Paint` re-asserts it after each reset, and derives the escape from lipgloss rather than writing it by hand — so under `NO_COLOR` or a plain `TERM` it comes back empty and painting becomes a no-op instead of a special case.
+
+**LOCKED depends on the account, not the problem.** It read straight off `PaidOnly`, so a Premium subscriber was told their problems were locked — the column claimed to report the reader's own state while actually reporting a property of the problem. With a subscription nothing is locked, and leetcode.com shows no lock either. The detail pane had the identical bug and showed a dead end instead of a statement that was on its way. Signed out still counts as locked, because signed out you genuinely cannot read it.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

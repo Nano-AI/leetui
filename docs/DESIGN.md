@@ -127,6 +127,10 @@ concession to convention here; the metaphor requires them.
   survives for anything that genuinely wants a bar rather than a number.
 - **Focused pane** is marked by its bezel turning `amber`. Not by a background shift, not
   by a border-weight change.
+- **Rows are banded.** `#15171D` on every other row, `#2A2D36` under the cursor. Added
+  2026-08-06 (D-021) because the vertical rules separate the columns but do nothing to
+  carry the eye ACROSS a row — tracing a title to its state column meant counting. The
+  band is doing its job when it is never noticed, only that the row stays together.
 
 ### Retired: difficulty-by-bracket-mass
 

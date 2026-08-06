@@ -79,7 +79,10 @@ func (m Model) detailBody(row store.Row) string {
 	}
 
 	switch {
-	case row.PaidOnly:
+	// The gate is the ACCOUNT, not the problem. A Premium subscriber opening a paid-only
+	// problem is doing something entirely ordinary, and telling them it is locked would
+	// be both wrong and a dead end — the statement is on its way.
+	case row.PaidOnly && !m.premium:
 		// A gated pane says what it would contain and how to unlock it — never a raw
 		// error, never a silently missing feature (D-006).
 		return theme.Label.Render("This problem is Premium.") + "\n\n" +
@@ -88,7 +91,7 @@ func (m Model) detailBody(row store.Row) string {
 			theme.Meta.Render("a  sign in with a premium account") + "\n" +
 			theme.Meta.Render("o  open it in your browser")
 
-	case m.detailLoading:
+	case m.detailLoading, row.PaidOnly:
 		return theme.Meta.Render("Loading…")
 
 	default:
