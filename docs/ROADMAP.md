@@ -62,20 +62,29 @@ Not yet done in this phase:
 - Delta sync (a re-sync currently walks the whole list)
 - Tag and company filters exist in the store but have no UI yet
 
-## Phase 2 — Solve loop ← **current**
+## Phase 2 — Solve loop ← **current, mostly landed**
 
-- [ ] `workspace` — problem-first folders (D-010), file watcher
-- [ ] `runner` — `Runner` interface + leetgo adapter (Go/Python/C++/Rust)
-- [ ] `$EDITOR` delegation via `tea.ExecProcess`
-- [ ] **Language picker** — choose the solution language per problem, defaulting to
-      `default_lang`. A selection list, not free text: only languages LeetCode offers
-      for that problem are valid, and the snippet table already names them. Mark which
-      ones run locally (D-004) so the choice is informed.
-- [ ] Local run + result diff
-- [ ] Submit to judge, poll, **the flip**
-- [ ] Queue view
+- [x] `workspace` — problem-first folders (D-010). Solutions, notes, and testcases are
+      created but never overwritten; only the derived README regenerates
+- [x] `runner` — `Runner`/`Generator` interfaces, language registry, metaData parsing,
+      comparator, and the override table for what metaData cannot express
+- [x] **Python driver, vendored** — D-005 reversed after measuring the import at 144
+      compiled packages. Zero new dependencies. See D-005 for the full reasoning
+- [x] `$EDITOR` delegation via `tea.ExecProcess`
+- [x] Language picker (`l`) — only what the problem offers, marking local vs judge
+- [x] Local run (`r`) with per-case timeout and crash isolation
+- [x] Submit (`s`), judge poll, and the flip driving real verdicts
+- [ ] **Go and C++ drivers** — only Python has one so far. Everything else routes to
+      the judge, which works but costs a round-trip per run
+- [ ] **Result diff panel** — a run currently reports through the status line. A
+      side-by-side expected/actual view is what makes a failure actionable
+- [ ] File watcher — `ModTime` exists in `workspace`; nothing polls it yet, so an
+      external editor's save does not auto-rerun
+- [ ] Design problems (class + operation sequence) — the driver declines them rather
+      than guessing a shape
 
-**Milestone:** solve a problem end to end without leaving the terminal.
+**Milestone:** solve a problem end to end without leaving the terminal — met for
+Python. Other languages edit and submit but run on the judge.
 
 ## Phase 3 — Premium
 
