@@ -17,9 +17,12 @@ import (
 // Columns are separated by real vertical rules, the way a departure board's flap groups
 // are. That grid is what makes a dense list scannable; without it the rows read as soup.
 //
-// There is no acceptance-percentage column: the sparkline and a "55.1%" label are the
-// same fact twice. The board is a scanning surface, so the sparkline stays and the exact
-// figure lives in the detail pane, where precision is the point.
+// The acceptance column is a PERCENTAGE, not a sparkline.
+//
+// It was three sparkline cells, on the reasoning that a bar and a "55.1%" label are the
+// same fact twice. They are not: "58%" says what it is, and "█▆▂" needs a legend nobody
+// has. The first person to see the board asked what it meant, which is the whole answer.
+// Clever loses to legible on a scanning surface.
 type boardCols struct {
 	id     int
 	title  int // flexes to absorb the remaining space
@@ -32,7 +35,7 @@ type boardCols struct {
 const (
 	colID     = theme.IDWidth
 	colDiff   = 3
-	colAC     = 3
+	colAC     = 4
 	colStatus = 7
 	colComp   = 16
 	minTitle  = 16
@@ -53,8 +56,8 @@ func (c boardCols) widths() []int {
 // boardLayout solves the columns so a row is exactly inner cells wide.
 //
 // Columns are dropped in order of how little they carry: companies first (premium
-// metadata), then the progress column. The ID, title, difficulty, and acceptance
-// sparkline are never dropped — they are the row.
+// metadata), then the progress column. The ID, title, difficulty, and acceptance rate
+// are never dropped — they are the row.
 func boardLayout(inner int) boardCols {
 	c := boardCols{id: colID, diff: colDiff, ac: colAC, status: colStatus, comp: colComp}
 
@@ -101,7 +104,7 @@ func (m Model) viewBoard(w, h int) string {
 		cell(theme.Utility.Render(theme.UtilityText("#")), c.id),
 		cell(theme.Utility.Render(theme.UtilityText("problem")), c.title),
 		cell(theme.Utility.Render(theme.UtilityText("dif")), c.diff),
-		cell(theme.Utility.Render(theme.UtilityText("ac")), c.ac),
+		cell(theme.Utility.Render(theme.UtilityText("acc")), c.ac),
 	}
 	if c.status > 0 {
 		head = append(head, cell(theme.Utility.Render(theme.UtilityText("state")), c.status))

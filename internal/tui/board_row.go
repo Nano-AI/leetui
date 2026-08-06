@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Nano-AI/leetui/internal/store"
@@ -19,7 +20,7 @@ func (m Model) viewProblemRow(r store.Row, selected bool, c boardCols, terms []s
 		cell(theme.ID(r.NumericID, selected), c.id),
 		cell(styled, c.title),
 		cell(diff.Render(), c.diff),
-		cell(components.AcceptanceSpark(r.AcRate), c.ac),
+		cell(theme.Meta.Render(acceptance(r.AcRate)), c.ac),
 	}
 	if c.status > 0 {
 		cells = append(cells, cell(rowState(r), c.status))
@@ -127,6 +128,17 @@ func (m Model) viewEmptyBoard(w int) string {
 		msg = short
 	}
 	return theme.Meta.Render("  " + truncate(msg, maxInt(w-2, 1)))
+}
+
+// acceptance renders a rate as a whole percentage.
+//
+// No decimal: the column is scanned, and 57% versus 57.9% never changes a decision. The
+// exact figure is in the problem's own heading, where precision is the point.
+func acceptance(pct float64) string {
+	if pct <= 0 {
+		return ""
+	}
+	return fmt.Sprintf("%.0f%%", pct)
 }
 
 func difficultyOf(s string) theme.Difficulty {

@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"github.com/Nano-AI/leetui/internal/leetcode"
 	"testing"
 )
 
@@ -59,5 +60,51 @@ func TestUpsertIsIdempotent(t *testing.T) {
 	}
 	if len(rows) != 1 {
 		t.Fatalf("search 'sum' returned %d rows after 3 syncs, want 1", len(rows))
+	}
+}
+
+// TestSetStatusOnlyMovesForward: LeetCode keeps your best result, and so does this. A
+// wrong answer on a problem you already solved must not downgrade the row to TRIED.
+func TestSetStatusOnlyMovesForward(t *testing.T) {
+	s := testStore(t)
+	ctx := context.Background()
+	if err := s.UpsertSummaries(ctx, sample()); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	statusOf := func(slug string) string {
+		t.Helper()
+		d, err := s.Get(ctx, slug)
+		if err != nil {
+			t.Fatalf("get %s: %v", slug, err)
+		}
+		return d.Status
+	}
+
+	// lru-cache starts untouched.
+	if got := statusOf("lru-cache"); got != "" {
+		t.Fatalf("lru-cache starts as %q, want empty", got)
+	}
+
+	if err := s.SetStatus(ctx, "lru-cache", leetcode.StatusAttempted); err != nil {
+		t.Fatalf("SetStatus: %v", err)
+	}
+	if got := statusOf("lru-cache"); got != "notac" {
+		t.Errorf("after a wrong answer: %q, want notac", got)
+	}
+
+	if err := s.SetStatus(ctx, "lru-cache", leetcode.StatusAccepted); err != nil {
+		t.Fatalf("SetStatus: %v", err)
+	}
+	if got := statusOf("lru-cache"); got != "ac" {
+		t.Errorf("after Accepted: %q, want ac", got)
+	}
+
+	// The regression this guards: a later wrong answer must leave it solved.
+	if err := s.SetStatus(ctx, "lru-cache", leetcode.StatusAttempted); err != nil {
+		t.Fatalf("SetStatus: %v", err)
+	}
+	if got := statusOf("lru-cache"); got != "ac" {
+		t.Errorf("a wrong answer downgraded a solved problem to %q", got)
 	}
 }

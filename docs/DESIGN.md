@@ -121,7 +121,10 @@ concession to convention here; the metaphor requires them.
 - **`▌ 0146`** — a plain zero-padded figure, like a flight number. A rigid four-digit
   field keeps the left margin dead straight. The amber bar in the first column marks the
   selected row, costs no width, and disturbs no alignment.
-- **`▁▂▃▄▅▆▇█`** — sparkline for acceptance rate. Real data, three fixed reference points.
+- ~~**`▁▂▃▄▅▆▇█`** — sparkline for acceptance rate.~~ **Retired 2026-08-06 (D-020).** The
+  first person to read the board asked what it meant, which is the whole answer: the
+  column now says `58%`. Clever loses to legible on a scanning surface. The component
+  survives for anything that genuinely wants a bar rather than a number.
 - **Focused pane** is marked by its bezel turning `amber`. Not by a background shift, not
   by a border-weight change.
 
