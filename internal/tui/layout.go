@@ -87,7 +87,9 @@ func (m Model) View() string {
 	sections = append(sections, m.viewStatus())
 	sections = append(sections, m.viewHints())
 
-	return lipgloss.JoinVertical(lipgloss.Left, sections...)
+	// The toast goes on last, over a finished frame, so it can never disturb the layout
+	// underneath it.
+	return m.withToast(lipgloss.JoinVertical(lipgloss.Left, sections...))
 }
 
 // viewBody draws the screen for the current mode.

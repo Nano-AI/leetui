@@ -32,9 +32,9 @@ const twoSumHTML = `<p>Given an array of integers <code>nums</code> and an integ
 <strong>Output:</strong> [1,2]
 </pre>`
 
-// prepared runs the solve loop's file layout for two-sum in dir and returns the
-// workspace. The caller owns dir so a test can seed a file into it first.
-func prepared(t *testing.T, m Model, dir string) workspace.Workspace {
+// seedDetail puts two-sum's statement, metaData, and snippets in the store WITHOUT
+// laying out any files — the state a real session is in before the first create.
+func seedDetail(t *testing.T, m Model) {
 	t.Helper()
 	ctx := context.Background()
 
@@ -43,14 +43,24 @@ func prepared(t *testing.T, m Model, dir string) workspace.Workspace {
 		Content:          twoSumHTML,
 		MetaData:         twoSumMeta,
 		ExampleTestcases: "[2,7,11,15]\n9\n[3,2,4]\n6",
-		Snippets: []leetcode.CodeSnippet{{
-			Lang: "Python3", LangSlug: "python3",
-			Code: "class Solution:\n    def twoSum(self, nums, target):\n        pass\n",
-		}},
+		Snippets: []leetcode.CodeSnippet{
+			{Lang: "Python3", LangSlug: "python3",
+				Code: "class Solution:\n    def twoSum(self, nums, target):\n        pass\n"},
+			{Lang: "C++", LangSlug: "cpp",
+				Code: "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        \n    }\n};"},
+		},
 	})
 	if err != nil {
 		t.Fatalf("seed detail: %v", err)
 	}
+}
+
+// prepared seeds the detail AND lays out the folder, returning the workspace. The caller
+// owns dir so a test can put a file there first.
+func prepared(t *testing.T, m Model, dir string) workspace.Workspace {
+	t.Helper()
+	ctx := context.Background()
+	seedDetail(t, m)
 
 	d, err := m.store.Get(ctx, "two-sum")
 	if err != nil {

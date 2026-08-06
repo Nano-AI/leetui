@@ -26,6 +26,10 @@ const (
 	pickLang
 	pickEditor
 	pickTimeframe
+
+	// pickCreate is the language list again, but choosing CREATES the file rather than
+	// only switching the language. Same rows, different verb.
+	pickCreate
 )
 
 // pickerRow is one entry, reduced to what the list needs to draw.
@@ -133,6 +137,13 @@ func (m Model) choose() (tea.Model, tea.Cmd) {
 	m.picking = pickNone
 
 	switch kind {
+	case pickCreate:
+		langs := m.pickerLangs()
+		if m.pickIdx >= len(langs) {
+			return m, nil
+		}
+		return m.createFile(langs[m.pickIdx])
+
 	case pickTimeframe:
 		tfs := leetcode.Timeframes()
 		if m.pickIdx >= len(tfs) {

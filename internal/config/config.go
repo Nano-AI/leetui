@@ -11,6 +11,13 @@ type Config struct {
 	// anything else still edits and submits, it just runs on the judge.
 	DefaultLang string `toml:"default_lang"`
 
+	// LastLang is the language most recently used to create a solution file.
+	//
+	// Separate from DefaultLang, which is a preference the user sets. This is a habit the
+	// app observes, and it wins at startup: whatever you were writing yesterday is a far
+	// better guess than a default chosen once during setup. Empty until you create a file.
+	LastLang string `toml:"last_lang"`
+
 	// Editor overrides $EDITOR. Empty means use the environment (D-012).
 	Editor string `toml:"editor"`
 

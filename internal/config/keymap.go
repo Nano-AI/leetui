@@ -24,6 +24,7 @@ var DefaultKeymap = map[string]string{
 	"next_match":  "n",
 	"prev_match":  "N",
 	"edit":        "e",
+	"create":      "f",
 	"run":         "r",
 	"lang":        "l",
 	"editor":      "E",

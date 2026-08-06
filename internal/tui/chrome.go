@@ -41,8 +41,8 @@ func (m Model) hintKeys() []string {
 			"u unsolved", "p premium", "S sync", "? keys", "q quit"}
 	}
 
-	keys := []string{"e edit", "r run", "s submit", "d editorial", "l lang",
-		"o open", "esc back", "? keys"}
+	keys := []string{"f file", "r run", "s submit", "d editorial", "e edit",
+		"l lang", "o open", "esc back", "? keys"}
 	if imgs := m.paneImages(); len(imgs) > 0 {
 		keys = append([]string{fmt.Sprintf("1-%d open", minInt(len(imgs), 9))}, keys...)
 	}

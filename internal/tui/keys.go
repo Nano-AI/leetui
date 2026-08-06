@@ -128,6 +128,8 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "edit":
 		return m.startEdit()
+	case "create":
+		return m.startCreate()
 	case "run":
 		return m.startRun()
 	case "submit":

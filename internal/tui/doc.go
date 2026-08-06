@@ -29,6 +29,8 @@
 //	picker.go       the selection lists — language, editor, company timeframe
 //	company.go      company packs (D-006); company_keys.go drives the browser
 //	editorial.go    the editorial pane's state and fetch
+//	create.go       f — make the file, name it, do not open it (D-019)
+//	toast.go        the floating notice over the top right
 //
 // File map — rendering:
 //

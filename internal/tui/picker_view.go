@@ -18,6 +18,8 @@ func (m Model) viewPicker() string {
 	switch m.picking {
 	case pickEditor:
 		title, right = "editor", "installed here"
+	case pickCreate:
+		title, right = "create a file", "pick a language"
 	case pickTimeframe:
 		// The company is named here rather than in every row: it is the same for all
 		// five, and repeating it would push the counts off the edge.

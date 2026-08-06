@@ -48,6 +48,7 @@ status and premium content. Browsing and search work signed out.
 | `u` | cycle all → unsolved → solved |
 | `p` | cycle all → premium → free |
 | `0` `esc` | clear filters |
+| `f` | create the solution file and show its path |
 | `e` `r` `s` | edit / run locally / submit |
 | `l` `E` | choose language / editor |
 | `c` | browse company lists, then a timeframe |
@@ -99,11 +100,11 @@ Config is written to `~/.config/leetui/config.toml`; the database lives in
 │ L E E T U I                                ⏱ 00:12:04 ┊ ◆ premium ┊ ada     │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ PROBLEMS ──────────────────────────────────────────── "cache" ┊ 12 ─╮
-│ #      │ PROBLEM                                    │ DIF │ AC  │ STATE  │
+│ #      │ PROBLEM                                    │ DIF │ ACC  │ STATE │
 ├────────┼────────────────────────────────────────────┼─────┼─────┼────────┤
-│ ▌ 0146 │ LRU Cache                                  │ MED │ ▇▃▁ │ SOLVED │
-│   0460 │ LFU Cache                                  │ HRD │ █▄▁ │ TRIED  │
-│   1650 │ Lowest Common Ancestor of a Binary Tree III│ MED │ ██▅ │ LOCKED │
+│ ▌ 0146 │ LRU Cache                                  │ MED │ 43%  │ SOLVED│
+│   0460 │ LFU Cache                                  │ HRD │ 44%  │ TRIED │
+│   1650 │ Lowest Common Ancestor of a Binary Tree III│ MED │ 80%  │ LOCKED│
 ╰────────┴────────────────────────────────────────────┴─────┴─────┴────────╯
  enter open ┊ / search ┊ c companies ┊ 1·2·3 difficulty ┊ u unsolved ┊ q quit
 ```

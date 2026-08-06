@@ -169,6 +169,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.username, m.premium = msg.status.Username, msg.status.IsPremium
 		return m, nil
 
+	case toastMsg:
+		return m, m.showToast(msg.title, msg.body)
+
+	case clearToastMsg:
+		if m.toast != nil && m.toast.id == msg.id {
+			m.toast = nil
+		}
+		return m, nil
+
 	case statusMsg:
 		m.statusID++
 		m.status, m.statusErr = msg.text, msg.isError
@@ -193,6 +202,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(cmds...)
 
 	case tea.KeyMsg:
+		// A toast covers content, so the next deliberate action clears it rather than
+		// making the user wait out the timer.
+		m.toast = nil
 		return m.handleKey(msg)
 	}
 

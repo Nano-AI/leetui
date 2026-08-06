@@ -124,6 +124,12 @@ type Model struct {
 	timerRunning bool
 	elapsed      time.Duration
 
+	// Floating notice over the top right, for something that happened and is now needed
+	// — a created file's path, above all. Separate from the status line, which comments
+	// on what you just did rather than handing you something.
+	toast   *toast
+	toastID int
+
 	// Transient status line.
 	status    string
 	statusErr bool
@@ -158,9 +164,13 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 	companyIn.Placeholder = "type to narrow"
 	companyIn.CharLimit = 60
 
-	lang, ok := runner.Lookup(cfg.DefaultLang)
+	// The remembered language wins over the configured default: what you were writing
+	// last time is a better guess than a preference set once during setup.
+	lang, ok := runner.Lookup(cfg.LastLang)
 	if !ok {
-		lang, _ = runner.Lookup("python3")
+		if lang, ok = runner.Lookup(cfg.DefaultLang); !ok {
+			lang, _ = runner.Lookup("python3")
+		}
 	}
 
 	return Model{

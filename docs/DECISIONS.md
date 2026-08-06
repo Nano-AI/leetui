@@ -421,6 +421,32 @@ Settled 2026-08-06. The statement pane used to be on screen permanently, taking 
 
 ---
 
+## D-019 — `f` creates the file and hands you the path
+
+Settled 2026-08-06. `e` lays the file out AND launches an editor. Under D-016 the editor is already open somewhere else, so what is actually wanted is the first half alone: the file exists, scaffolded and ready, and its path is on screen to open by hand.
+
+**Not "touch".** The file arrives with its imports, package clause, driver include, and marked region (D-014), plus the folder's README and test cases. Present is not the same as openable.
+
+**The language is always asked.** It is the one decision creating a file involves, and the picker opens on the language you used last — so the fast path is `f` `enter`, and the choice is never taken away. That memory is `last_lang` in config, separate from `default_lang`: one is a preference set once, the other a habit the app observes, and the habit wins at startup.
+
+**The path goes in a toast, not the status line.** The status line comments on what you just did; a toast hands you something you now need — a path you are about to type into another window. It floats over the top right, where nothing but glanceable rail metadata lives, and any keypress dismisses it.
+
+Compositing needed ANSI-aware cutting: a rendered line is characters interleaved with colour codes, so "column 80" means the eightieth *printable* cell with the active styling carried across the seam. `ansi.Truncate`/`TruncateLeft` from `charmbracelet/x/ansi` do it, and lipgloss already depends on that module. The toast sits flush right — an inset stranded the pane's own corner beside it, and a lone `╮` floating next to a box reads as a rendering fault.
+
+**Wording turns on whether the file existed.** "Created" over a file you have been working in for an hour would be alarming, and it is the same keypress; that case says "ready" instead.
+
+---
+
+## D-020 — Two corrections from first use
+
+Both found by someone reading the board for the first time, which is the only way either would have surfaced.
+
+**The acceptance column is a percentage.** It was a three-cell sparkline, on the reasoning (recorded in board.go, and wrong) that a bar and a "55.1%" label are the same fact twice. They are not. `58%` says what it is; `█▆▂` needs a legend nobody has, and the first question asked of the board was what it meant. Clever loses to legible on a scanning surface. No decimal — the column is scanned, and 57% versus 57.9% never changes a decision.
+
+**A verdict now updates the board.** `status` had exactly one writer, the list sync, so a solve stayed invisible until the next full re-sync: you submit, the judge says Accepted, and the row still reads TRIED. `store.SetStatus` closes that, and it only ever moves progress FORWARD — a later wrong answer must not downgrade a solved problem, because LeetCode keeps your best result and so should this.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

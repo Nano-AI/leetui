@@ -32,6 +32,7 @@ func helpGroups() []helpGroup {
 			{"0 esc", "clear every filter"},
 		}},
 		{"solve", [][2]string{
+			{"f", "create the solution file, then open it yourself"},
 			{"e", "edit the solution in your editor"},
 			{"r", "run it locally against the examples"},
 			{"s", "submit it to the judge"},
