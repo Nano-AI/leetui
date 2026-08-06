@@ -17,6 +17,11 @@ import (
 // mangled one.
 
 var (
+	// $$...$$ display math. It MUST be tried before the inline rule: given "$$O(n)$$",
+	// the inline pattern matches the middle "$O(n)$" and leaves a stray dollar on each
+	// side. Editorials use display math heavily; statements almost never do.
+	reDisplayMath = regexp.MustCompile(`\$\$([^$]{1,400})\$\$`)
+
 	// $...$ and \(...\) inline math, and \[...\] display math.
 	reInlineMath  = regexp.MustCompile(`\$([^$]{1,200})\$`)
 	reParenMath   = regexp.MustCompile(`\\\(([^)]{1,200}?)\\\)`)
@@ -72,6 +77,7 @@ func approximateLaTeX(s string) string {
 		return s // fast path: most text has no math at all
 	}
 
+	s = reDisplayMath.ReplaceAllString(s, "$1")
 	s = reBracketMath.ReplaceAllString(s, "$1")
 	s = reParenMath.ReplaceAllString(s, "$1")
 	s = reInlineMath.ReplaceAllString(s, "$1")
