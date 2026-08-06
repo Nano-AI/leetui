@@ -112,6 +112,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			status("Signed in from "+msg.from.Label()+". Press S to sync.", false),
 		)
 
+	case editReadyMsg, editDoneMsg, runFinishedMsg, judgeMsg:
+		return m.handleSolveMsg(msg)
+
 	case syncProgressMsg:
 		return m.handleSyncProgress(syncer.Progress(msg))
 

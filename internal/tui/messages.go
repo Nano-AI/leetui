@@ -6,6 +6,7 @@ import (
 	"github.com/Nano-AI/leetui/internal/auth"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/render"
+	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/syncer"
 )
@@ -47,6 +48,29 @@ type (
 		from  auth.Browser
 		creds auth.Credentials
 		err   error
+	}
+
+	// editReadyMsg means the workspace is laid out and the editor can be launched.
+	editReadyMsg struct {
+		file   string
+		editor string
+	}
+
+	// editDoneMsg arrives when the editor exits.
+	editDoneMsg struct{ err error }
+
+	// runFinishedMsg carries a local run's result.
+	runFinishedMsg struct {
+		slug   string
+		result runner.Result
+		err    error
+	}
+
+	// judgeMsg carries a submission's outcome.
+	judgeMsg struct {
+		flapID    int
+		judgement leetcode.Judgement
+		err       error
 	}
 
 	// syncProgressMsg is one update from the sync worker.

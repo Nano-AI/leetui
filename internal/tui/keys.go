@@ -30,6 +30,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case m.picking:
+		return m.handlePickerKey(msg)
+
 	case m.mode == modeAuth:
 		return m.handleAuthKey(msg)
 	case m.searching:
@@ -123,6 +126,19 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.search.SetValue(m.filter.Text)
 		m.search.Focus()
 		return m, textinput.Blink
+
+	case "edit":
+		return m.startEdit()
+	case "run":
+		return m.startRun()
+	case "submit":
+		return m.startSubmit()
+	case "lang":
+		if len(m.rows) > 0 {
+			m.picking = true
+			m.pickIdx = 0
+		}
+		return m, nil
 
 	case "sync":
 		return m.startSync()

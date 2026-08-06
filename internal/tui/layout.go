@@ -65,6 +65,10 @@ func (m Model) View() string {
 		return ""
 	}
 
+	if m.picking {
+		return m.viewPicker()
+	}
+
 	switch m.mode {
 	case modeSetup:
 		return m.viewSetup()

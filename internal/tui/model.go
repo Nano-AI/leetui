@@ -10,6 +10,7 @@ import (
 	"github.com/Nano-AI/leetui/internal/config"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/render"
+	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/syncer"
 	"github.com/Nano-AI/leetui/internal/tui/components"
@@ -62,7 +63,16 @@ type Model struct {
 	browsers  []auth.Browser
 	importing string // label of the browser currently being read, if any
 
-	// Submission queue (Phase 2 populates this for real).
+	// Solve loop.
+	engine    runner.Engine
+	lang      runner.Lang
+	picking   bool // language picker open
+	pickIdx   int
+	runResult *runner.Result
+	runSlug   string
+	running   bool
+
+	// Submission queue.
 	queue      []queueItem
 	nextFlapID int
 
@@ -114,7 +124,14 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 	// the screen or captured in a screen recording.
 	authIn.EchoMode = textinput.EchoPassword
 
+	lang, ok := runner.Lookup(cfg.DefaultLang)
+	if !ok {
+		lang, _ = runner.Lookup("python3")
+	}
+
 	return Model{
+		engine:    runner.NewLocal(),
+		lang:      lang,
 		cfg:       cfg,
 		store:     st,
 		client:    cl,

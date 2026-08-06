@@ -25,6 +25,12 @@ func (m Model) viewHelp() string {
 			{"u", "cycle all → unsolved → solved"},
 			{"0 esc", "clear every filter"},
 		}},
+		{"solve", [][2]string{
+			{"e", "edit the solution in your editor"},
+			{"r", "run it locally against the example cases"},
+			{"s", "submit it to the judge"},
+			{"l", "choose the language"},
+		}},
 		{"do", [][2]string{
 			{"S", "sync problems — press again to pause"},
 			{"a", "sign in with session cookies"},
