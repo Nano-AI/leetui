@@ -193,16 +193,20 @@ class Solution:
 	}
 }
 
-// TestGenerateRefusesDesignProblems: guessing a driver shape for a class-with-operations
-// problem would produce confidently wrong answers.
-func TestGenerateRefusesDesignProblems(t *testing.T) {
+// TestGenerateHandlesDesignProblems: Python's driver implements the
+// class-with-operations shape, so it generates rather than declines. Languages without
+// that shape are covered by TestDesignDeclinedForLanguagesWithoutIt.
+func TestGenerateHandlesDesignProblems(t *testing.T) {
 	l := python3(t)
 	lang, _ := Lookup("python3")
-	design := `{"classname":"LRUCache","methods":[{"name":"get"}]}`
+	design := `{"classname":"LRUCache",
+		"constructor":{"params":[{"name":"capacity","type":"integer"}]},
+		"methods":[{"name":"get","params":[{"name":"key","type":"integer"}],
+		            "return":{"type":"integer"}}]}`
 
-	err := l.Generate(context.Background(), Problem{Slug: "lru-cache", MetaData: design}, lang, t.TempDir())
-	if err == nil {
-		t.Fatal("generated a driver for a design problem")
+	if err := l.Generate(context.Background(),
+		Problem{Slug: "lru-cache", MetaData: design}, lang, t.TempDir()); err != nil {
+		t.Fatalf("declined a design problem Python can run: %v", err)
 	}
 }
 

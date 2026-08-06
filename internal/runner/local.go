@@ -51,6 +51,7 @@ var designSupported = map[string]bool{
 var toolchains = map[string]string{
 	"python3": "python3",
 	"golang":  "go",
+	"cpp":     "c++",
 }
 
 // detect probes PATH once, so a run does not pay for it per case.
@@ -113,6 +114,8 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 		return l.generatePython(p, meta, dir)
 	case "golang":
 		return l.generateGo(p, meta, dir)
+	case "cpp":
+		return l.generateCpp(p, meta, dir)
 	default:
 		return fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}
@@ -136,6 +139,8 @@ func (l *Local) Run(ctx context.Context, dir string, lang Lang, cases []TestCase
 		return l.runPython(ctx, dir, cases, rule)
 	case "golang":
 		return l.runGo(ctx, dir, cases, rule)
+	case "cpp":
+		return l.runCpp(ctx, dir, cases, rule)
 	default:
 		return Result{}, fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}

@@ -31,10 +31,10 @@ var langs = []Lang{
 	{Slug: "python3", Display: "Python3", Ext: ".py", Local: true},
 
 	{Slug: "golang", Display: "Go", Ext: ".go", Local: true},
+	{Slug: "cpp", Display: "C++", Ext: ".cpp", Local: true},
 
 	// Drivers not written yet — D-004 lists these as in scope, and they run on the
 	// judge until drivers/ has them.
-	{Slug: "cpp", Display: "C++", Ext: ".cpp"},
 	{Slug: "rust", Display: "Rust", Ext: ".rs"},
 
 	{Slug: "java", Display: "Java", Ext: ".java"},

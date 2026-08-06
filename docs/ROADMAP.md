@@ -62,7 +62,7 @@ Not yet done in this phase:
 - Delta sync (a re-sync currently walks the whole list)
 - Tag and company filters exist in the store but have no UI yet
 
-## Phase 2 — Solve loop ← **current, mostly landed**
+## Phase 2 — Solve loop ✅ **COMPLETE**
 
 - [x] `workspace` — problem-first folders (D-010). Solutions, notes, and testcases are
       created but never overwritten; only the derived README regenerates
@@ -81,18 +81,28 @@ Not yet done in this phase:
       picker rather than guessing
 - [x] Local run (`r`) with per-case timeout and crash isolation
 - [x] Submit (`s`), judge poll, and the flip driving real verdicts
-- [ ] **Go and C++ drivers** — only Python has one. `Lang.Local` now reflects which
-      drivers EXIST rather than which are planned, so the picker says "judge only"
-      instead of promising a run that would fail
-- [ ] **Result diff panel** — a run currently reports through the status line. A
-      side-by-side expected/actual view is what makes a failure actionable
-- [ ] File watcher — `ModTime` exists in `workspace`; nothing polls it yet, so an
-      external editor's save does not auto-rerun
-- [ ] Design problems (class + operation sequence) — the driver declines them rather
-      than guessing a shape
+- [x] **Go and C++ drivers** — vendored alongside Python. `Lang.Local` reflects which
+      drivers EXIST rather than which are planned, so the picker never promises a run
+      that would fail
+- [x] **Result diff panel** — a failure shows input, expected, and actual stacked;
+      passing cases collapse to one line. A result from another problem is never shown
+- [x] File watcher — polls a modification time (no fsnotify dependency); the first
+      sighting only records it, so opening an old solution does not fire a run.
+      `watch_solution` in config turns it off
+- [x] Design problems (LRU Cache, Min Stack, Trie) — Python runs them; Go and C++
+      still decline rather than guessing a shape
 
-**Milestone:** solve a problem end to end without leaving the terminal — met for
-Python. Other languages edit and submit but run on the judge.
+**Milestone met.** Solve a problem end to end without leaving the terminal, in Python,
+Go, or C++. Every other language edits and submits normally and runs on the judge.
+
+Local execution verified against: two-sum, longest-common-prefix, reverse-linked-list,
+maximum-depth-of-binary-tree, remove-duplicates (in-place), and LRU Cache (design).
+
+Carried forward:
+- Rust has a language entry but no driver, and `rustc` is not installed here
+- Go and C++ decline design problems
+- The comparator override table is seeded, not exhaustive — an uncurated mismatch says
+  "check on the judge" rather than claiming a wrong answer (D-003)
 
 ## Phase 3 — Premium
 
