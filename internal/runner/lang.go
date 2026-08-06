@@ -1,6 +1,10 @@
 package runner
 
-import "sort"
+import (
+	"path/filepath"
+	"sort"
+	"strings"
+)
 
 // Lang is one of LeetCode's submission languages.
 //
@@ -100,6 +104,24 @@ func Available(slugs []string) []Lang {
 		}
 	}
 	return out
+}
+
+// ByFilename identifies a language from a solution file's path.
+//
+// This is what lets `leetui run %` from an editor act on the language of the buffer
+// rather than on a config default set months ago. Extensions shared by two languages
+// resolve to the locally-runnable one, which Langs already sorts first.
+func ByFilename(path string) (Lang, bool) {
+	ext := strings.ToLower(filepath.Ext(path))
+	if ext == "" {
+		return Lang{}, false
+	}
+	for _, l := range Langs() {
+		if l.Ext == ext {
+			return l, true
+		}
+	}
+	return Lang{}, false
 }
 
 // Filename is the solution file for this language, e.g. "solution.go".

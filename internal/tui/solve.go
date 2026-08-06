@@ -2,7 +2,6 @@ package tui
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -10,11 +9,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Nano-AI/leetui/internal/editor"
-	"github.com/Nano-AI/leetui/internal/leetcode"
-	"github.com/Nano-AI/leetui/internal/render"
 	"github.com/Nano-AI/leetui/internal/runner"
+	"github.com/Nano-AI/leetui/internal/solve"
 	"github.com/Nano-AI/leetui/internal/store"
-	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
 // The solve loop: lay out files, edit, run, submit.
@@ -25,62 +22,12 @@ import (
 
 // prepare makes sure a problem's folder exists with a solution file for the chosen
 // language, returning the directory and the file.
+//
+// The work itself lives in internal/solve, which the CLI uses too — laying out a problem
+// folder is not a TUI concern, and two copies would drift.
 func (m Model) prepare(ctx context.Context, d *store.Detail, lang runner.Lang) (dir, file string, err error) {
-	ws, err := workspace.New(m.cfg.Workspace)
-	if err != nil {
-		return "", "", err
-	}
-
-	// Convert the statement HERE rather than reusing m.detailMD.
-	//
-	// detailMD is Glamour's output: wrapped to the pane's width and full of ANSI escape
-	// codes. Two things read this statement and neither wants that. The README is a file
-	// people open in an editor, where escape codes are garbage. And ParseCases scrapes
-	// expected answers out of the prose with a line-anchored regex, which cannot match a
-	// line that begins with a colour code — every case came out with no answer, and a
-	// local run could only print output rather than judge it.
-	//
-	// It also removes a dependency on the detail pane having rendered this problem at
-	// all, which is not true when a run is fired straight after a cursor move.
-	statement := "_Open this problem in leetui to sync its statement._\n"
-	if strings.TrimSpace(d.Content) != "" {
-		doc, cErr := render.HTMLToMarkdown(d.Content)
-		if cErr == nil {
-			statement = doc.Markdown
-		}
-	}
-
-	dir, err = ws.Create(workspace.Problem{
-		ID: d.NumericID, Slug: d.Slug, Title: d.Title,
-		Statement: statement, Difficulty: d.Difficulty,
-		URL: leetcode.BaseURL + "/problems/" + d.Slug + "/",
-	})
-	if err != nil {
-		return "", "", err
-	}
-
-	if _, ok := d.Snippets[lang.Slug]; !ok {
-		return dir, "", fmt.Errorf("%s does not offer %s", d.Title, lang.Display)
-	}
-
-	// metaData drives both the scaffolding and the test cases. A problem without it can
-	// still be edited and submitted — it just gets a plainer file and no seeded cases.
-	meta, metaErr := runner.ParseMeta(d.MetaData)
-
-	scaffold := runner.Scaffold{
-		Lang: lang, Meta: meta,
-		ID: d.NumericID, Title: d.Title, Difficulty: d.Difficulty,
-		URL: leetcode.BaseURL + "/problems/" + d.Slug + "/",
-	}
-	file, err = writeSolution(ws, d, lang, scaffold)
-	if err != nil {
-		return dir, "", err
-	}
-
-	if metaErr == nil {
-		seedCases(ws, d, runner.ParseCases(d.ExampleTestcases, statement, len(meta.Params)))
-	}
-	return dir, file, nil
+	out, err := solve.Prepare(m.cfg.Workspace, d, lang)
+	return out.Dir, out.Solution, err
 }
 
 // editCmd opens the solution in the user's editor.

@@ -141,6 +141,19 @@ Carried forward:
 - The `ASKED BY` column shows company slugs rather than display names, so Meta reads as
   `facebook` there. Consistent with the tag column, which is also slugs
 
+## Interlude — CLI seam ✅ **COMPLETE**
+
+- [x] `internal/solve` — problem-folder layout extracted from the TUI, shared by both
+      frontends. `Locate` resolves a slug, folder name, path, or the working directory
+- [x] `leetui pull / run / submit / path` — plain-text output, editor-shaped arguments,
+      exit codes an editor can branch on (D-015)
+- [x] Workspace `.gitignore` for generated drivers, binaries, and `__pycache__`, so
+      Phase 4 starts from a clean repository
+
+**Why this and not an nvim plugin or a VS Code extension.** See D-015: the TUI is 41% of
+the tree, and a second frontend discards either it or the Go core entirely. A CLI makes an
+nvim plugin a keymap instead of a project.
+
 ## Phase 4 — Git
 
 - [ ] `vcs` — status, guarded commit-on-Accepted, explicit push

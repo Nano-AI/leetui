@@ -1,82 +1,72 @@
 // Command leetui is a terminal client for LeetCode.
 //
+// With no arguments it opens the app. The subcommands are a seam for editors and scripts
+// over the same core — see cli.go and D-015.
+//
 // See docs/DECISIONS.md for the architecture record, docs/DESIGN.md for the visual
 // system, and docs/ROADMAP.md for what is built so far.
 package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
-
-	"github.com/Nano-AI/leetui/internal/auth"
-	"github.com/Nano-AI/leetui/internal/config"
-	"github.com/Nano-AI/leetui/internal/leetcode"
-	"github.com/Nano-AI/leetui/internal/store"
-	"github.com/Nano-AI/leetui/internal/syncer"
-	"github.com/Nano-AI/leetui/internal/tui"
-	"github.com/Nano-AI/leetui/internal/tui/components"
+	"github.com/Nano-AI/leetui/internal/solve"
 )
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
-		os.Exit(1)
-	}
+	os.Exit(dispatch(os.Args[1:]))
 }
 
-func run() error {
-	noMotion := flag.Bool("no-motion", false, "settle the flip animation instantly")
-	flag.Parse()
+// dispatch routes to a subcommand or to the TUI.
+//
+// Bare flags still belong to the TUI, so `leetui --no-motion` keeps working. Only a
+// leading bare word is treated as a subcommand — which also means a future flag can never
+// be mistaken for one.
+func dispatch(args []string) int {
+	if len(args) == 0 || args[0][0] == '-' {
+		switch args := args; {
+		case len(args) == 1 && (args[0] == "-h" || args[0] == "--help"):
+			usage(os.Stdout)
+			return exitOK
+		}
+		if err := runTUI(args); err != nil {
+			fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
+			return exitProblem
+		}
+		return exitOK
+	}
 
-	cfg, err := config.Load()
+	name := args[0]
+	if name == "help" {
+		usage(os.Stdout)
+		return exitOK
+	}
+
+	cmd, ok := lookupCommand(name)
+	if !ok {
+		fmt.Fprintf(os.Stderr, "leetui: unknown command %q\n\n", name)
+		usage(os.Stderr)
+		return exitProblem
+	}
+
+	a, err := open()
 	if err != nil {
-		// A malformed config is worth telling the user about, but it must not stop the
-		// app: Load already fell back to defaults.
-		fmt.Fprintf(os.Stderr, "leetui: %v (using defaults)\n", err)
-	}
-	for _, p := range cfg.Validate() {
-		fmt.Fprintf(os.Stderr, "leetui: config: %s\n", p)
-	}
-
-	// Motion is opt-out via flag or config. The app stays fully legible without it —
-	// motion never carries information on its own.
-	components.ReduceMotion = *noMotion || cfg.UI.ReduceMotion
-
-	dataDir, err := config.DataDir()
-	if err != nil {
-		return err
-	}
-	st, err := store.Open(dataDir)
-	if err != nil {
-		return err
-	}
-	defer st.Close()
-
-	// Missing credentials are the ordinary first-run case, not a failure: the problem
-	// list is public, so the app is useful before signing in.
-	creds, err := auth.Load()
-	if err != nil && !errors.Is(err, auth.ErrNoCredentials) {
 		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
+		return exitProblem
 	}
+	defer a.Close()
 
-	client := leetcode.New(
-		leetcode.WithCredentials(creds),
-		leetcode.WithRateLimit(cfg.Sync.RequestsPerSecond),
-	)
-	sy := syncer.New(client, st, cfg.Sync.PageSize)
-
-	opts := []tea.ProgramOption{tea.WithAltScreen()}
-	if cfg.UI.Mouse {
-		opts = append(opts, tea.WithMouseCellMotion())
+	code, err := cmd.run(a, args[1:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
+		if errors.Is(err, solve.ErrNoProblem) {
+			fmt.Fprintf(os.Stderr,
+				"\nName a problem, or run this from inside its folder:\n"+
+					"  leetui %s two-sum\n", name)
+		}
+		return code
 	}
-
-	p := tea.NewProgram(tui.New(cfg, st, client, sy), opts...)
-	if _, err := p.Run(); err != nil {
-		return err
-	}
-	return nil
+	return code
 }

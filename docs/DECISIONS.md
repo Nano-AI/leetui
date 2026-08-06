@@ -328,6 +328,38 @@ Same idea as vscode-leetcode's `@lc code=start`, and **those markers are read to
 
 ---
 
+## D-015 — A CLI seam, not a second frontend
+
+Settled 2026-08-06, weighing "should this be an nvim plugin / VS Code extension instead?"
+
+**The numbers decided it.** The TUI is ~5,000 lines — 41% of the tree. The core (`leetcode`, `store`, `syncer`, `runner`, `render`, `workspace`, `solve`) is ~7,100 and already frontend-agnostic. A VS Code extension throws away both — different language, webview UI, and a mature free incumbent in vscode-leetcode. An nvim plugin keeps the core but discards the board, search, company browser, editorial pane, and the flip, rebuilt in Lua.
+
+**Decision.** Neither. `leetui` with no arguments stays the product; a small set of subcommands exposes the same core to anything that can run a process:
+
+```sh
+leetui pull two-sum        # folder, statement, scaffolded solution, test cases
+leetui run                 # from inside the folder
+leetui run %               # from an editor: the buffer's path
+leetui submit two-sum
+leetui path two-sum        # for scripting
+```
+
+An nvim plugin then becomes a keymap rather than a project, and it does not fork anything:
+
+```lua
+vim.keymap.set("n", "<leader>lr", ":!leetui run %<CR>")
+```
+
+**A problem argument accepts four shapes** — slug, folder name, a path to either, or omitted to mean the working directory. Supporting only the slug would make the editor case a lookup exercise instead of one line, which is the entire point.
+
+**Exit codes are part of the contract**, because that is what an editor branches on: `0` worked (and every case passed), `1` ran and was wrong, `2` could not run.
+
+**Output is plain text.** No colour, no box drawing. It lands in an editor's message area as often as a terminal, and neither renders a Departure Board.
+
+**What this forced, and was worth it on its own:** `prepare` moved out of `internal/tui` into `internal/solve`. Laying out a problem folder was never a TUI concern, and two copies would have drifted.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

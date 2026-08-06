@@ -57,6 +57,29 @@ status and premium content. Browsing and search work signed out.
 | `t` `T` | start-stop timer / reset |
 | `?` `q` | help / quit |
 
+### From an editor, or a script
+
+`leetui` with no arguments opens the app. The subcommands drive the same core, so an
+editor never needs a plugin:
+
+```sh
+leetui pull two-sum        # folder, statement, scaffolded solution, test cases
+leetui run                 # from inside the problem folder
+leetui run path/to/solution.py
+leetui submit two-sum
+leetui path two-sum        # prints the folder, for scripting
+```
+
+A problem can be a slug, a folder name, a path to either, or omitted to mean the current
+directory — so from inside nvim the buffer you are looking at is enough:
+
+```lua
+vim.keymap.set("n", "<leader>lr", ":!leetui run %<CR>")
+vim.keymap.set("n", "<leader>ls", ":!leetui submit %<CR>")
+```
+
+Exit codes are the contract: `0` passed, `1` ran and was wrong, `2` could not run.
+
 ```sh
 go test ./...                                              # offline suite
 LEETUI_LIVE=1 go test ./internal/syncer ./internal/tui -v  # against leetcode.com

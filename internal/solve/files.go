@@ -1,4 +1,4 @@
-package tui
+package solve
 
 import (
 	"github.com/Nano-AI/leetui/internal/runner"
@@ -6,10 +6,8 @@ import (
 	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
-// Writing a problem's files.
-//
-// Both helpers here exist to hold one line: leetui must never be the reason someone loses
-// work. Each takes the narrowest possible exception to that and proves it before writing.
+// The two earned exceptions to never-overwrite. Each proves its case before writing;
+// see the package comment and D-010a / D-014.
 
 // writeSolution creates the solution file, and adds scaffolding to one that predates it.
 //
