@@ -24,6 +24,11 @@ func helpGroups() []helpGroup {
 			{"tab", "next pane"},
 			{"enter", "open in the detail pane"},
 		}},
+		{"list", [][2]string{
+			{"m", "mark this problem — add it to your list"},
+			{"M", "show just your list, oldest first"},
+			{"", "leetui todo add <problem> does it from a script"},
+		}},
 		{"find", [][2]string{
 			{"/", "search titles, tags, and statements"},
 			{"1 2 3", "toggle easy, medium, hard"},

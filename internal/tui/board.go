@@ -25,6 +25,7 @@ import (
 // Clever loses to legible on a scanning surface.
 type boardCols struct {
 	id     int
+	todo   int
 	title  int // flexes to absorb the remaining space
 	diff   int
 	ac     int
@@ -34,6 +35,7 @@ type boardCols struct {
 
 const (
 	colID     = theme.IDWidth
+	colTodo   = 1
 	colDiff   = 3
 	colAC     = 4
 	colStatus = 7
@@ -43,7 +45,7 @@ const (
 
 // widths returns the column widths in render order, omitting dropped columns.
 func (c boardCols) widths() []int {
-	w := []int{c.id, c.title, c.diff, c.ac}
+	w := []int{c.id, c.todo, c.title, c.diff, c.ac}
 	if c.status > 0 {
 		w = append(w, c.status)
 	}
@@ -59,7 +61,7 @@ func (c boardCols) widths() []int {
 // metadata), then the progress column. The ID, title, difficulty, and acceptance rate
 // are never dropped — they are the row.
 func boardLayout(inner int) boardCols {
-	c := boardCols{id: colID, diff: colDiff, ac: colAC, status: colStatus, comp: colComp}
+	c := boardCols{id: colID, todo: colTodo, diff: colDiff, ac: colAC, status: colStatus, comp: colComp}
 
 	fit := func(cc boardCols) int {
 		w := cc.widths()
@@ -102,6 +104,7 @@ func (m Model) viewBoard(w, h int) string {
 
 	head := []string{
 		cell(theme.Utility.Render(theme.UtilityText("#")), c.id),
+		cell(" ", c.todo),
 		cell(theme.Utility.Render(theme.UtilityText("problem")), c.title),
 		cell(theme.Utility.Render(theme.UtilityText("dif")), c.diff),
 		cell(theme.Utility.Render(theme.UtilityText("acc")), c.ac),
@@ -161,6 +164,9 @@ func (m Model) boardSummary() string {
 	var parts []string
 	// The pack comes first: it is the strongest claim about what the list is, and
 	// "Meta ┊ last 3 months" explains an ordering that would otherwise look arbitrary.
+	if m.filter.TodoOnly {
+		parts = append(parts, "my list")
+	}
 	if m.pack.Active() {
 		parts = append(parts, m.pack.Label())
 	}

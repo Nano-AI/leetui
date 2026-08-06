@@ -19,10 +19,11 @@ import (
 // stop before anything is sent.
 func runSubmit(a *app, args []string) (int, error) {
 	fs, lang := flags("submit")
-	if err := fs.Parse(args); err != nil {
+	rest, err := parseFlags(fs, args)
+	if err != nil {
 		return exitProblem, err
 	}
-	arg := fs.Arg(0)
+	arg := first(rest)
 
 	if !a.client.Authenticated() {
 		return exitProblem, fmt.Errorf("not signed in; open leetui and press a")

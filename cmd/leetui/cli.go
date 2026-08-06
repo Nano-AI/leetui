@@ -57,6 +57,11 @@ var commands = []command{
 		run:     runSubmit,
 	},
 	{
+		name: "todo", usage: "[add|rm|list] …",
+		summary: "the list of problems you mean to get to",
+		run:     runTodo,
+	},
+	{
 		name: "path", usage: "[problem]",
 		summary: "print a problem's folder, for scripting",
 		run:     runPath,
@@ -92,6 +97,11 @@ func usage(w io.Writer) {
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "From an editor, the file you are looking at is enough:")
 	fmt.Fprintln(w, "  :!leetui run %")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "The todo list is meant to be driven by scripts and agents:")
+	fmt.Fprintln(w, "  leetui todo add two-sum --note \"from the JD\"")
+	fmt.Fprintln(w, "  leetui todo --json")
+	fmt.Fprintln(w, "See docs/AGENTS.md.")
 }
 
 // flags builds a flag set that reports errors through the command's own usage rather
@@ -101,4 +111,27 @@ func flags(name string) (*flag.FlagSet, *string) {
 	lang := fs.String("lang", "",
 		"language slug, e.g. python3. Defaults to the file's, then to default_lang.")
 	return fs, lang
+}
+
+// parseFlags parses a flag set allowing flags ANYWHERE among the arguments.
+//
+// Go's flag package stops at the first non-flag, so `leetui todo add two-sum --note x`
+// silently treats `--note` as another problem name. That is the order a person writes
+// naturally and the order an agent will generate, so it has to work.
+//
+// The loop is the standard interspersed-parsing idiom: parse, take one positional, parse
+// what is left, repeat.
+func parseFlags(fs *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	rest := args
+	for {
+		if err := fs.Parse(rest); err != nil {
+			return nil, err
+		}
+		if fs.NArg() == 0 {
+			return positional, nil
+		}
+		positional = append(positional, fs.Arg(0))
+		rest = fs.Args()[1:]
+	}
 }

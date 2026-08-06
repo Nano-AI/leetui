@@ -31,6 +31,7 @@
 //	editorial.go    the editorial pane's state and fetch
 //	create.go       f — make the file, name it, do not open it (D-019)
 //	toast.go        the floating notice over the top right
+//	todo.go         m and M — the user's own list (D-022)
 //
 // File map — rendering:
 //

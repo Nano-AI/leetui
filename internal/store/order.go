@@ -38,6 +38,10 @@ func orderBy(f Filter, searching bool, numeric string) (string, []any) {
 		return "fts.rank, p.numeric_id", nil
 	}
 	switch f.Sort {
+	case "todo":
+		// The list is a queue: oldest first, because something added three weeks ago is
+		// the one most in danger of being forgotten.
+		return `(SELECT t.added_at FROM todo t WHERE t.problem_slug = p.slug), p.numeric_id`, nil
 	case "title":
 		return "p.title COLLATE NOCASE", nil
 	case "acrate":

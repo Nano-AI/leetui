@@ -457,6 +457,28 @@ Painting an already-styled row needed care: lipgloss closes every cell with a fu
 
 ---
 
+## D-022 — A todo list, writable from outside the app
+
+Settled 2026-08-06. "A list of problems I want to do", plus a CLI so an agent can fill it.
+
+**Its own table, not a column on `problems`.** The two have different owners: `problems` is a cache of LeetCode's data that a re-sync rewrites wholesale, and a list someone curated by hand must never be collateral damage of a refresh. There is deliberately no foreign key either — an agent may queue a problem this machine has not synced yet, and the entry has to survive until it has.
+
+**Every operation is idempotent.** Adding twice is not an error and does not move the item; removing something absent is not an error. A tool that must check before it acts is a tool that races. Re-adding updates the note but keeps the original position: the list is a queue, and correcting a typo should not send the oldest item to the back of it.
+
+**Ordered oldest first**, for the same reason — the thing added three weeks ago is the one most in danger of being forgotten.
+
+**`--json` is a first-class output**, always an array and never `null`, so a loop over it needs no special case. `docs/AGENTS.md` documents the shape as stable.
+
+**In the app:** `m` marks the row under the cursor, `M` filters to the list. One key for both directions of the mark, because marking happens while scanning and remembering which of two keys applies would cost more thought than the action is worth. The mark is written to memory first and to SQLite in the background, so it appears on the same frame as the keypress.
+
+### D-022a — `LEETUI_CONFIG_DIR`, and why it exists
+
+Added the same day, after the test suite **overwrote a live install's `config.toml`**: a test set `Workspace` to a `t.TempDir()`, something called `Config.Save()`, and `Dir()` resolved to the developer's real config — persisting a temp path and blanking their configured editor along with it. It went unnoticed until a later `leetui run` reported a file inside `/var/folders/.../TestCreateDoesNotArmTheWatcher…/`.
+
+`Dir()` now honours `LEETUI_CONFIG_DIR`, and the TUI test harness sets it for every test. A process that can be told where its state lives is one that can be tested without touching anybody's. It is also a fair way to keep more than one profile, which is what `docs/AGENTS.md` recommends for agents.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

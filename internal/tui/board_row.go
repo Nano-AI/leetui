@@ -23,6 +23,7 @@ func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols
 
 	cells := []string{
 		cell(theme.ID(r.NumericID, selected), c.id),
+		cell(todoMark(m.todo[r.Slug]), colTodo),
 		cell(styled, c.title),
 		cell(diff.Render(), c.diff),
 		cell(theme.Meta.Render(acceptance(r.AcRate)), c.ac),
@@ -43,6 +44,18 @@ func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols
 	default:
 		return row
 	}
+}
+
+// todoMark is the one-cell column showing whether a problem is on the user's list.
+//
+// A filled dot, in amber because it is the user's own annotation rather than LeetCode's
+// data. One cell wide: it is a yes-or-no, and anything larger would compete with the
+// title for the eye.
+func todoMark(on bool) string {
+	if !on {
+		return " "
+	}
+	return lipgloss.NewStyle().Foreground(theme.Amber).Render("●")
 }
 
 // rowState is the progress column.

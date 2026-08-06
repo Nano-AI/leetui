@@ -36,6 +36,10 @@ type Model struct {
 	mode          mode
 	focus         pane
 
+	// todo holds the slugs on the user's list, so a row can be marked without a query
+	// per row. Refreshed with the rows.
+	todo map[string]bool
+
 	// Board state.
 	rows      []store.Row
 	cursor    int

@@ -61,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, m.beginSync()
 			}
 		}
-		return m, m.loadDetailForCursor()
+		return m, tea.Batch(m.loadDetailForCursor(), m.loadTodo())
 
 	case detailMsg:
 		// A response for a problem the cursor already left is dropped: statements are
@@ -111,6 +111,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, status("LeetCode has no editorial for this problem.", false)
 			}
 			return m, status("Could not load the editorial: "+msg.err.Error(), true)
+		}
+		return m, nil
+
+	case todoMsg:
+		if msg.err == nil {
+			m.todo = msg.slugs
 		}
 		return m, nil
 

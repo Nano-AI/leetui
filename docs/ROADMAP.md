@@ -154,6 +154,27 @@ Carried forward:
 the tree, and a second frontend discards either it or the Go core entirely. A CLI makes an
 nvim plugin a keymap instead of a project.
 
+## Interlude — first-use fixes and the todo list ✅ **COMPLETE**
+
+Everything here came from actually using the app, which is the only way any of it would
+have surfaced.
+
+- [x] **Two screens** (D-018) — browsing is the full-width list, `enter` opens a problem,
+      `esc` comes back to exactly where you were. The statement no longer sits on screen
+      taking 40% of the width while you are looking *for* something
+- [x] **LeetCode's difficulty colours** (D-017) — teal / amber / red, read off their dark
+      theme. Overrules the green-and-red rule, deliberately and in one contained place
+- [x] **The workbench strip** (D-016) — the solution's path and whether a save re-runs.
+      leetui is the LeetCode side of the desk; the editing happens in your own pane
+- [x] **`f` creates the file** (D-019) and toasts its path, without launching anything
+- [x] **`ACC` is a percentage** (D-020) — the sparkline needed a legend nobody had
+- [x] **A verdict updates the board** (D-020) — `status` had one writer, the list sync
+- [x] **Banded rows** (D-021) — vertical rules could not carry the eye across a row
+- [x] **LOCKED depends on the account** (D-021), not on the problem
+- [x] **Todo list** (D-022) — `m` / `M` in the app, `leetui todo` from a script, with
+      `--json` for agents. See `docs/AGENTS.md`
+- [x] **`LEETUI_CONFIG_DIR`** (D-022a) — after the test suite overwrote a live config
+
 ## Phase 4 — Git
 
 - [ ] `vcs` — status, guarded commit-on-Accepted, explicit push

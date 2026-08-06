@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -18,12 +19,17 @@ func bg(c lipgloss.TerminalColor) string {
 }
 
 // boardRows returns the rendered rows that carry a problem.
+//
+// Matched on the zero-padded ID rather than the title: the ID column is a fixed width and
+// is never truncated, whereas a long title is — which made this helper silently miss rows
+// the moment a new column narrowed the title.
 func boardRows(t *testing.T, m Model) []string {
 	t.Helper()
 	var out []string
 	for _, line := range strings.Split(m.viewBoard(100, m.boardHeight()), "\n") {
+		plain := stripANSI(line)
 		for _, r := range m.rows {
-			if strings.Contains(stripANSI(line), r.Title) {
+			if strings.Contains(plain, fmt.Sprintf("%04d", r.NumericID)) {
 				out = append(out, line)
 				break
 			}

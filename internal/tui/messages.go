@@ -53,6 +53,12 @@ type (
 		err       error
 	}
 
+	// todoMsg carries the set of slugs on the user's list.
+	todoMsg struct {
+		slugs map[string]bool
+		err   error
+	}
+
 	// companiesMsg carries the company registry from the store.
 	companiesMsg struct {
 		companies []store.Company

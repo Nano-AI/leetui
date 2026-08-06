@@ -130,6 +130,10 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.startEdit()
 	case "create":
 		return m.startCreate()
+	case "todo":
+		return m.toggleTodo()
+	case "todo_only":
+		return m.toggleTodoFilter()
 	case "run":
 		return m.startRun()
 	case "submit":

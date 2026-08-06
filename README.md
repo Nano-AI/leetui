@@ -22,6 +22,7 @@ re-derived or re-asked:
 | [`docs/DESIGN.md`](docs/DESIGN.md) | The Departure Board visual system — palette, type treatments, motion, copy rules |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Package map, data flow, key seams, invariants |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Phase status. **Update as work lands.** |
+| [`docs/AGENTS.md`](docs/AGENTS.md) | The scriptable CLI surface — exit codes, JSON, and what not to automate |
 
 ---
 
@@ -47,6 +48,7 @@ status and premium content. Browsing and search work signed out.
 | `1`–`9` | open marker N (on a problem) |
 | `u` | cycle all → unsolved → solved |
 | `p` | cycle all → premium → free |
+| `m` `M` | mark a problem / show just your list |
 | `0` `esc` | clear filters |
 | `f` | create the solution file and show its path |
 | `e` `r` `s` | edit / run locally / submit |
@@ -70,6 +72,9 @@ leetui run                 # from inside the problem folder
 leetui run path/to/solution.py
 leetui submit two-sum
 leetui path two-sum        # prints the folder, for scripting
+
+leetui todo add two-sum --note "from the JD"
+leetui todo --json         # stable array, for agents
 ```
 
 A problem can be a slug, a folder name, a path to either, or omitted to mean the current
@@ -80,7 +85,19 @@ vim.keymap.set("n", "<leader>lr", ":!leetui run %<CR>")
 vim.keymap.set("n", "<leader>ls", ":!leetui submit %<CR>")
 ```
 
-Exit codes are the contract: `0` passed, `1` ran and was wrong, `2` could not run.
+Exit codes are the contract: `0` passed, `1` ran and was wrong, `2` could not run. The
+full surface, including what an agent should *not* automate, is in
+[`docs/AGENTS.md`](docs/AGENTS.md).
+
+### A list of problems to get to
+
+`m` marks the problem under the cursor; `M` shows just your list, oldest first. The same
+list is writable from a script, so an agent can queue problems from a job description and
+they are waiting on the board next time you open it:
+
+```sh
+leetui todo add two-sum group-anagrams --note "phone screen prep"
+```
 
 ```sh
 go test ./...                                              # offline suite
@@ -222,6 +239,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Git** — auto-commit on Accepted, push only on an explicit keypress
 - **Editing** — delegate to `$EDITOR`, in a pane beside leetui where the terminal allows it; a file watcher re-runs on save
 - **Two screens** — the list is the list; `enter` opens a problem, `esc` comes back
+- **A todo list you can script** — `m` in the app, `leetui todo add` from anywhere
 - **Difficulty in LeetCode's own teal / amber / red** — reads without a legend
 - **Keys** — vim-first, arrows always work, everything remappable
 

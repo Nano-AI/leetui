@@ -130,6 +130,19 @@ var migrations = []string{
 		synced_at    INTEGER NOT NULL DEFAULT 0
 	);
 	`,
+
+	// 4: the todo list — problems the user means to get to.
+	//
+	// Deliberately NOT a column on problems. A todo is the user's own data, and the
+	// problems table is a cache of LeetCode's: a re-sync rewrites it wholesale, and a
+	// list someone curated must never be collateral damage of a refresh.
+	`
+	CREATE TABLE IF NOT EXISTS todo (
+		problem_slug TEXT PRIMARY KEY,
+		note         TEXT NOT NULL DEFAULT '',
+		added_at     INTEGER NOT NULL DEFAULT 0
+	);
+	`,
 }
 
 func (s *Store) migrate(ctx context.Context) error {

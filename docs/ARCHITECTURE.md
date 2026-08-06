@@ -12,13 +12,13 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 187 files, ~19,807 lines, mean 105, max 212.
+Current: 194 files, ~20,814 lines, mean 107, max 218.
 
 ## Package map
 
 ```
 cmd/leetui/                 main.go dispatch · tui.go the app · cli.go the subcommands
-                            cmd_solve.go · cmd_submit.go · report.go plain-text output
+                            cmd_solve.go · cmd_submit.go · cmd_todo.go · report.go
 internal/
   config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
   auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
@@ -29,6 +29,7 @@ internal/
   store/      open.go · schema.go migrations · state.go checkpoints · fts.go
               types.go rows · write.go upserts · query.go filters · order.go sorts
               get.go · stats.go · company.go registry+packs · editorial.go cache
+              todo.go the user's own list (D-022) · progress.go solved/attempted
   syncer/     syncer.go · progress.go · problems.go the resumable job · detail.go
               companies.go registry+one pack · editorial.go
   render/     html.go converter · walk.go dispatch · inline.go · blocks.go

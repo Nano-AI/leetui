@@ -35,6 +35,9 @@ type Filter struct {
 	// PaidOnly, when set, filters to premium-only or free problems.
 	PaidOnly *bool
 
+	// TodoOnly narrows to the user's own todo list.
+	TodoOnly bool
+
 	// Sort is "id" (default), "title", "acrate", "difficulty", or "frequency".
 	// A text query always sorts by relevance and ignores this.
 	//
@@ -119,6 +122,10 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 	if f.PaidOnly != nil {
 		where = append(where, `p.paid_only = ?`)
 		args = append(args, *f.PaidOnly)
+	}
+
+	if f.TodoOnly {
+		where = append(where, `EXISTS (SELECT 1 FROM todo t WHERE t.problem_slug = p.slug)`)
 	}
 
 	if len(where) > 0 {

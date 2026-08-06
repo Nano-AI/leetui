@@ -27,6 +27,11 @@ type Row struct {
 	// HasDetail reports whether the statement has been fetched. The detail pane shows
 	// a fetching state rather than an empty one when this is false.
 	HasDetail bool
+
+	// Todo reports whether this problem is on the user's list. Filled by the caller from
+	// TodoSlugs rather than by the row query, so browsing pays one lookup instead of a
+	// correlated subquery per row.
+	Todo bool
 }
 
 // Solved reports whether the user has an accepted submission.

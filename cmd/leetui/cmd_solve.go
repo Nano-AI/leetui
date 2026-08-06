@@ -16,18 +16,20 @@ import (
 // function cd into it, or an editor open it.
 func runPull(a *app, args []string) (int, error) {
 	fs, lang := flags("pull")
-	if err := fs.Parse(args); err != nil {
+	rest, err := parseFlags(fs, args)
+	if err != nil {
 		return exitProblem, err
 	}
+	arg := first(rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	d, err := a.problem(ctx, fs.Arg(0))
+	d, err := a.problem(ctx, arg)
 	if err != nil {
 		return exitProblem, err
 	}
-	l, err := a.language(*lang, "")
+	l, err := a.language(*lang, arg)
 	if err != nil {
 		return exitProblem, err
 	}
@@ -44,14 +46,15 @@ func runPull(a *app, args []string) (int, error) {
 // runPath prints a problem's folder without touching anything.
 func runPath(a *app, args []string) (int, error) {
 	fs, _ := flags("path")
-	if err := fs.Parse(args); err != nil {
+	rest, err := parseFlags(fs, args)
+	if err != nil {
 		return exitProblem, err
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	d, err := a.problem(ctx, fs.Arg(0))
+	d, err := a.problem(ctx, first(rest))
 	if err != nil {
 		return exitProblem, err
 	}
@@ -69,10 +72,11 @@ func runPath(a *app, args []string) (int, error) {
 // problem — the folder, the scaffolded solution, and the test cases all appear.
 func runRun(a *app, args []string) (int, error) {
 	fs, lang := flags("run")
-	if err := fs.Parse(args); err != nil {
+	rest, err := parseFlags(fs, args)
+	if err != nil {
 		return exitProblem, err
 	}
-	arg := fs.Arg(0)
+	arg := first(rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
@@ -104,4 +108,12 @@ func runRun(a *app, args []string) (int, error) {
 		return exitProblem, err
 	}
 	return reportRun(os.Stdout, d.Slug, res), nil
+}
+
+// first returns the first positional argument, or "" for none.
+func first(args []string) string {
+	if len(args) == 0 {
+		return ""
+	}
+	return args[0]
 }
