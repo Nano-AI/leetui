@@ -24,6 +24,13 @@ func newTestModel(t *testing.T, seeded bool) Model {
 	t.Helper()
 	lipgloss.SetColorProfile(termenv.TrueColor)
 
+	// Point config at a temp directory for the whole test.
+	//
+	// Not optional: anything reaching Config.Save — the editor picker, remembering a
+	// language — writes to the developer's REAL config.toml otherwise. That happened,
+	// and it persisted a t.TempDir() workspace into a live install.
+	t.Setenv(config.DirEnv, t.TempDir())
+
 	st, err := store.OpenPath(filepath.Join(t.TempDir(), "tui.db"))
 	if err != nil {
 		t.Fatalf("open store: %v", err)

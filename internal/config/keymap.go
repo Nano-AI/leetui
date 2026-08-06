@@ -25,6 +25,8 @@ var DefaultKeymap = map[string]string{
 	"prev_match":  "N",
 	"edit":        "e",
 	"create":      "f",
+	"todo":        "m",
+	"todo_only":   "M",
 	"run":         "r",
 	"lang":        "l",
 	"editor":      "E",

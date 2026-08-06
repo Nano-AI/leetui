@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Default returns the configuration used when no file exists.
@@ -36,8 +37,25 @@ func Default() Config {
 	}
 }
 
+// DirEnv overrides where the config lives.
+//
+// It exists because a test that calls Save() writes to the REAL config otherwise, and one
+// did: the suite persisted a t.TempDir() workspace into a developer's own config.toml and
+// blanked their editor with it. A process that can be told where its state lives is one
+// that can be tested without touching anybody's.
+//
+// Also fair for keeping more than one profile.
+const DirEnv = "LEETUI_CONFIG_DIR"
+
 // Dir returns leetui's config directory, creating it if needed.
 func Dir() (string, error) {
+	if override := strings.TrimSpace(os.Getenv(DirEnv)); override != "" {
+		if err := os.MkdirAll(override, 0o755); err != nil {
+			return "", fmt.Errorf("create %s: %w", DirEnv, err)
+		}
+		return override, nil
+	}
+
 	base, err := os.UserConfigDir()
 	if err != nil {
 		home, herr := os.UserHomeDir()
