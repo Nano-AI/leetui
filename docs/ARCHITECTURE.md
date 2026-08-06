@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 178 files, ~18,722 lines, mean 105, max 203.
+Current: 180 files, ~19,044 lines, mean 105, max 203.
 
 ## Package map
 

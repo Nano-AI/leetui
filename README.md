@@ -42,8 +42,9 @@ status and premium content. Browsing and search work signed out.
 | `j` `k` / arrows | move |
 | `tab` | cycle pane focus |
 | `/` | search titles, tags, and statements |
-| `1` `2` `3` | toggle easy / medium / hard (board focus) |
-| `1`–`9` | open image N (detail focus) |
+| `1` `2` `3` | toggle easy / medium / hard (on the list) |
+| `enter` `esc` | open a problem / back to the list |
+| `1`–`9` | open marker N (on a problem) |
 | `u` | cycle all → unsolved → solved |
 | `p` | cycle all → premium → free |
 | `0` `esc` | clear filters |
@@ -97,22 +98,34 @@ Config is written to `~/.config/leetui/config.toml`; the database lives in
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │ L E E T U I                                ⏱ 00:12:04 ┊ ◆ premium ┊ ada     │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ PROBLEMS ─────────────────────────────────────────────── "cache" ┊ 12 ─╮
-│ #      │ PROBLEM                              │ DIF │ AC  │ STATE   │
-├────────┼──────────────────────────────────────┼─────┼─────┼─────────┤
-│ ▌ 0146 │ LRU Cache                            │ MED │ ▇▃▁ │ SOLVED  │
-│   0460 │ LFU Cache                            │ HRD │ █▄▁ │ TRIED   │
-│   1650 │ Lowest Common Ancestor of a Tree III │ MED │ ██▅ │ LOCKED  │
-╰────────┴──────────────────────────────────────┴─────┴─────┴─────────╯
-╭─ PROBLEM ───────────────── 42.7% ACCEPTED ─╮╭─ SUBMISSIONS ─────────────╮
-│ 146. LRU Cache  MED                        ││ 0146 go       ▚▚▚▚▚▚▚▚▚▚  │
-│ design ┊ hash-table ┊ linked-list          ││ 0042 cpp      A C C E P T… │
-│ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ ││ 0001 python3  W R O N G  … │
-│ Design a data structure that follows the   ││                            │
-│ constraints of a Least Recently Used cache ││                            │
-╰────────────────────────────────────────────╯╰────────────────────────────╯
- / search ┊ 1·2·3 difficulty ┊ u unsolved ┊ S sync ┊ ? keys ┊ q quit
+╭─ PROBLEMS ──────────────────────────────────────────── "cache" ┊ 12 ─╮
+│ #      │ PROBLEM                                    │ DIF │ AC  │ STATE  │
+├────────┼────────────────────────────────────────────┼─────┼─────┼────────┤
+│ ▌ 0146 │ LRU Cache                                  │ MED │ ▇▃▁ │ SOLVED │
+│   0460 │ LFU Cache                                  │ HRD │ █▄▁ │ TRIED  │
+│   1650 │ Lowest Common Ancestor of a Binary Tree III│ MED │ ██▅ │ LOCKED │
+╰────────┴────────────────────────────────────────────┴─────┴─────┴────────╯
+ enter open ┊ / search ┊ c companies ┊ 1·2·3 difficulty ┊ u unsolved ┊ q quit
 ```
+
+Browsing is the list and nothing else, full width — the same reason
+leetcode.com/problemset is a table and nothing else. `DIF` uses LeetCode's own
+colours, teal / amber / red, so it reads without a legend.
+
+`enter` opens the problem; `esc` comes back to exactly where you were.
+
+```
+╭─ PROBLEM ───────────────── 42.7% ACCEPTED ─╮╭─ SOLUTION ────────── GO ─╮
+│ 146. LRU Cache  MED                        ││ ~/leetcode/0146-lru-…/   │
+│ design ┊ hash-table ┊ linked-list          ││ watching · saves re-run  │
+│ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌ │╰──────────────────────────╯
+│ Design a data structure that follows the   │╭─ RUN ────────── 1 FAILED ─╮
+│ constraints of a Least Recently Used cache ││ case 1  FAIL             │
+│                                            ││ want [0,1]   got [9,9]   │
+╰────────────────────────────────────────────╯╰──────────────────────────╯
+ e edit ┊ r run ┊ s submit ┊ d editorial ┊ l lang ┊ esc back
+```
+
 
 Press **`c`** for the premium loop the website is built around — pick a company, pick how
 recently it asked, work the list. Typing narrows immediately; there is only one thing to
@@ -207,6 +220,8 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Disk layout is problem-first** — `0146-lru-cache/{solution.go, README.md, notes.md}`
 - **Git** — auto-commit on Accepted, push only on an explicit keypress
 - **Editing** — delegate to `$EDITOR`, in a pane beside leetui where the terminal allows it; a file watcher re-runs on save
+- **Two screens** — the list is the list; `enter` opens a problem, `esc` comes back
+- **Difficulty in LeetCode's own teal / amber / red** — reads without a legend
 - **Keys** — vim-first, arrows always work, everything remappable
 
 ---

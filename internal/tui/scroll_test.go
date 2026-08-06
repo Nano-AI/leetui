@@ -43,7 +43,12 @@ func TestHalfPageScroll(t *testing.T) {
 // wherever focus happens to be, rather than always driving the list.
 func TestHalfPageScrollsStatementWhenDetailFocused(t *testing.T) {
 	m := boot(t, true, 120, 34)
-	m = drive(t, m, key("tab")) // focus the problem pane
+	// The statement lives on its own screen now (D-018), so open it first. tab on the
+	// list is a no-op: there is only one pane there.
+	m = drive(t, m, key("enter"))
+	if m.mode != modeSolve {
+		t.Fatalf("enter did not open the problem; mode = %v", m.mode)
+	}
 	if m.focus != paneDetail {
 		t.Fatalf("focus = %v, want paneDetail", m.focus)
 	}

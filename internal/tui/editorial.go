@@ -31,6 +31,9 @@ func (m Model) toggleEditorial() (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	// The editorial lives on the problem screen; opening it from the list has to take
+	// you there or the keypress does nothing you can see.
+	m.enterProblem()
 	m.showEditorial = true
 	m.detailScroll = 0
 	m.focus = paneDetail

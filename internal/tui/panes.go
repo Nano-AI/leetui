@@ -41,6 +41,12 @@ const (
 	// picker because it owns a text field: 984 companies need typing to narrow, and the
 	// pickers are pure selection lists.
 	modeCompany
+
+	// modeSolve is one problem: statement, editorial, run results, submissions.
+	//
+	// Separate from the board because browsing and solving want opposite things from the
+	// screen — a list wants width, a statement wants to be the only thing on it (D-018).
+	modeSolve
 )
 
 // Layout breakpoints. Panes collapse rather than truncating mid-glyph.

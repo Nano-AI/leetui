@@ -37,12 +37,10 @@ func (m Model) bodyHeight() int {
 }
 
 // boardHeight is the full height of the framed problem list.
-func (m Model) boardHeight() int {
-	if m.width < narrowMin {
-		return m.bodyHeight()
-	}
-	return m.bodyHeight() / 2
-}
+//
+// The list owns the whole body: browsing is its own screen (D-018), so there is nothing
+// below it to leave room for.
+func (m Model) boardHeight() int { return m.bodyHeight() }
 
 // visibleRows is how many problems fit: the board minus its bezels and column header.
 func (m Model) visibleRows() int {
@@ -92,36 +90,40 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left, sections...)
 }
 
+// viewBody draws the screen for the current mode.
+//
+// TWO SCREENS, not one crowded one (D-018).
+//
+// Browsing is a LIST — the whole width, nothing else. leetcode.com/problemset is a table
+// and nothing else, for the same reason: while you are looking for a problem, a statement
+// you have not chosen to read is in the way, and it costs the list 40% of the width it
+// wants for titles and tags.
+//
+// Picking one opens the solve screen, where the statement earns its space because reading
+// it is now the job.
 func (m Model) viewBody() string {
 	h := m.bodyHeight()
-
-	switch {
-	case m.width < narrowMin:
-		if m.focus == paneDetail {
-			return m.viewDetail(m.width, h)
-		}
-		return m.viewBoard(m.width, h)
-
-	case m.width < wideMin:
-		boardH := m.boardHeight()
-		return lipgloss.JoinVertical(lipgloss.Left,
-			m.viewBoard(m.width, boardH),
-			m.viewDetail(m.width, h-boardH),
-		)
-
-	default:
-		boardH := m.boardHeight()
-		lowerH := h - boardH
-		detailW := m.width * 3 / 5
-		queueW := m.width - detailW
-		return lipgloss.JoinVertical(lipgloss.Left,
-			m.viewBoard(m.width, boardH),
-			lipgloss.JoinHorizontal(lipgloss.Top,
-				m.viewDetail(detailW, lowerH),
-				m.viewSidePane(queueW, lowerH),
-			),
-		)
+	if m.mode == modeSolve {
+		return m.viewSolveBody(h)
 	}
+	return m.viewBoard(m.width, h)
+}
+
+// viewSolveBody is the problem screen: statement, and the working column beside it.
+func (m Model) viewSolveBody(h int) string {
+	// Narrow: one pane at a time, tab switches. There is no width to split.
+	if m.width < wideMin {
+		if m.focus == paneQueue {
+			return m.viewSidePane(m.width, h)
+		}
+		return m.viewDetail(m.width, h)
+	}
+
+	detailW := m.width * 3 / 5
+	return lipgloss.JoinHorizontal(lipgloss.Top,
+		m.viewDetail(detailW, h),
+		m.viewSidePane(m.width-detailW, h),
+	)
 }
 
 // viewSidePane is the working column: what file you are editing, then what happened.

@@ -30,14 +30,29 @@ func (m Model) viewStatus() string {
 	return " " + style.Render(truncate(m.status, m.width-2))
 }
 
+// hintKeys is what the current screen can actually do.
+//
+// The two screens have different verbs, and offering "r run" while someone is scrolling a
+// list of four thousand problems is noise that pushes the one key they need — enter — off
+// the end of the strip.
+func (m Model) hintKeys() []string {
+	if m.mode != modeSolve {
+		return []string{"enter open", "/ search", "c companies", "1·2·3 difficulty",
+			"u unsolved", "p premium", "S sync", "? keys", "q quit"}
+	}
+
+	keys := []string{"e edit", "r run", "s submit", "d editorial", "l lang",
+		"o open", "esc back", "? keys"}
+	if imgs := m.paneImages(); len(imgs) > 0 {
+		keys = append([]string{fmt.Sprintf("1-%d open", minInt(len(imgs), 9))}, keys...)
+	}
+	return keys
+}
+
 // viewHints is the key strip. Hints are ordered most-useful first and dropped from the
 // end when they do not fit — a truncated hint names a key without saying what it does.
 func (m Model) viewHints() string {
-	keys := []string{"e edit", "r run", "s submit", "d editorial", "c companies",
-		"l lang", "/ search", "u unsolved", "S sync", "o open", "? keys", "q quit"}
-	if imgs := m.paneImages(); m.focus == paneDetail && len(imgs) > 0 {
-		keys[0] = fmt.Sprintf("1-%d open", minInt(len(imgs), 9))
-	}
+	keys := m.hintKeys()
 
 	used := 1
 	kept := keys[:0:0]

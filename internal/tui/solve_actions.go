@@ -45,6 +45,7 @@ func (m Model) startEdit() (tea.Model, tea.Cmd) {
 	if m.cfg.Editor == "" {
 		return m.openEditorPicker()
 	}
+	m.enterProblem()
 	return m, m.editCmd(d, lang)
 }
 
@@ -82,6 +83,7 @@ func (m Model) startRun() (tea.Model, tea.Cmd) {
 		return m, status(hint, true)
 	}
 
+	m.enterProblem()
 	m.running = true
 	return m, tea.Batch(m.runLocalCmd(d, lang), status("Running "+lang.Display+"…", false))
 }
@@ -95,6 +97,8 @@ func (m Model) startSubmit() (tea.Model, tea.Cmd) {
 	if !m.client.Authenticated() {
 		return m, status("Sign in first — press a.", true)
 	}
+
+	m.enterProblem()
 
 	flap := components.NewFlap(m.nextFlapID, theme.Display(theme.Pending.Text()), theme.Amber)
 	m.nextFlapID++

@@ -63,11 +63,11 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Number keys are context-sensitive: on the board they toggle difficulty filters,
-	// in the detail pane they open the numbered image markers. Focus disambiguates, so
-	// neither needs a modifier.
+	// Number keys are context-sensitive: on the list they toggle difficulty filters, on a
+	// problem they open the numbered markers. The SCREEN decides, which is plainer than
+	// the old rule where focus did — you can see which screen you are on.
 	if len(key) == 1 && key[0] >= '0' && key[0] <= '9' {
-		if m.focus == paneDetail {
+		if m.mode == modeSolve {
 			return m.openImage(int(key[0] - '0'))
 		}
 		return m.toggleDifficulty(int(key[0] - '0'))
@@ -86,11 +86,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "focus_next":
-		m.focus = (m.focus + 1) % paneCount
-		return m, nil
+		return m.cycleFocus(1)
 	case "focus_prev":
-		m.focus = (m.focus + paneCount - 1) % paneCount
-		return m, nil
+		return m.cycleFocus(-1)
 
 	case "down":
 		if m.focus == paneDetail {
@@ -143,6 +141,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "editor":
 		return m.openEditorPicker()
 
+	case "open":
+		return m.openProblem()
+
 	case "editorial":
 		return m.toggleEditorial()
 	case "companies":
@@ -177,6 +178,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		// unfiltered board would throw away a pack the user spent two choices building.
 		if m.showEditorial {
 			return m.toggleEditorial()
+		}
+		if m.mode == modeSolve {
+			return m.closeProblem()
 		}
 		if m.filterActive() {
 			return m.clearPack()

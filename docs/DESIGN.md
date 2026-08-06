@@ -40,24 +40,37 @@ Six system tokens. Three verdict tokens. Nothing else.
 ### The discipline
 
 > **Amber is the system speaking. Bone is content. Green and red belong to the judge alone.**
+>
+> **One exception, added 2026-08-06 (D-017):** difficulty borrows LeetCode's own teal /
+> amber / red. Everyone who has used LeetCode reads those without a legend, which no
+> invented ramp achieves. It is contained to the three-character `DIF` column and the
+> problem heading — never beside the submission queue, where the flip lands. Nothing else
+> in the app may borrow them.
 
 Nothing else in this application is ever green or red. Not a success toast, not a
-difficulty label, not a progress bar, not a git status. Difficulty is encoded by
-**position and weight**, not hue. Progress bars are amber. Git status is bone and dim.
+progress bar, not a git status. Progress bars are amber. Git status is bone and dim.
+Difficulty is the single exception above, and it is the last one.
 
 This is the whole reason a verdict lands. Spend the boldness in one place.
 
-### Difficulty without color
+### Difficulty, in LeetCode's colours
 
-Since green/red are reserved, difficulty uses a weight ramp on the `dim`→`bone`→`amber` axis:
+**Revised 2026-08-06 (D-017).** Difficulty was a weight ramp on the `dim`→`bone`→`amber`
+axis, so that green and red stayed the judge's. It now uses LeetCode's own palette, read
+off their dark theme:
 
 ```
-ESY   dim,   normal
-MED   bone,  normal
-HRD   amber, bold
+ESY   #1CBABA  teal,  bold
+MED   #FFB700  amber, bold
+HRD   #F63737  red,   bold
 ```
 
-That ramp is the **only** place difficulty is encoded.
+The borrowed palette is legible with no legend to anyone who has used the site, which the
+weight ramp never was — it had to be learned. That is worth the one dent in the colour
+rule.
+
+It stays a three-character tag in a fixed-width column, and it is the **only** place
+difficulty is encoded.
 
 An earlier pass also thickened a half-block bracket around the problem ID. It is gone —
 see [Retired: difficulty-by-bracket-mass](#retired-difficulty-by-bracket-mass) under

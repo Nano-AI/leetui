@@ -6,8 +6,22 @@ import "github.com/charmbracelet/lipgloss"
 // Difficulty
 // ---------------------------------------------------------------------------
 
-// Difficulty is a problem's rating. Because green and red are reserved for the judge,
-// difficulty is encoded by weight and bracket mass rather than hue.
+// Difficulty is a problem's rating.
+//
+// These are LEETCODE'S OWN COLOURS, read off leetcode.com's dark theme on 2026-08-06:
+//
+//	--difficulty-easy    --dark-teal-60     #1CBABA
+//	--difficulty-medium  --dark-yellow-60   #FFB700
+//	--difficulty-hard    --dark-red-60      #F63737
+//
+// This is a deliberate exception to the rule that green and red belong to the judge
+// alone (DESIGN.md, D-017). The user asked for it, and the borrowed palette is worth the
+// dilution: everyone who has used LeetCode already reads teal/amber/red as easy/medium/
+// hard without a legend, which no invented ramp achieves.
+//
+// The dilution is real and is contained deliberately. Difficulty appears ONLY in a
+// three-character column and in the detail heading — never near the submission queue,
+// where the flip lands. Nothing else in the app may borrow these.
 type Difficulty int
 
 const (
@@ -16,16 +30,50 @@ const (
 	Hard
 )
 
-// Render returns the three-letter difficulty tag on the dim -> bone -> amber weight ramp.
-func (d Difficulty) Render() string {
+// LeetCode's difficulty palette.
+const (
+	DiffEasy   = lipgloss.Color("#1CBABA")
+	DiffMedium = lipgloss.Color("#FFB700")
+	DiffHard   = lipgloss.Color("#F63737")
+)
+
+// Color returns the difficulty's hue.
+func (d Difficulty) Color() lipgloss.Color {
 	switch d {
 	case Hard:
-		return lipgloss.NewStyle().Foreground(Amber).Bold(true).Render("HRD")
+		return DiffHard
 	case Medium:
-		return lipgloss.NewStyle().Foreground(Bone).Render("MED")
+		return DiffMedium
 	default:
-		return lipgloss.NewStyle().Foreground(Dim).Render("ESY")
+		return DiffEasy
 	}
+}
+
+// Label is the difficulty spelled out, as LeetCode writes it.
+func (d Difficulty) Label() string {
+	switch d {
+	case Hard:
+		return "Hard"
+	case Medium:
+		return "Medium"
+	default:
+		return "Easy"
+	}
+}
+
+// Render returns the three-letter difficulty tag in LeetCode's colour.
+//
+// Three letters rather than the full word: the column is scanned, not read, and a fixed
+// width is what keeps the grid rigid.
+func (d Difficulty) Render() string {
+	tag := "ESY"
+	switch d {
+	case Hard:
+		tag = "HRD"
+	case Medium:
+		tag = "MED"
+	}
+	return lipgloss.NewStyle().Foreground(d.Color()).Bold(true).Render(tag)
 }
 
 // ID renders a problem's number in the board's leftmost cell.

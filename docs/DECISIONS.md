@@ -380,6 +380,47 @@ The strip asks `workspace.Path` for that path rather than assembling the folder 
 
 ---
 
+## D-017 — Difficulty borrows LeetCode's own colours
+
+Settled 2026-08-06, at the user's request. Read off leetcode.com's dark theme in a browser rather than guessed:
+
+| | LeetCode variable | value |
+|---|---|---|
+| Easy | `--difficulty-easy` → `--dark-teal-60` | `#1CBABA` |
+| Medium | `--difficulty-medium` → `--dark-yellow-60` | `#FFB700` |
+| Hard | `--difficulty-hard` → `--dark-red-60` | `#F63737` |
+
+**This overrules DESIGN.md's strongest rule** — that green and red belong to the judge alone, so that a verdict lands. It is worth it: everyone who has used LeetCode already reads teal/amber/red as easy/medium/hard with no legend, which no invented weight ramp achieves. The previous scheme (dim/bone/amber by weight) was legible but had to be learned.
+
+**The dilution is real and is contained.** Difficulty appears only in a three-character column and in the problem heading — never beside the submission queue, where the flip lands. Nothing else in the app may borrow these three. Hard's red (`#F63737`) and the judge's Wrong Answer red (`#D65A5A`) are close enough that putting them in one pane would blunt both.
+
+**Reverses if.** A verdict ever fails to read at a glance because of it.
+
+---
+
+## D-018 — Two screens: the list, then the problem
+
+Settled 2026-08-06. The statement pane used to be on screen permanently, taking 40% of the width beneath the list.
+
+**Decision.** Browsing and solving are separate screens. `enter` opens, `esc` returns.
+
+- **Browse** is the list and nothing else, full width. leetcode.com/problemset is a table and nothing else, for the same reason: while you are looking *for* a problem, one you have not chosen to read is in the way, and it costs the list the width it wants for titles, tags, and companies.
+- **Solve** is the statement plus the working column — the solution's path, run results, submissions. The statement earns its space here because reading it is now the job.
+
+**Consequences worth stating:**
+
+*Verbs that act on one problem open it first.* `e`, `r`, `s`, `d` all put their answer somewhere only the solve screen shows — the result panel, the queue, the statement pane. Run from the list without opening it and the keypress is silent, which reads as broken rather than as "wrong screen". This was a real bug the tests caught: `d` on the list set the editorial flag and displayed nothing.
+
+*The cursor never moves as a side effect.* Coming back from a problem lands exactly where you left, or browsing becomes a game of finding your place again.
+
+*Number keys are decided by the SCREEN, not by focus.* On the list they filter difficulty; on a problem they open markers. You can see which screen you are on; you could not reliably see which pane had focus.
+
+*`tab` does nothing on the list.* One pane means focus has nowhere to go, and moving it somewhere invisible makes the next keypress behave unexpectedly.
+
+*The hint strip differs per screen.* Offering `r run` while someone scrolls four thousand problems pushes the one key they need — `enter` — off the end.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

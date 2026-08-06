@@ -20,6 +20,7 @@
 //	cursor.go       cursor movement, scrolling, difficulty filters
 //	commands.go     store and network commands; commands_sync.go starts the jobs
 //	panes.go        pane and mode enums, layout breakpoints
+//	screens.go      moving between the list and one problem (D-018)
 //	solve.go        edit, run, submit; solve_run.go and solve_actions.go
 //	solve_files.go  the two earned exceptions to never-overwrite (D-010a, D-014)
 //	solve_edit.go   where the editor opens — pane, own window, or this terminal
