@@ -128,9 +128,19 @@ int main() {
 func (l *Local) runCpp(ctx context.Context, dir string, cases []TestCase, rule Rule) (Result, error) {
 	bin := filepath.Join(dir, "leetui_bin")
 
-	// -w quiets warnings from LeetCode's starter code, which is not ours to fix and
-	// would otherwise bury a real error.
-	build := exec.CommandContext(ctx, "c++", "-std=c++17", "-O2", "-w",
+	// -Werror=return-type, and deliberately NOT -w.
+	//
+	// -w was here to quiet warnings from LeetCode's starter code. Measured, that code
+	// produces none — but -w also beat -Wreturn-type, so a half-written solution with no
+	// return statement compiled clean and died at runtime as "signal: bus error". That is
+	// undefined behaviour reported as a mystery, in the exact situation where the user is
+	// mid-solution and most needs a straight answer.
+	//
+	// Order matters: -w anywhere on this line would silently cancel the -Werror.
+	//
+	// Nothing broader than this is enabled. -Wall over someone's in-progress solution is
+	// noise they did not ask leetui to have opinions about.
+	build := exec.CommandContext(ctx, "c++", "-std=c++17", "-O2", "-Werror=return-type",
 		"-o", bin, cppMainFile)
 	build.Dir = dir
 	var buildErr bytes.Buffer

@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -164,5 +165,37 @@ public:
 	}
 	if res.CompileErr == "" {
 		t.Fatal("compile error not captured")
+	}
+}
+
+// TestCppMissingReturnIsACompileError guards a real failure: a half-written solution with
+// no return statement is undefined behaviour, and it used to compile clean and die as
+// "signal: bus error" because -w cancelled -Wreturn-type. Mid-solution is exactly when a
+// straight answer matters most.
+func TestCppMissingReturnIsACompileError(t *testing.T) {
+	l, lang := cppLang(t)
+	dir := genCpp(t, l, lang, "two-sum", twoSumMeta, `class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> seen;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            seen[nums[i]] = i;
+        }
+    }
+};`)
+
+	// Not runCppCase: that helper fails the test on any compile error, which is right
+	// everywhere except here, where the compile error IS the expected outcome.
+	res, err := l.Run(context.Background(), dir, lang,
+		[]TestCase{{Input: "[2,7,11,15]\n9", Expected: "[0,1]"}}, RuleFor("two-sum"))
+	if err != nil {
+		t.Fatalf("run: %v", err)
+	}
+
+	if res.CompileErr == "" {
+		t.Fatalf("a missing return compiled; cases = %+v", res.Cases)
+	}
+	if !strings.Contains(res.CompileErr, "return") {
+		t.Errorf("the compile error does not mention the return:\n%s", res.CompileErr)
 	}
 }
