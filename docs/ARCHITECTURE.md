@@ -1,0 +1,145 @@
+# Architecture
+
+Read `DECISIONS.md` first — this file explains *how* the code is arranged;
+that one explains *why* each choice was made.
+
+---
+
+## File size
+
+**Keep files in the 100–200 line range.** One file, one job. A file that has grown past
+~200 lines is doing more than one thing and should be split along the seam that made it
+grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
+file.
+
+Current: 90 files, ~8,200 lines, mean 93, max 198.
+
+## Package map
+
+```
+cmd/leetui/                 entrypoint, flag parsing, wiring
+internal/
+  config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
+  auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
+              chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
+  leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
+              queries.go documents · models.go wire types
+  store/      open.go · schema.go migrations · state.go checkpoints · fts.go
+              types.go rows · write.go upserts · query.go filters · get.go · stats.go
+  syncer/     syncer.go · progress.go · problems.go the resumable job · detail.go
+  render/     html.go converter · walk.go dispatch · inline.go · blocks.go
+              whitespace.go · text.go · latex.go · glamour.go theme
+  runner/     (Phase 2) adapter over leetgo — codegen, local execution, comparators
+  workspace/  (Phase 2) problem-folder layout on disk (D-010), file watching
+  vcs/        (Phase 4) git shell-out: status, commit-on-accepted, push
+  tui/
+    theme/       tokens.go — the only place hex values appear
+                 type.go treatments · verdict.go · difficulty.go
+    components/  frame.go the bezel · grid.go rows and rules · flap.go the signature
+                 sparkline.go
+    (see internal/tui/doc.go for the 27-file map of state and rendering)
+```
+
+`internal/` is deliberate: nothing here is a public API, and Go's visibility rule
+enforces that.
+
+---
+
+## Data flow
+
+```
+                  ┌──────────────┐
+   user keypress ─┤ tui.Model    │
+                  │ Update(msg)  │
+                  └──┬────────┬──┘
+                     │        │ tea.Cmd (async, never blocks Update)
+                     │        ▼
+                     │   ┌─────────────────────────────┐
+                     │   │ store (SQLite)  ← fast path │  search, browse, cached bodies
+                     │   │ leetcode (HTTP) ← slow path │  submit, sync, editorials
+                     │   │ runner  (exec)  ← subprocess│  local run
+                     │   │ vcs     (exec)  ← subprocess│  commit, push
+                     │   └───────────┬─────────────────┘
+                     │               │ tea.Msg
+                     └───────────────┘
+```
+
+**Rule: `Update` never blocks.** Every network call, subprocess, and disk sync returns a
+`tea.Cmd` and comes back as a `tea.Msg`. This is what keeps the flip animation smooth
+while a submission is in flight.
+
+**Rule: views read the store, not the network.** Browsing and searching hit SQLite only.
+The network populates SQLite through explicit sync jobs. This is what makes search feel
+instant and what keeps the rate limiter (D-008) meaningful.
+
+---
+
+## Key seams
+
+### `runner.Runner` — the leetgo firewall (D-005)
+
+```go
+type Runner interface {
+    Generate(ctx context.Context, p Problem, lang Lang, dir string) error
+    Run(ctx context.Context, dir string, lang Lang, cases []TestCase) (Result, error)
+    Supports(lang Lang) bool   // false → caller falls back to remote judge (D-004)
+}
+```
+
+`internal/runner/leetgo_adapter.go` is the **only** file permitted to import leetgo.
+If a leetgo type appears anywhere else, the hard-fork escape hatch in D-005 is gone.
+
+### `leetcode.Client` — one rate limiter, no exceptions
+
+All outbound LeetCode traffic passes through a single limiter, including the company
+sync. Session expiry surfaces as a typed `ErrSessionExpired` so the TUI can prompt
+re-auth in place instead of failing the user's action outright.
+
+### `store` — the fast path
+
+Schema holds problems, tags, companies (with frequency + timeframe), submissions,
+sync checkpoints, and an FTS5 virtual table over titles/slugs/statements/editorials.
+Sync jobs are **resumable**: checkpoints are written as they go so an interrupted
+company sync resumes rather than restarts.
+
+### `theme` — the only place hex lives
+
+`tui/theme` exports the nine tokens from `DESIGN.md` and the treatments built from them.
+A hex literal anywhere else in the tree is a bug.
+
+---
+
+## Concurrency
+
+- One Bubbletea program, single-threaded `Update`.
+- Network and subprocess work happens inside `tea.Cmd` goroutines.
+- Long jobs (company sync, full problem sync) run as a background worker that emits
+  progress `tea.Msg`s. Cancellable via context; checkpointed so cancel is not data loss.
+- SQLite is opened in WAL mode; writes are serialized through the sync worker.
+
+---
+
+## Error handling
+
+Errors are UI states, not panics. Three tiers:
+
+1. **Recoverable, actionable** → inline message + a key to fix it
+   (`Session expired. Press a to re-authenticate.`)
+2. **Recoverable, informational** → status line, auto-dismissed
+   (`Company sync paused — rate limited. Resuming in 30s.`)
+3. **Fatal** → tear down the alt-screen cleanly, print to stderr, non-zero exit.
+
+Never leave the terminal in alt-screen or with mouse mode on. Restore on every exit path,
+including panic (`defer` + `recover` at the top of `main`).
+
+---
+
+## Security invariants
+
+- Cookies live in the OS keychain. Never in `config.toml`, never in logs, never in an
+  error string.
+- HTTP debug logging redacts `Cookie` and `x-csrftoken`.
+- `vcs` verifies repo, branch, and remote before committing (D-011). Push is never
+  automatic.
+- Subprocess execution (`$EDITOR`, compilers, `git`) uses argument slices — never a
+  shell string built from problem titles or user input.

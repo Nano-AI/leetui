@@ -1,0 +1,140 @@
+package tui
+
+import (
+	"context"
+	"time"
+
+	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/grootbeat/leetui/internal/auth"
+	"github.com/grootbeat/leetui/internal/config"
+	"github.com/grootbeat/leetui/internal/leetcode"
+	"github.com/grootbeat/leetui/internal/render"
+	"github.com/grootbeat/leetui/internal/store"
+	"github.com/grootbeat/leetui/internal/syncer"
+	"github.com/grootbeat/leetui/internal/tui/components"
+	"github.com/grootbeat/leetui/internal/tui/theme"
+)
+
+// ---------------------------------------------------------------------------
+// Model
+// ---------------------------------------------------------------------------
+
+// Model is the application root.
+type Model struct {
+	// Wiring, injected by New.
+	cfg    config.Config
+	store  *store.Store
+	client *leetcode.Client
+	sync   *syncer.Syncer
+	keys   map[string]string // key -> action, from config (D-013)
+
+	width, height int
+	mode          mode
+	focus         pane
+
+	// Board state.
+	rows      []store.Row
+	cursor    int
+	scroll    int // index of the first visible row
+	filter    store.Filter
+	totalRows int
+
+	// Search.
+	searching bool
+	search    textinput.Model
+
+	// Detail pane.
+	detail        *store.Detail
+	detailMD      string
+	detailImages  []render.Image
+	detailScroll  int
+	detailLoading bool
+
+	// detailSeq rises on every cursor move so a slow in-flight fetch for a problem the
+	// user has already scrolled past can be recognised as stale and dropped.
+	detailSeq int
+
+	// Auth.
+	authInput textinput.Model
+	authErr   string
+	browsers  []auth.Browser
+	importing string // label of the browser currently being read, if any
+
+	// Submission queue (Phase 2 populates this for real).
+	queue      []queueItem
+	nextFlapID int
+
+	// Sync.
+	syncing      bool
+	syncProgress syncer.Progress
+	syncCh       chan syncer.Progress
+	syncCancel   context.CancelFunc
+
+	// booted guards the one-time first-run check, so a later empty result (a filter
+	// that matches nothing) never re-triggers setup.
+	booted bool
+
+	// Account.
+	username string
+	premium  bool
+
+	// Timer — mirrors LeetCode's own top-right stopwatch (D-006). A plain timer, not
+	// assessment scoring; mock assessments are explicitly out of scope.
+	timerRunning bool
+	elapsed      time.Duration
+
+	// Transient status line.
+	status    string
+	statusErr bool
+	statusID  int
+}
+
+type queueItem struct {
+	ProblemID int
+	Lang      string
+	Verdict   theme.Verdict
+	flap      components.Flap
+}
+
+// New builds the root model. Everything it needs is injected so main owns lifetimes and
+// the model stays testable without a network or a real database.
+func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syncer) Model {
+	search := textinput.New()
+	search.Prompt = ""
+	search.Placeholder = "search titles, tags, statements"
+	search.CharLimit = 120
+
+	authIn := textinput.New()
+	authIn.Prompt = ""
+	authIn.Placeholder = "paste cookies here"
+	authIn.CharLimit = 4096
+	// The pasted blob contains a session token. Echo it masked so it cannot be read off
+	// the screen or captured in a screen recording.
+	authIn.EchoMode = textinput.EchoPassword
+
+	return Model{
+		cfg:       cfg,
+		store:     st,
+		client:    cl,
+		sync:      sy,
+		keys:      cfg.Actions(),
+		focus:     paneBoard,
+		search:    search,
+		authInput: authIn,
+	}
+}
+
+// Init loads the board from the store and refreshes the account in the background.
+func (m Model) Init() tea.Cmd {
+	return tea.Batch(
+		secondTick(),
+		m.loadRows(),
+		m.loadAccount(),
+	)
+}
+
+func secondTick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg { return tickMsg(t) })
+}

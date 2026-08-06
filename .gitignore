@@ -1,0 +1,21 @@
+# Build output
+/leetui
+/dist/
+*.test
+*.out
+
+# Local database and caches. The store is rebuilt by syncing; it is machine state,
+# not source.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+
+# Solution workspace, if someone points it inside the repo.
+/workspace/
+
+# Editors and OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
