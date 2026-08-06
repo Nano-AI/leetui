@@ -27,11 +27,20 @@ type Filter struct {
 	// Companies matches ANY listed company slug (premium data, D-008).
 	Companies []string
 
+	// Timeframe narrows a company match to one of LeetCode's windows, e.g.
+	// "three-months". It only has meaning alongside Companies; on its own it is ignored,
+	// because a timeframe is a property of the company link, not of the problem.
+	Timeframe string
+
 	// PaidOnly, when set, filters to premium-only or free problems.
 	PaidOnly *bool
 
-	// Sort is "id" (default), "title", "acrate", or "difficulty".
+	// Sort is "id" (default), "title", "acrate", "difficulty", or "frequency".
 	// A text query always sorts by relevance and ignores this.
+	//
+	// "frequency" is how often the matched companies ask the problem, and is only
+	// meaningful with Companies set — it is what makes a company pack read as a
+	// priority list rather than as a numbered one.
 	Sort string
 
 	Limit  int
@@ -95,11 +104,16 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 	}
 
 	if len(f.Companies) > 0 {
-		where = append(where, `EXISTS (SELECT 1 FROM problem_companies pc
-			WHERE pc.problem_slug = p.slug AND pc.company_slug IN (`+placeholders(len(f.Companies))+`))`)
+		clause := `EXISTS (SELECT 1 FROM problem_companies pc
+			WHERE pc.problem_slug = p.slug AND pc.company_slug IN (` + placeholders(len(f.Companies)) + `)`
 		for _, c := range f.Companies {
 			args = append(args, c)
 		}
+		if f.Timeframe != "" {
+			clause += ` AND pc.timeframe = ?`
+			args = append(args, f.Timeframe)
+		}
+		where = append(where, clause+`)`)
 	}
 
 	if f.PaidOnly != nil {
@@ -111,6 +125,8 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 		sb.WriteString(" WHERE " + strings.Join(where, " AND "))
 	}
 
+	// ORDER BY arguments bind after the WHERE clause's, which is the order SQLite reads
+	// them in, so appending here is what keeps the placeholders lined up.
 	orderClause, orderArgs := orderBy(f, match != "", numeric)
 	sb.WriteString(" ORDER BY " + orderClause)
 	args = append(args, orderArgs...)
@@ -149,49 +165,4 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 		out = append(out, r)
 	}
 	return out, rows.Err()
-}
-
-// numericQuery returns the digits of a problem-number query, or "" if the text is not a
-// bare number.
-func numericQuery(text string) string {
-	t := strings.TrimSpace(text)
-	if t == "" || len(t) > 4 {
-		return ""
-	}
-	for _, r := range t {
-		if r < '0' || r > '9' {
-			return ""
-		}
-	}
-	return strings.TrimLeft(t, "0")
-}
-
-// orderBy picks the sort, returning the clause and any bind arguments it needs.
-//
-// It returns arguments rather than interpolating them: user text must never reach the
-// SQL string, even when the caller has already validated it.
-//
-// A text query sorts by relevance — someone who typed a query wants the best match
-// first, not the lowest problem number.
-func orderBy(f Filter, searching bool, numeric string) (string, []any) {
-	if numeric != "" {
-		// Exact number first, then prefix matches in numeric order: typing "1" should
-		// put problem 1 above problem 1000.
-		return "CASE WHEN CAST(p.numeric_id AS TEXT) = ? THEN 0 ELSE 1 END, p.numeric_id",
-			[]any{numeric}
-	}
-	if searching {
-		return "fts.rank, p.numeric_id", nil
-	}
-	switch f.Sort {
-	case "title":
-		return "p.title COLLATE NOCASE", nil
-	case "acrate":
-		return "p.ac_rate DESC", nil
-	case "difficulty":
-		// Textual order would give Easy, Hard, Medium. Sort by actual difficulty.
-		return `CASE p.difficulty WHEN 'Easy' THEN 0 WHEN 'Medium' THEN 1 ELSE 2 END, p.numeric_id`, nil
-	default:
-		return "p.numeric_id", nil
-	}
 }

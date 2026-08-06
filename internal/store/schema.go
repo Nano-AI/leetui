@@ -109,6 +109,27 @@ var migrations = []string{
 		tokenize = 'porter unicode61'
 	);
 	`,
+
+	// 3: premium content — the company registry and cached editorials (D-006).
+	//
+	// question_count is LeetCode's own all-time figure and arrives with the registry,
+	// which is readable signed out. It is stored separately from the count of rows in
+	// problem_companies, because the two answer different questions: how big the pack is
+	// on the site, versus how much of it has been pulled down here.
+	`
+	ALTER TABLE companies ADD COLUMN question_count INTEGER NOT NULL DEFAULT 0;
+
+	CREATE TABLE IF NOT EXISTS editorials (
+		problem_slug TEXT PRIMARY KEY REFERENCES problems(slug) ON DELETE CASCADE,
+		solution_id  TEXT NOT NULL DEFAULT '',
+		title        TEXT NOT NULL DEFAULT '',
+		content      TEXT NOT NULL DEFAULT '',
+		paid_only    INTEGER NOT NULL DEFAULT 0,
+		can_see      INTEGER NOT NULL DEFAULT 0,
+		has_video    INTEGER NOT NULL DEFAULT 0,
+		synced_at    INTEGER NOT NULL DEFAULT 0
+	);
+	`,
 }
 
 func (s *Store) migrate(ctx context.Context) error {

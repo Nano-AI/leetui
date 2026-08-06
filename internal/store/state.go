@@ -21,6 +21,14 @@ const (
 	KeyIsPremium         = "is_premium"
 )
 
+// PackKey is the sync_state key recording when a company pack was last pulled.
+//
+// One key per company AND timeframe, because they are refreshed independently: "last 30
+// days" goes stale in weeks and "all time" barely moves.
+func PackKey(company, timeframe string) string {
+	return "pack:" + company + ":" + timeframe
+}
+
 // GetState reads a checkpoint value. A missing key returns "" and no error.
 func (s *Store) GetState(ctx context.Context, key string) (string, error) {
 	var v string
