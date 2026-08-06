@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Nano-AI/leetui/internal/leetcode"
@@ -67,9 +68,17 @@ func (m Model) submitCmd(d *store.Detail, lang runner.Lang, flapID int) tea.Cmd 
 		if err != nil {
 			return judgeMsg{flapID: flapID, err: err}
 		}
-		code, err := os.ReadFile(file)
+		raw, err := os.ReadFile(file)
 		if err != nil {
 			return judgeMsg{flapID: flapID, err: fmt.Errorf("read solution: %w", err)}
+		}
+		// Only the marked region goes to the judge. The rest of the file is local
+		// scaffolding — imports and a package clause LeetCode supplies itself, and would
+		// reject as a duplicate.
+		code := runner.ExtractCode(lang, string(raw))
+		if strings.TrimSpace(code) == "" {
+			return judgeMsg{flapID: flapID,
+				err: fmt.Errorf("nothing to submit: %s is empty between its markers", lang.Filename())}
 		}
 
 		// questionId, never the frontend id — they are different numbers and the judge
@@ -79,7 +88,7 @@ func (m Model) submitCmd(d *store.Detail, lang runner.Lang, flapID int) tea.Cmd 
 		}
 
 		id, err := client.Submit(ctx, leetcode.Submission{
-			Slug: d.Slug, QuestionID: d.QuestionID, Lang: lang.Slug, Code: string(code),
+			Slug: d.Slug, QuestionID: d.QuestionID, Lang: lang.Slug, Code: code,
 		})
 		if err != nil {
 			return judgeMsg{flapID: flapID, err: err}

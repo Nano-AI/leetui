@@ -266,6 +266,42 @@ Short, specific, dev syntax. **The user is always the primary author.** Never ad
 
 ---
 
+## D-014 — A solution file is two regions: scaffolding, and the marked code
+
+Settled 2026-08-06, after the first real edit session.
+
+A LeetCode starter snippet is **not a compilable file**. It has no imports, no package clause, and no definition of `ListNode` or `TreeNode`, because the judge supplies all of that around it. Written to disk verbatim — which is what leetui did — the result is a buffer the editor lights up red: clangd cannot resolve `vector<int>`, pyright cannot resolve `List[int]`. The local runner compiled it anyway, because the generated `main` includes the driver *before* textually including `solution.cpp`, which hid the problem from the tests and from nobody else.
+
+**Decision.** The file leetui writes has two regions:
+
+```cpp
+// 1. Two Sum · Easy
+// https://leetcode.com/problems/two-sum/
+//
+// Everything above the marker is local scaffolding, for your editor
+// and the local runner. Only the marked region is submitted.
+
+#include "leetui_driver.h"        // ← scaffolding
+
+// @leetui code=start
+class Solution { ... };           // ← what LeetCode gets
+// @leetui code=end
+```
+
+Same idea as vscode-leetcode's `@lc code=start`, and **those markers are read too**, so a workspace built with that extension submits correctly here without being rewritten.
+
+**Per language.** C++ includes the driver header (`#pragma once`, so the generated main including both is fine). Go gets `package main` — the driver shares the package, which is what puts the node types in scope. Python imports `typing`, plus the node types **from the driver**. Java gets `java.util.*`. Languages with no local driver get nothing but the header; inventing imports for them would be guessing.
+
+**Invariant — scaffolding REFERENCES the driver's types, never redefines them.** Python's driver serializes with `isinstance(value, (ListNode, TreeNode))` against its own classes. A solution that declared its own `ListNode` would return an object the driver could not serialize, and the failure would present as a wrong answer rather than as a wiring mistake.
+
+**Submit sends the marked region only.** This also fixes a latent bug: Go solutions were being submitted with their `package main`, and LeetCode wraps Go submissions in a package of its own. Unmarked files keep working — the fallback sends the whole file, minus a leading Go package clause, which is the one piece of scaffolding the judge rejects rather than tolerates.
+
+**Upgrading old folders is additive.** A file without markers is *wrapped*: its existing content becomes the marked region byte for byte, and lines are added above and below. Nothing the user typed can be lost, which is what makes rewriting a file they may have edited defensible at all (see D-010a for the other earned exception). A Go package clause moves out of the marked region as part of the wrap. A file that already has markers is untouched, so this is a no-op after the first edit.
+
+**Cost.** The solution file is no longer something you can paste straight into leetcode.com without deleting a few lines. Worth it: the file is edited far more often than it is pasted, and `o` opens the problem in a browser when pasting is what you want.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

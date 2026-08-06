@@ -20,7 +20,7 @@ func goLang(t *testing.T) (*Local, Lang) {
 func genGo(t *testing.T, l *Local, lang Lang, slug, meta, solution string) string {
 	t.Helper()
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "solution.go"), []byte(lang.SolutionFile(solution)), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "solution.go"), []byte(scaffolded(t, lang, meta, solution)), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := l.Generate(context.Background(), Problem{Slug: slug, MetaData: meta}, lang, dir); err != nil {

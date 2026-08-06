@@ -44,7 +44,8 @@ class LRUCache:
         if len(self.d) > self.cap:
             self.d.popitem(last=False)
 `
-	if err := os.WriteFile(filepath.Join(dir, "solution.py"), []byte(solution), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "solution.py"),
+		[]byte(scaffolded(t, lang, lruMeta, solution)), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := l.Generate(context.Background(),

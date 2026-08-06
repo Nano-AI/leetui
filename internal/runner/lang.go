@@ -108,19 +108,6 @@ func Available(slugs []string) []Lang {
 // keeps both (D-010).
 func (l Lang) Filename() string { return "solution" + l.Ext }
 
-// Preamble is prepended to a starter snippet when the language needs something
-// LeetCode's snippet omits.
-//
-// Go snippets are a bare function with no package clause, because LeetCode wraps them
-// server-side. Locally the file has to compile on its own.
-func (l Lang) Preamble() string {
-	if l.Slug == "golang" {
-		return "package main\n\n"
-	}
-	return ""
-}
-
-// SolutionFile returns the starter file's full contents for this language.
-func (l Lang) SolutionFile(snippet string) string {
-	return l.Preamble() + snippet
-}
+// The starter file's contents are built by Scaffold (scaffold.go), which needs the
+// problem's metaData as well as the language — LeetCode's snippets omit the imports,
+// package clause, and node-type definitions the judge supplies around them.

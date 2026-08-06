@@ -105,6 +105,23 @@ func (w Workspace) WriteTestcases(id int, slug, content string) (string, error) 
 	return path, createIfMissing(path, content)
 }
 
+// ReplaceSolution overwrites a solution file.
+//
+// The second earned exception to never-overwrite, and the more dangerous one, so the
+// caller must prove the file holds no work before calling — the only accepted proof is
+// that it is byte-identical to LeetCode's starter snippet. See writeSolution in the TUI.
+// Every other write goes through WriteSolution, which never overwrites.
+func (w Workspace) ReplaceSolution(id int, slug, filename, contents string) error {
+	path := w.Path(id, slug, filename)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return fmt.Errorf("create problem folder: %w", err)
+	}
+	if err := os.WriteFile(path, []byte(contents), 0o644); err != nil {
+		return fmt.Errorf("write %s: %w", filename, err)
+	}
+	return nil
+}
+
 // ReplaceTestcases overwrites testcases.txt.
 //
 // This is the ONE exception to the never-overwrite rule, and callers must earn it. It

@@ -21,6 +21,7 @@
 //	commands.go     store and network commands; commands_sync.go starts the jobs
 //	panes.go        pane and mode enums, layout breakpoints
 //	solve.go        edit, run, submit; solve_run.go and solve_actions.go
+//	solve_files.go  the two earned exceptions to never-overwrite (D-010a, D-014)
 //	watch.go        the solution-file poll
 //	picker.go       the selection lists — language, editor, company timeframe
 //	company.go      company packs (D-006); company_keys.go drives the browser

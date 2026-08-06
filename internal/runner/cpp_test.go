@@ -20,7 +20,8 @@ func cppLang(t *testing.T) (*Local, Lang) {
 func genCpp(t *testing.T, l *Local, lang Lang, slug, meta, solution string) string {
 	t.Helper()
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "solution.cpp"), []byte(solution), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "solution.cpp"),
+		[]byte(scaffolded(t, lang, meta, solution)), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := l.Generate(context.Background(),

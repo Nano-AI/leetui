@@ -20,14 +20,28 @@ func python3(t *testing.T) *Local {
 	return l
 }
 
+// scaffolded wraps a bare solution body in the file leetui actually writes, so the
+// compiled tests prove the scaffolding itself builds. A file that only compiles without
+// its imports and package clause is not the file the user edits.
+func scaffolded(t *testing.T, lang Lang, meta, solution string) string {
+	t.Helper()
+	m, err := ParseMeta(meta)
+	if err != nil {
+		t.Fatalf("parse meta: %v", err)
+	}
+	return Scaffold{Lang: lang, Meta: m, ID: 1, Title: "Test", URL: "https://leetcode.com/"}.
+		File(solution)
+}
+
 // generate lays out a problem folder with a solution and returns the directory.
 func generate(t *testing.T, l *Local, slug, meta, solution string) string {
 	t.Helper()
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "solution.py"), []byte(solution), 0o644); err != nil {
+	lang, _ := Lookup("python3")
+	if err := os.WriteFile(filepath.Join(dir, "solution.py"),
+		[]byte(scaffolded(t, lang, meta, solution)), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	lang, _ := Lookup("python3")
 	p := Problem{Slug: slug, MetaData: meta}
 	if err := l.Generate(context.Background(), p, lang, dir); err != nil {
 		t.Fatalf("generate: %v", err)

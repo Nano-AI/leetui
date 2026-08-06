@@ -59,43 +59,28 @@ func (m Model) prepare(ctx context.Context, d *store.Detail, lang runner.Lang) (
 		return "", "", err
 	}
 
-	snippet, ok := d.Snippets[lang.Slug]
-	if !ok {
+	if _, ok := d.Snippets[lang.Slug]; !ok {
 		return dir, "", fmt.Errorf("%s does not offer %s", d.Title, lang.Display)
 	}
 
-	file, _, err = ws.WriteSolution(d.NumericID, d.Slug, lang.Filename(), lang.SolutionFile(snippet))
+	// metaData drives both the scaffolding and the test cases. A problem without it can
+	// still be edited and submitted — it just gets a plainer file and no seeded cases.
+	meta, metaErr := runner.ParseMeta(d.MetaData)
+
+	scaffold := runner.Scaffold{
+		Lang: lang, Meta: meta,
+		ID: d.NumericID, Title: d.Title, Difficulty: d.Difficulty,
+		URL: leetcode.BaseURL + "/problems/" + d.Slug + "/",
+	}
+	file, err = writeSolution(ws, d, lang, scaffold)
 	if err != nil {
 		return dir, "", err
 	}
 
-	if meta, mErr := runner.ParseMeta(d.MetaData); mErr == nil {
+	if metaErr == nil {
 		seedCases(ws, d, runner.ParseCases(d.ExampleTestcases, statement, len(meta.Params)))
 	}
 	return dir, file, nil
-}
-
-// seedCases writes testcases.txt, and repairs one written by an older leetui.
-//
-// Existing cases are never replaced — the user may have added their own. The single
-// exception is a file where EVERY case has an empty expected answer, which is what the
-// broken scrape produced: it holds nothing a person would have typed, and leaving it
-// would make every future run report that there was nothing to check against.
-func seedCases(ws workspace.Workspace, d *store.Detail, cases []runner.TestCase) {
-	if len(cases) == 0 {
-		return
-	}
-	formatted := runner.FormatCases(cases)
-
-	existing, err := ws.ReadFile(d.NumericID, d.Slug, workspace.TestcasesFile)
-	if err != nil {
-		_, _ = ws.WriteTestcases(d.NumericID, d.Slug, formatted)
-		return
-	}
-	if runner.HasExpected(runner.LoadCases(existing)) || !runner.HasExpected(cases) {
-		return
-	}
-	_, _ = ws.ReplaceTestcases(d.NumericID, d.Slug, formatted)
 }
 
 // editCmd opens the solution in the user's editor.
@@ -104,15 +89,30 @@ func seedCases(ws workspace.Workspace, d *store.Detail, cases []runner.TestCase)
 // screen and mouse mode on while a full-screen editor runs would corrupt both.
 func (m Model) editCmd(d *store.Detail, lang runner.Lang) tea.Cmd {
 	cfg := m.cfg
+	engine := m.engine
 	model := m
 
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_, file, err := model.prepare(ctx, d, lang)
+		dir, file, err := model.prepare(ctx, d, lang)
 		if err != nil {
 			return statusMsg{text: err.Error(), isError: true}
+		}
+
+		// Generate the driver BEFORE the editor opens, not on the first run.
+		//
+		// The scaffolding points at it — C++ includes leetui_driver.h, Go needs the
+		// go.mod that makes the folder a package, Python imports the node types — so
+		// opening the file without it means a buffer full of unresolved-symbol errors
+		// from a language server that is working correctly.
+		//
+		// Failure here is not worth blocking an edit over: the file is still writable,
+		// and a run reports the same problem with more room to explain it.
+		if engine.Supports(lang) {
+			p := runner.Problem{Slug: d.Slug, Title: d.Title, MetaData: d.MetaData}
+			_ = engine.Generate(ctx, p, lang, dir)
 		}
 		ed := resolveEditor(cfg.Editor)
 		cmd, args := ed.Launch(file)

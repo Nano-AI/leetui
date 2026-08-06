@@ -110,6 +110,32 @@ do with a keystroke in a list of 984 companies.
 The chosen pack filters the board and sorts it by **frequency**, so what that company asks
 most sits at the top. That ordering is the whole reason a pack beats a tag filter.
 
+Solution files are written so your editor can actually resolve them — LeetCode's snippets
+have no imports, no package clause, and no `ListNode`, because the judge supplies all of
+that. Only the marked region is submitted:
+
+```cpp
+// 1. Two Sum · Easy
+// https://leetcode.com/problems/two-sum/
+//
+// Everything above the marker is local scaffolding, for your editor
+// and the local runner. Only the marked region is submitted.
+
+#include "leetui_driver.h"
+
+// @leetui code=start
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        
+    }
+};
+// @leetui code=end
+```
+
+vscode-leetcode's `@lc code=start` markers are read too, so a workspace built with that
+extension works here unchanged.
+
 A submission queue is a departure board — work is submitted, sits pending, gets judged,
 resolves. So verdicts **flip** into place rather than appearing. That flip is the app's
 entire motion budget and its only loading state; there are no spinners in leetui.
@@ -130,6 +156,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Full Premium parity** — company packs, editorials, premium problems. No mock assessments
 - **SQLite + FTS5** (`modernc.org/sqlite`, pure Go) for instant offline search
 - **Company packs sync one at a time** — 984 companies × 5 timeframes is ~5,000 requests; one pack is ~24
+- **Solution files carry editor scaffolding** — imports and driver types above `@leetui code=start`; only the marked region is submitted
 - **Disk layout is problem-first** — `0146-lru-cache/{solution.go, README.md, notes.md}`
 - **Git** — auto-commit on Accepted, push only on an explicit keypress
 - **Editing** — delegate to `$EDITOR`, plus a file watcher for external editors

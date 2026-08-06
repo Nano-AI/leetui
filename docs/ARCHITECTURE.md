@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 90 files, ~8,200 lines, mean 93, max 198.
+Current: 159 files, ~16,738 lines, mean 105, max 203.
 
 ## Package map
 
@@ -34,6 +34,8 @@ internal/
               whitespace.go · text.go · latex.go · glamour.go theme
               editorial.go markdown-with-HTML, a separate door (D-007a)
   runner/     interfaces + language registry, vendored per-language drivers (D-005)
+              scaffold.go the two-region solution file · extract.go what gets submitted
+              testcase.go example inputs + scraped answers · overrides.go comparators
   editor/     editor.go detection and launch arguments (D-012)
   workspace/  problem-folder layout on disk (D-010), never-overwrite writes
   vcs/        (Phase 4) git shell-out: status, commit-on-accepted, push
@@ -42,7 +44,7 @@ internal/
                  type.go treatments · verdict.go · difficulty.go
     components/  frame.go the bezel · grid.go rows and rules · flap.go the signature
                  sparkline.go
-    (see internal/tui/doc.go for the 27-file map of state and rendering)
+    (see internal/tui/doc.go for the file map of state and rendering)
 ```
 
 `internal/` is deliberate: nothing here is a public API, and Go's visibility rule
@@ -81,18 +83,36 @@ instant and what keeps the rate limiter (D-008) meaningful.
 
 ## Key seams
 
-### `runner.Runner` — the leetgo firewall (D-005)
+### `runner` — the execution seam (D-005)
 
 ```go
+type Generator interface { Generate(ctx, p Problem, lang Lang, dir string) error }
 type Runner interface {
-    Generate(ctx context.Context, p Problem, lang Lang, dir string) error
-    Run(ctx context.Context, dir string, lang Lang, cases []TestCase) (Result, error)
+    Run(ctx, dir string, lang Lang, cases []TestCase, rule Rule) (Result, error)
     Supports(lang Lang) bool   // false → caller falls back to remote judge (D-004)
 }
 ```
 
-`internal/runner/leetgo_adapter.go` is the **only** file permitted to import leetgo.
-If a leetgo type appears anywhere else, the hard-fork escape hatch in D-005 is gone.
+**D-005 was reversed.** leetgo is no longer imported — importing it compiled 144 extra
+packages, including a JavaScript interpreter and a second SQLite driver. The drivers are
+vendored under `runner/drivers/` instead, with MIT attribution. The interfaces above are
+unchanged, which is what made the reversal cheap. Read D-005 before reconsidering.
+
+### The solution file has two regions (D-014)
+
+`scaffold.go` writes it, `extract.go` reads it back:
+
+```
+scaffolding    imports, package clause, driver include — for the editor and the
+               local compiler. Never leaves the machine.
+@leetui code=start
+   ...         exactly what the judge receives
+@leetui code=end
+```
+
+**Invariant.** Scaffolding *references* the driver's `ListNode` / `TreeNode`, never
+redefines them. Python's driver serializes with `isinstance` against its own classes, so a
+duplicate declaration fails to serialize and presents as a wrong answer.
 
 ### `leetcode.Client` — one rate limiter, no exceptions
 
