@@ -1,18 +1,27 @@
 // Package runner executes solutions locally.
 //
-// THIS PACKAGE IS THE LEETGO FIREWALL (D-005).
+// The interfaces here were written as a firewall against leetgo's unstable API
+// (D-005). That import was then measured and dropped — it compiled 144 packages for
+// four language drivers — and the drivers were vendored into `drivers/` instead.
 //
-// leetgo is an application, not a library. Its exported API carries no stability
-// guarantee and will break under us. Everything crosses the interfaces declared here,
-// and `leetgo_adapter.go` is the ONLY file in the repository permitted to import it.
+// The firewall still earns its place. Because the TUI only ever saw these interfaces,
+// swapping the implementation underneath was a substitution rather than a rewrite, and
+// the same seam now separates "how a language runs" from everything that calls it.
 //
-// If a leetgo type appears anywhere else, the escape hatch in D-005 — hard-forking
-// `lang/` into this repo as a one-file swap — is gone, and replacing it becomes a
-// refactor instead. That is the whole reason this indirection exists on day one.
+// File map:
 //
-// Local execution covers Go, Python, C++, and Rust, because those are the languages
-// leetgo implements drivers for. Everything else edits and submits normally; only
-// `run` goes to the judge (D-004).
+//	local.go      the Engine implementation: toolchain detection, dispatch
+//	python.go     Python code generation and execution
+//	drivers/      vendored per-language runtimes, embedded into the binary
+//	meta.go       parsing LeetCode's metaData
+//	testcase.go   pairing example inputs with outputs scraped from the statement
+//	compare.go    judging output against expectation
+//	overrides.go  the per-problem semantics metaData cannot express
+//	lang.go       the language registry
+//
+// Local execution covers the languages with a vendored driver AND a toolchain on this
+// machine. Everything else edits and submits normally; only `run` goes to the judge,
+// which is a routing decision rather than a failure (D-004).
 package runner
 
 import (
@@ -131,7 +140,11 @@ type Runner interface {
 
 	// Run executes the solution in dir. A failing test case is reported inside Result,
 	// not as an error; the error return is for the run not happening at all.
-	Run(ctx context.Context, dir string, lang Lang, cases []TestCase) (Result, error)
+	//
+	// rule carries the per-problem judging semantics metaData cannot express. Passing
+	// it explicitly rather than looking it up inside keeps the comparison testable and
+	// makes it obvious at the call site that the choice was made.
+	Run(ctx context.Context, dir string, lang Lang, cases []TestCase, rule Rule) (Result, error)
 }
 
 // Engine is the whole local-execution capability.
