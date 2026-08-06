@@ -1,8 +1,8 @@
 package syncer
 
 import (
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 // Syncer pulls from LeetCode into the store.

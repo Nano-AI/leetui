@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 func TestProblemsSyncPages(t *testing.T) {

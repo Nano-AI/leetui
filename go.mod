@@ -1,4 +1,4 @@
-module github.com/grootbeat/leetui
+module github.com/Nano-AI/leetui
 
 go 1.26.5
 

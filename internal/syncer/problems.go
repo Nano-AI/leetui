@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 // Problems syncs the full problem list, resuming from the last checkpoint.

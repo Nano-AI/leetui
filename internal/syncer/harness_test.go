@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 func testStore(t *testing.T) *store.Store {

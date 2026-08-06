@@ -3,8 +3,8 @@ package components
 import (
 	"strings"
 
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/grootbeat/leetui/internal/tui/theme"
 )
 
 // A Frame is the bezel around a pane.

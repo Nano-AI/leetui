@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/leetcode"
 )
 
 // ErrNotFound means no problem matched.

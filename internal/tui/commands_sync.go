@@ -8,8 +8,8 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/syncer"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/syncer"
 )
 
 // beginSync starts the background sync and returns the command that pumps its progress.

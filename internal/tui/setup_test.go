@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Nano-AI/leetui/internal/syncer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/grootbeat/leetui/internal/syncer"
 )
 
 // TestSetupScreen renders the first-run experience. It is driven directly rather than by

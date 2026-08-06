@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/grootbeat/leetui/internal/tui/theme"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 // ReduceMotion disables the flip animation app-wide. Set from config `reduce_motion`,

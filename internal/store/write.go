@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/leetcode"
 )
 
 // ---------------------------------------------------------------------------

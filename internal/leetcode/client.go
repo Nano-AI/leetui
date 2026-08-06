@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/auth"
 	"golang.org/x/time/rate"
 )
 
@@ -17,7 +17,7 @@ const (
 	// userAgent identifies leetui honestly rather than impersonating a browser. If
 	// LeetCode ever blocks it, that is their call to make and the user should see it
 	// as a clear error rather than have the app disguise itself.
-	userAgent = "leetui (+https://github.com/grootbeat/leetui)"
+	userAgent = "leetui (+https://github.com/Nano-AI/leetui)"
 )
 
 // Errors callers are expected to branch on.

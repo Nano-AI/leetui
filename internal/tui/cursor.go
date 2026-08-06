@@ -1,8 +1,8 @@
 package tui
 
 import (
+	"github.com/Nano-AI/leetui/internal/store"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/grootbeat/leetui/internal/store"
 )
 
 // ---------------------------------------------------------------------------

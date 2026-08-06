@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 // Detail fetches and stores one problem's full record.

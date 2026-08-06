@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nano-AI/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/tui/components"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/grootbeat/leetui/internal/store"
-	"github.com/grootbeat/leetui/internal/tui/components"
-	"github.com/grootbeat/leetui/internal/tui/theme"
 )
 
 // ---------------------------------------------------------------------------

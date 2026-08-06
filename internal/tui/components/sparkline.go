@@ -3,7 +3,7 @@ package components
 import (
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/grootbeat/leetui/internal/tui/theme"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 // sparkBars is the eight-bucket vertical ramp.

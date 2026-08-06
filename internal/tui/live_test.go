@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Nano-AI/leetui/internal/config"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/syncer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/grootbeat/leetui/internal/config"
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
-	"github.com/grootbeat/leetui/internal/syncer"
 	"github.com/muesli/termenv"
 )
 

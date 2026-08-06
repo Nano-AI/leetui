@@ -3,11 +3,11 @@ package tui
 import (
 	"time"
 
-	"github.com/grootbeat/leetui/internal/auth"
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/render"
-	"github.com/grootbeat/leetui/internal/store"
-	"github.com/grootbeat/leetui/internal/syncer"
+	"github.com/Nano-AI/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/render"
+	"github.com/Nano-AI/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/syncer"
 )
 
 // ---------------------------------------------------------------------------

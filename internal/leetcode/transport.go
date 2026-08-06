@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/grootbeat/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/auth"
 )
 
 // ---------------------------------------------------------------------------

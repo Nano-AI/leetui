@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/grootbeat/leetui/internal/tui/components"
-	"github.com/grootbeat/leetui/internal/tui/theme"
+	"github.com/Nano-AI/leetui/internal/tui/components"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 func TestSearchFiltersRows(t *testing.T) {

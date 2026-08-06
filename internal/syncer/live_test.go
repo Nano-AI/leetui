@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
-	"github.com/grootbeat/leetui/internal/store"
+	"github.com/Nano-AI/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 // TestLiveSync talks to the real LeetCode API. It is opt-in: run with

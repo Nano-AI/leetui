@@ -3,7 +3,7 @@ package components
 import (
 	"strings"
 
-	"github.com/grootbeat/leetui/internal/tui/theme"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 // RuleRow builds a horizontal divider that lines up with column separators, e.g.

@@ -1,8 +1,8 @@
 package tui
 
 import (
+	"github.com/Nano-AI/leetui/internal/auth"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/grootbeat/leetui/internal/auth"
 )
 
 func (m Model) handleSearchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {

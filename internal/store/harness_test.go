@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/grootbeat/leetui/internal/leetcode"
+	"github.com/Nano-AI/leetui/internal/leetcode"
 )
 
 func testStore(t *testing.T) *Store {

@@ -1,10 +1,10 @@
 package tui
 
 import (
+	"github.com/Nano-AI/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/grootbeat/leetui/internal/auth"
-	"github.com/grootbeat/leetui/internal/store"
 )
 
 // ---------------------------------------------------------------------------
