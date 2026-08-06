@@ -159,6 +159,22 @@ public:
 vscode-leetcode's `@lc code=start` markers are read too, so a workspace built with that
 extension works here unchanged.
 
+**leetui is the LeetCode side of the desk, not the editor.** It owns browsing, search,
+company packs, statements, editorials, running, and submitting. The code happens in
+whatever you already have open — nvim in the next tmux pane, a VS Code terminal, an editor
+on another monitor. So the side column always names the file and says whether a save will
+re-run it:
+
+```
+╭─ SOLUTION ───────────────────────── PYTHON3 ─╮
+│ ~/leetcode/0001-two-sum/solution.py          │
+│ watching · saves re-run the tests            │
+╰──────────────────────────────────────────────╯
+```
+
+Open that path wherever you like. Save. leetui re-runs the tests and shows the diff,
+without you switching back to it.
+
 **Reading and writing at the same time.** Inside tmux (or zellij, WezTerm, Kitty), `e`
 opens your editor in a pane *beside* leetui rather than taking the terminal — the
 statement stays on screen and saving re-runs the tests, so you never switch back. A GUI

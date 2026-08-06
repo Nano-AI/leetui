@@ -360,6 +360,26 @@ vim.keymap.set("n", "<leader>lr", ":!leetui run %<CR>")
 
 ---
 
+## D-016 — leetui is the LeetCode side of the desk, not the editor
+
+Settled 2026-08-06, from the user's own framing: *"All UI components / LeetCode components are contained in the CLI itself, but the code is through nvim and vscode."*
+
+**Decision.** leetui owns browsing, search, company packs, the statement, editorials, running, and submitting. It does **not** own editing. The user already has an editor configured the way they like it, usually already open in the next pane.
+
+**What this demotes.** The three-route editor launcher (D-012a) solves *"leetui needs to hand you to an editor."* Under this model it rarely fires: you are already in one. `e` stays as the fast way to find the file the first time and for anyone who wants it, but it is a convenience, not the path.
+
+**What this promotes.** The file watcher becomes THE mechanism rather than a nicety. Edit anywhere, save, leetui re-runs. That already worked — it was just invisible, which is the same as being off.
+
+**What it required.** leetui must **say where the file is**. Without a path there is nothing to open in the other pane and the whole arrangement collapses back into pressing `e` and hoping. Hence the workbench strip: the solution's path, the language, and one line saying whether a save will re-run.
+
+The strip asks `workspace.Path` for that path rather than assembling the folder name itself. A second copy of the convention would drift, and a strip that points at the wrong file is worse than no strip.
+
+**It also has to be honest about when saves do nothing.** A judge-only language has no local driver, so "watching" would promise a re-run that never comes; it says `judge only · s to submit` instead. Same for a file that does not exist yet, and for `watch_solution = false` — which reads `watch off`, never "watching off", because a skimmed "watching…" says the opposite of what it means.
+
+**Cost.** A four-line strip of vertical space in the side column, always present. It earns it: it is the only thing on screen that connects leetui to the editor that is doing the actual work.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

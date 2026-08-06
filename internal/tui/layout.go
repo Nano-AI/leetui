@@ -124,13 +124,31 @@ func (m Model) viewBody() string {
 	}
 }
 
-// viewSidePane shows a fresh local run in place of the submission queue.
+// viewSidePane is the working column: what file you are editing, then what happened.
 //
-// The run is what the user just asked for and is looking at; the queue is history. When
-// the result belongs to another problem it is not shown at all — see hasResult.
+// The workbench strip is always on top and always present. It carries the solution's path,
+// which is the one thing leetui must say out loud when the editing happens somewhere else
+// entirely (see workbench.go).
+//
+// Below it, a fresh local run displaces the submission queue: the run is what the user
+// just asked for and is looking at; the queue is history. A result belonging to another
+// problem is not shown at all — see hasResult.
 func (m Model) viewSidePane(w, h int) string {
-	if m.hasResult() {
-		return m.viewResult(w, h)
+	bench := m.viewWorkbench(w)
+	rest := h - workbenchHeight
+
+	// Too short to carry both: the path matters more than the history, but a pane with
+	// nothing under it is worse than no strip at all.
+	if rest < 3 {
+		if m.hasResult() {
+			return m.viewResult(w, h)
+		}
+		return m.viewQueue(w, h)
 	}
-	return m.viewQueue(w, h)
+
+	body := m.viewQueue(w, rest)
+	if m.hasResult() {
+		body = m.viewResult(w, rest)
+	}
+	return lipgloss.JoinVertical(lipgloss.Left, bench, body)
 }

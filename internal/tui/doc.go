@@ -35,6 +35,7 @@
 //	rail.go         the header strip
 //	board.go        the problem grid; board_row.go renders one row
 //	detail.go       the statement pane; editorial_view.go its editorial half
+//	workbench.go    the solution's path and whether saves re-run (D-016)
 //	result.go       the local-run diff panel
 //	queue.go        the submission queue; judge_text.go wording for verdicts
 //	search.go       the search panel
