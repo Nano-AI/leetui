@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/tui/components"
@@ -33,12 +34,28 @@ func (m Model) ready() (*store.Detail, runner.Lang, tea.Cmd) {
 }
 
 // startEdit lays out the problem folder and opens the solution in the editor.
+//
+// With no editor chosen yet, this opens the picker instead of guessing. Guessing is how
+// someone ends up in vi without knowing how to leave.
 func (m Model) startEdit() (tea.Model, tea.Cmd) {
 	d, lang, bail := m.ready()
 	if bail != nil {
 		return m, bail
 	}
+	if m.cfg.Editor == "" {
+		return m.openEditorPicker()
+	}
 	return m, m.editCmd(d, lang)
+}
+
+// openEditorPicker lists the editors installed on this machine.
+func (m Model) openEditorPicker() (tea.Model, tea.Cmd) {
+	m.editors = editor.Detect()
+	if len(m.editors) == 0 {
+		return m, status("No editor found. Set one in "+m.cfg.Path()+".", true)
+	}
+	m.picking, m.pickIdx = pickEditor, 0
+	return m, nil
 }
 
 // startRun executes the solution locally.

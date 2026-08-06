@@ -26,6 +26,7 @@ var DefaultKeymap = map[string]string{
 	"edit":        "e",
 	"run":         "r",
 	"lang":        "l",
+	"editor":      "E",
 	"submit":      "s",
 	"sync":        "S",
 	"editorial":   "d",

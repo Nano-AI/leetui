@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
@@ -15,26 +16,38 @@ func TestEditorResolution(t *testing.T) {
 	t.Setenv("EDITOR", "")
 
 	// Config wins, so leetui can be pointed somewhere without touching the shell.
-	if got := editorCommand("nvim"); got != "nvim" {
-		t.Errorf("configured editor = %q, want nvim", got)
+	if got := resolveEditor("nvim"); !strings.HasSuffix(got.Command, "nvim") {
+		t.Errorf("configured editor = %q, want nvim", got.Command)
 	}
 
-	// Then the environment.
-	t.Setenv("EDITOR", "helix")
-	if got := editorCommand(""); got != "helix" {
-		t.Errorf("$EDITOR = %q, want helix", got)
-	}
-	t.Setenv("VISUAL", "kak")
-	if got := editorCommand(""); got != "kak" {
-		t.Errorf("$VISUAL should outrank $EDITOR, got %q", got)
+	// An unknown command is honoured verbatim rather than overridden.
+	if got := resolveEditor("/opt/weird/ed"); got.Command != "/opt/weird/ed" {
+		t.Errorf("unknown editor = %q, want it used as written", got.Command)
 	}
 
-	// With nothing set, the fallback chain must still name something runnable — both
-	// vars are commonly unset (D-012).
+	// Then the environment, with VISUAL outranking EDITOR.
+	t.Setenv("EDITOR", "some-editor")
+	if got := resolveEditor(""); got.Command != "some-editor" {
+		t.Errorf("$EDITOR = %q", got.Command)
+	}
+	t.Setenv("VISUAL", "other-editor")
+	if got := resolveEditor(""); got.Command != "other-editor" {
+		t.Errorf("$VISUAL should outrank $EDITOR, got %q", got.Command)
+	}
+
+	// With nothing set, the fallback must still name something runnable — both vars are
+	// commonly unset (D-012).
 	os.Unsetenv("VISUAL")
 	os.Unsetenv("EDITOR")
-	if got := editorCommand(""); got == "" {
-		t.Error("fallback chain produced no editor")
+	if got := resolveEditor(""); got.Command == "" {
+		t.Error("fallback produced no editor")
+	}
+
+	// A GUI editor must never lose its blocking flag on the way through.
+	if e, ok := editor.Lookup("code"); ok {
+		if _, args := e.Launch("/tmp/x.py"); len(args) < 2 || args[0] != "--wait" {
+			t.Errorf("VS Code launched without --wait: %v", args)
+		}
 	}
 }
 
@@ -54,15 +67,23 @@ func TestPickerListsOnlyOfferedLanguages(t *testing.T) {
 		t.Fatalf("picker offered %d languages, want 3", len(got))
 	}
 	// Locally-runnable languages sort first, so the cursor lands near the fast loop.
-	if !got[0].Local || !got[1].Local || got[2].Local {
-		t.Errorf("local languages should sort first, got %v", []string{
-			got[0].Slug, got[1].Slug, got[2].Slug})
+	// Asserted as an invariant rather than a fixed count: which languages have drivers
+	// changes as they are written.
+	seenRemote := false
+	for _, l := range got {
+		if !l.Local {
+			seenRemote = true
+			continue
+		}
+		if seenRemote {
+			t.Errorf("%s runs locally but sorted after a judge-only language", l.Slug)
+		}
 	}
 }
 
 func TestPickerSelectsLanguage(t *testing.T) {
 	m := boot(t, true, 120, 34)
-	m.picking = true
+	m.picking = pickLang
 	m.pickIdx = 0
 
 	langs := m.pickerLangs()
@@ -71,7 +92,7 @@ func TestPickerSelectsLanguage(t *testing.T) {
 	}
 
 	m = drive(t, m, key("enter"))
-	if m.picking {
+	if m.picking != pickNone {
 		t.Error("picker stayed open after choosing")
 	}
 	if m.lang.Slug != langs[0].Slug {

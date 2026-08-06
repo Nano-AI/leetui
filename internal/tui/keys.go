@@ -30,7 +30,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
-	case m.picking:
+	case m.picking != pickNone:
 		return m.handlePickerKey(msg)
 
 	case m.mode == modeAuth:
@@ -135,10 +135,12 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.startSubmit()
 	case "lang":
 		if len(m.rows) > 0 {
-			m.picking = true
-			m.pickIdx = 0
+			m.picking, m.pickIdx = pickLang, 0
 		}
 		return m, nil
+
+	case "editor":
+		return m.openEditorPicker()
 
 	case "sync":
 		return m.startSync()

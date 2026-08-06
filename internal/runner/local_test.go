@@ -217,10 +217,20 @@ func TestSupportsAndToolchain(t *testing.T) {
 		t.Error("a language with no driver should not blame a missing toolchain")
 	}
 
-	// Rust ships a driver slot but needs rustup; on a machine without it, Supports must
-	// say no and MissingToolchain must name what to install.
+	// Rust has no driver yet, so it must report as judge-only rather than blaming a
+	// missing toolchain — "install rustup" would be the wrong advice.
 	rust, _ := Lookup("rust")
-	if !l.Supports(rust) && l.MissingToolchain(rust) != "rustc" {
-		t.Errorf("MissingToolchain(rust) = %q, want rustc", l.MissingToolchain(rust))
+	if rust.Local {
+		t.Error("rust is marked local but has no driver in drivers/")
+	}
+	if l.MissingToolchain(rust) != "" {
+		t.Errorf("MissingToolchain(rust) = %q; a driverless language must not blame a toolchain",
+			l.MissingToolchain(rust))
+	}
+
+	// Python has a driver, so on a machine with python3 it must actually run.
+	py, _ := Lookup("python3")
+	if !py.Local {
+		t.Error("python3 has a vendored driver and should be marked local")
 	}
 }

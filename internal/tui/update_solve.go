@@ -20,7 +20,7 @@ func (m Model) handleSolveMsg(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//
 		// Arguments go as a slice, never a shell string — the path is built from a
 		// LeetCode slug.
-		cmd := exec.Command(msg.editor, msg.file)
+		cmd := exec.Command(msg.argv[0], msg.argv[1:]...)
 		return m, tea.ExecProcess(cmd, func(err error) tea.Msg {
 			return editDoneMsg{err: err}
 		})

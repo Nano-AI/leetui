@@ -12,21 +12,29 @@ type Lang struct {
 	Display string
 	Ext     string
 
-	// Local reports whether leetui can execute this language on the machine (D-004).
-	// False means edit and submit still work; only `run` goes to the judge.
+	// Local reports whether leetui HAS A VENDORED DRIVER for this language today —
+	// not whether one is planned.
+	//
+	// The distinction matters because the picker shows it. Marking a language local
+	// before its driver exists promises "runs here" and then fails on the first run,
+	// which is worse than saying "judge only" and being right.
+	//
+	// False means edit and submit still work; only `run` goes to the judge (D-004).
 	Local bool
 }
 
 // langs is the full submission language set LeetCode offers.
 //
-// Local is true only for the four leetgo implements drivers for. Adding a language here
-// with Local: true without a driver behind it would promise a local run that cannot
-// happen — see D-004 before changing any of these flags.
+// ONLY set Local: true once a driver in drivers/ actually handles the language and
+// local.go dispatches to it. Setting it early makes the picker lie.
 var langs = []Lang{
 	{Slug: "python3", Display: "Python3", Ext: ".py", Local: true},
-	{Slug: "golang", Display: "Go", Ext: ".go", Local: true},
-	{Slug: "cpp", Display: "C++", Ext: ".cpp", Local: true},
-	{Slug: "rust", Display: "Rust", Ext: ".rs", Local: true},
+
+	// Drivers not written yet — D-004 lists these as in scope, and they run on the
+	// judge until drivers/ has them.
+	{Slug: "golang", Display: "Go", Ext: ".go"},
+	{Slug: "cpp", Display: "C++", Ext: ".cpp"},
+	{Slug: "rust", Display: "Rust", Ext: ".rs"},
 
 	{Slug: "java", Display: "Java", Ext: ".java"},
 	{Slug: "javascript", Display: "JavaScript", Ext: ".js"},

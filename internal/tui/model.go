@@ -8,6 +8,7 @@ import (
 
 	"github.com/Nano-AI/leetui/internal/auth"
 	"github.com/Nano-AI/leetui/internal/config"
+	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/render"
 	"github.com/Nano-AI/leetui/internal/runner"
@@ -66,8 +67,9 @@ type Model struct {
 	// Solve loop.
 	engine    runner.Engine
 	lang      runner.Lang
-	picking   bool // language picker open
+	picking   pickKind // which picker is open; pickNone when closed
 	pickIdx   int
+	editors   []editor.Editor
 	runResult *runner.Result
 	runSlug   string
 	running   bool

@@ -65,7 +65,7 @@ func (m Model) View() string {
 		return ""
 	}
 
-	if m.picking {
+	if m.picking != pickNone {
 		return m.viewPicker()
 	}
 

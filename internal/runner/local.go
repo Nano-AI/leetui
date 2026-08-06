@@ -40,11 +40,11 @@ type Local struct {
 func NewLocal() *Local { return &Local{Timeout: DefaultTimeout} }
 
 // toolchains maps a language to the executable that must be on PATH to run it.
+//
+// Only languages with a vendored driver belong here. A language listed with a toolchain
+// but no driver would report "needs rustc" when the real answer is "no driver yet".
 var toolchains = map[string]string{
 	"python3": "python3",
-	"golang":  "go",
-	"cpp":     "c++",
-	"rust":    "rustc",
 }
 
 // detect probes PATH once, so a run does not pay for it per case.

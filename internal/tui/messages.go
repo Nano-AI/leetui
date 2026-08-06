@@ -52,8 +52,8 @@ type (
 
 	// editReadyMsg means the workspace is laid out and the editor can be launched.
 	editReadyMsg struct {
-		file   string
-		editor string
+		name string   // for messages
+		argv []string // command plus args, already including the file
 	}
 
 	// editDoneMsg arrives when the editor exits.

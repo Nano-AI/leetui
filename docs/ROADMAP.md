@@ -72,10 +72,18 @@ Not yet done in this phase:
       compiled packages. Zero new dependencies. See D-005 for the full reasoning
 - [x] `$EDITOR` delegation via `tea.ExecProcess`
 - [x] Language picker (`l`) — only what the problem offers, marking local vs judge
+- [x] **Editor detection and picker (`E`)** — finds Neovim, Vim, Helix, Kakoune, Emacs,
+      Micro, Nano, VS Code / Insiders / Cursor / Windsurf, Zed, Sublime, BBEdit,
+      TextMate, and the JetBrains launchers. Checks PATH *and* macOS app bundles, since
+      Sublime and JetBrains often ship their CLI helper unlinked. GUI editors carry
+      their `--wait` flag or the TUI would repaint over an untouched file. The choice
+      persists to `config.toml`, and pressing `e` with nothing configured opens the
+      picker rather than guessing
 - [x] Local run (`r`) with per-case timeout and crash isolation
 - [x] Submit (`s`), judge poll, and the flip driving real verdicts
-- [ ] **Go and C++ drivers** — only Python has one so far. Everything else routes to
-      the judge, which works but costs a round-trip per run
+- [ ] **Go and C++ drivers** — only Python has one. `Lang.Local` now reflects which
+      drivers EXIST rather than which are planned, so the picker says "judge only"
+      instead of promising a run that would fail
 - [ ] **Result diff panel** — a run currently reports through the status line. A
       side-by-side expected/actual view is what makes a failure actionable
 - [ ] File watcher — `ModTime` exists in `workspace`; nothing polls it yet, so an

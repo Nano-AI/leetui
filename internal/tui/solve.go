@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
@@ -83,30 +83,44 @@ func (m Model) editCmd(d *store.Detail, lang runner.Lang) tea.Cmd {
 		if err != nil {
 			return statusMsg{text: err.Error(), isError: true}
 		}
-		return editReadyMsg{file: file, editor: editorCommand(cfg.Editor)}
+		ed := resolveEditor(cfg.Editor)
+		cmd, args := ed.Launch(file)
+		return editReadyMsg{name: ed.Name, argv: append([]string{cmd}, args...)}
 	}
 }
 
-// editorCommand resolves which editor to launch.
+// resolveEditor decides which editor to launch, and with which arguments.
 //
 // Config wins over the environment so leetui can be pointed somewhere specific without
-// changing the shell. The fallback chain matters here: $EDITOR and $VISUAL are both
-// commonly unset (D-012).
-func editorCommand(configured string) string {
+// changing the shell. The fallback chain matters: $EDITOR and $VISUAL are both commonly
+// unset (D-012).
+//
+// Resolving through the editor package rather than returning a bare command name is
+// what carries a GUI editor's blocking flag. Launch "code" without --wait and it forks,
+// returns instantly, and the TUI repaints over a file nobody has typed in yet.
+func resolveEditor(configured string) editor.Editor {
 	if configured != "" {
-		return configured
+		if e, ok := editor.Lookup(configured); ok {
+			return e
+		}
+		// Configured but unknown: honour it verbatim rather than overriding the user.
+		return editor.FromCommand(configured)
 	}
+
 	for _, env := range []string{"VISUAL", "EDITOR"} {
 		if v := strings.TrimSpace(os.Getenv(env)); v != "" {
-			return v
+			if e, ok := editor.Lookup(v); ok {
+				return e
+			}
+			return editor.FromCommand(v)
 		}
 	}
-	for _, candidate := range []string{"nvim", "vim", "nano", "vi"} {
-		if _, err := exec.LookPath(candidate); err == nil {
-			return candidate
-		}
+
+	// Nothing configured anywhere: prefer a terminal editor, which Detect sorts first.
+	if found := editor.Detect(); len(found) > 0 {
+		return found[0]
 	}
-	return "vi"
+	return editor.FromCommand("vi")
 }
 
 // runLocalCmd generates a driver and runs the solution against its test cases.
