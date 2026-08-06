@@ -23,14 +23,19 @@ internal/
   auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
               chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
-              queries.go documents · models.go wire types
+              queries.go documents · models.go wire types · submit.go judge · rest.go
+              company.go packs+timeframes · editorial.go · queries_premium.go
   store/      open.go · schema.go migrations · state.go checkpoints · fts.go
-              types.go rows · write.go upserts · query.go filters · get.go · stats.go
+              types.go rows · write.go upserts · query.go filters · order.go sorts
+              get.go · stats.go · company.go registry+packs · editorial.go cache
   syncer/     syncer.go · progress.go · problems.go the resumable job · detail.go
+              companies.go registry+one pack · editorial.go
   render/     html.go converter · walk.go dispatch · inline.go · blocks.go
               whitespace.go · text.go · latex.go · glamour.go theme
-  runner/     (Phase 2) adapter over leetgo — codegen, local execution, comparators
-  workspace/  (Phase 2) problem-folder layout on disk (D-010), file watching
+              editorial.go markdown-with-HTML, a separate door (D-007a)
+  runner/     interfaces + language registry, vendored per-language drivers (D-005)
+  editor/     editor.go detection and launch arguments (D-012)
+  workspace/  problem-folder layout on disk (D-010), never-overwrite writes
   vcs/        (Phase 4) git shell-out: status, commit-on-accepted, push
   tui/
     theme/       tokens.go — the only place hex values appear

@@ -104,21 +104,42 @@ Carried forward:
 - The comparator override table is seeded, not exhaustive — an uncurated mismatch says
   "check on the judge" rather than claiming a wrong answer (D-003)
 
-## Phase 3 — Premium
+## Phase 3 — Premium ✅ **COMPLETE**
 
-- [ ] Premium detection + graceful lock states
-- [ ] Editorials — HTML → markdown → Glamour, LaTeX approximation
-- [ ] Company sync (invert company → problem, throttled, resumable)
-- [ ] **Company packs** — pick "Google" and work through Google's list, the way the
-      website's premium loop works. The schema is already in place
-      (`companies`, `problem_companies` with frequency and timeframe) and the board
-      already has an `ASKED BY` column reading from it; what is missing is the sync
-      job and a browse-by-company view. Timeframe buckets (6mo / 1yr / 2yr / all)
-      come along with the inverted sync for free.
-- [ ] Premium-only problems and lists
-- [ ] Timer / stopwatch in the rail
+- [x] **Premium detection + lock states** — the rail badges the account, and every gated
+      surface names what it is withholding: a locked statement, a locked editorial (with
+      its public title and video flag), and a company pull that came back gated. Never a
+      raw error, never a silently missing feature (D-006)
+- [x] **Editorials** (`d`) — toggles the detail pane between statement and write-up. The
+      pane follows the cursor, so reading editorials down a list works. See **D-007a**:
+      editorials are markdown with embedded HTML, *not* HTML, and needed their own
+      converter — `[TOC]` stripped, playground and video embeds reduced to numbered
+      markers, `$$…$$` display math approximated in Unicode
+- [x] **Company registry** — 984 companies in one request, and it works **signed out**,
+      so a free account can still see which lists exist and how large each one is
+- [x] **Company packs** (`c`) — browse-by-company with type-to-filter, then a timeframe.
+      The board filters to the pack and sorts by **frequency**, which is what makes it a
+      priority list rather than a numbered one. Five timeframes, verified against the
+      live API: 30 days / 3 months / 6 months / over 6 months / all time
+- [x] **Premium-only filter** (`p`) — cycles all → premium → free. A company pack is
+      also the only place some premium problems appear locally, so a pack seeds problems
+      the list sync has not reached
+- [x] **Timer / stopwatch in the rail** (`t` `T`) — mirrors LeetCode's own
 
-**Milestone:** premium parity minus mock assessments (D-006).
+**Milestone met.** Premium parity minus mock assessments (D-006). Verified against the
+live API signed out — see `TestLivePremiumSchema`, which is what catches LeetCode moving
+a field.
+
+**Packs sync one at a time, on purpose.** The roadmap's original "~500 requests" was off:
+984 companies × 5 timeframes is ~5,000 requests and forty minutes at the rate limit, to
+answer a question about one company. See **D-006a** for the reasoning and the endpoints,
+and **D-006b** for the `companyTagStats` shortcut that was rejected.
+
+Carried forward:
+- Premium study plans (Top Interview 150 and friends) are `favoriteQuestionList` under a
+  different slug — the same plumbing, no view yet
+- The `ASKED BY` column shows company slugs rather than display names, so Meta reads as
+  `facebook` there. Consistent with the tag column, which is also slugs
 
 ## Phase 4 — Git
 

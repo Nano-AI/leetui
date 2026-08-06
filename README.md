@@ -3,9 +3,10 @@
 A terminal client for LeetCode. Browse, search, solve, run, and submit without leaving
 the terminal — with full Premium parity and optional GitHub sync.
 
-**Status: Phase 1 complete — browse and search work against real LeetCode data.**
-Sync 4,013 problems locally, search them instantly offline, read statements rendered in
-the terminal. Solving, running, submitting, and the premium surfaces are next.
+**Status: Phase 3 complete — browse, solve, and the premium surfaces all work.**
+Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
+against the examples without leaving the terminal (Python, Go, C++), and submit to the
+judge. Company packs, editorials, and the premium filter are in. Git integration is next.
 See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
@@ -44,7 +45,12 @@ status and premium content. Browsing and search work signed out.
 | `1` `2` `3` | toggle easy / medium / hard (board focus) |
 | `1`–`9` | open image N (detail focus) |
 | `u` | cycle all → unsolved → solved |
+| `p` | cycle all → premium → free |
 | `0` `esc` | clear filters |
+| `e` `r` `s` | edit / run locally / submit |
+| `l` `E` | choose language / editor |
+| `c` | browse company lists, then a timeframe |
+| `d` | read the official editorial |
 | `S` | sync (press again to pause — it resumes where it stopped) |
 | `a` | sign in |
 | `o` | open the problem in your browser |
@@ -85,6 +91,25 @@ Config is written to `~/.config/leetui/config.toml`; the database lives in
  / search ┊ 1·2·3 difficulty ┊ u unsolved ┊ S sync ┊ ? keys ┊ q quit
 ```
 
+Press **`c`** for the premium loop the website is built around — pick a company, pick how
+recently it asked, work the list. Typing narrows immediately; there is only one thing to
+do with a keystroke in a list of 984 companies.
+
+```
+╭─ COMPANY ───────────────────────────────────── 3 OF 984 ─╮
+│ goo                                                      │
+╰──────────────────────────────────────────────────────────╯
+╭─ LISTS ──────────────────────────────────────── PREMIUM ─╮
+│ ▌ Google                             199 stored of 2335  │
+│   Goldman Sachs                            412 problems  │
+│   Google Cloud                              38 problems  │
+╰──────────────────────────────────────────────────────────╯
+ type to narrow ┊ ↑↓ move ┊ enter pick a timeframe ┊ esc back
+```
+
+The chosen pack filters the board and sorts it by **frequency**, so what that company asks
+most sits at the top. That ordering is the whole reason a pack beats a tag filter.
+
 A submission queue is a departure board — work is submitted, sits pending, gets judged,
 resolves. So verdicts **flip** into place rather than appearing. That flip is the app's
 entire motion budget and its only loading state; there are no spinners in leetui.
@@ -101,10 +126,10 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Go + Bubbletea/Lipgloss/Glamour** — single static binary
 - **Auth** — paste `LEETCODE_SESSION` + `csrftoken`, browser import as convenience, stored in the OS keychain
 - **Run local, submit remote** — tight loop stays offline, correctness of record comes from the judge
-- **Local execution: Go, Python, C++, Rust** — via `leetgo` behind an adapter. Java and JS/TS are remote-only
+- **Local execution: Python, Go, C++** — vendored drivers, zero new dependencies. Everything else edits and submits normally and runs on the judge
 - **Full Premium parity** — company packs, editorials, premium problems. No mock assessments
 - **SQLite + FTS5** (`modernc.org/sqlite`, pure Go) for instant offline search
-- **Company sync inverts company→problem** — ~500 requests instead of ~3,600
+- **Company packs sync one at a time** — 984 companies × 5 timeframes is ~5,000 requests; one pack is ~24
 - **Disk layout is problem-first** — `0146-lru-cache/{solution.go, README.md, notes.md}`
 - **Git** — auto-commit on Accepted, push only on an explicit keypress
 - **Editing** — delegate to `$EDITOR`, plus a file watcher for external editors
@@ -117,11 +142,12 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 ```
 cmd/leetui/          entrypoint
 internal/
-  config/  auth/  leetcode/  store/  runner/  render/  workspace/  vcs/
+  config/  auth/  leetcode/  store/  syncer/  render/  editor/  workspace/
+  runner/            interfaces, language registry, and vendored drivers/
   tui/
-    theme/       the only place hex values are allowed to appear
-    components/  flap (the signature), sparkline
-    app.go       root model, layout, global keys
+    theme/           the only place hex values are allowed to appear
+    components/      frame (the bezel), flap (the signature), sparkline
+    doc.go           the file map for this package — read it before adding one
 docs/                DECISIONS · DESIGN · ARCHITECTURE · ROADMAP
 ```
 

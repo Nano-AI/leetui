@@ -113,6 +113,24 @@ Settled: 2026-08-06.
 
 **Degradation.** Without premium, gated panes show a lock and a one-line statement of what they would contain. Never a raw error, never a silently hidden feature.
 
+### D-006a — Company packs sync ONE AT A TIME, not in bulk
+
+Settled 2026-08-06, once the endpoints were probed live rather than guessed at.
+
+The roadmap said "invert company → problem, ~500 requests". The real registry is **984 companies**, and each has **five** timeframes (`thirty-days`, `three-months`, `six-months`, `more-than-six-months`, `all` — verified, and the only five that resolve). A blanket sync is ~5,000 requests: forty minutes at the shared rate limit, to answer a question the user asked about one company.
+
+**Decision.** The registry syncs wholesale — it is one request and it works **signed out**. Packs sync on demand, when a company and timeframe are chosen. Google's largest pack is 2,335 problems, which is 24 requests and a few seconds.
+
+**Endpoints.** `companyTags` (registry, public) · `favoriteDetailV2` (pack size, public) · `favoriteQuestionList` with `favoriteSlug: "<company>-<timeframe>"` (the problems, **premium**).
+
+**The gate is not an error.** A free account gets HTTP 200 and an empty `questions` array with `totalLength` still set. `CompanyPage` compares the two and raises `ErrPremiumRequired`; a caller that skipped that check would report "this company asks nothing". Likewise an unknown company returns `null`, not an error, which is why `PackSize` runs first and maps it to `ErrNotFound`.
+
+### D-006b — Rejected: piggybacking company tags on `questionData`
+
+`question.companyTagStats` exists and would ride along on the statement fetch for free, filling `ASKED BY` for every problem browsed without a single extra request.
+
+**Not taken.** It buckets by a *different* vocabulary — numeric keys for 0-6 months, 6-12 months, 1-2 years — which does not line up with the five named windows the packs use. Two timeframe vocabularies in one `timeframe` column would make the data untrustworthy for the sake of saving requests we are not spending anyway.
+
 ---
 
 ## D-007 — Editorials render via HTML → markdown → Glamour; images are bracket links
@@ -126,6 +144,16 @@ Settled: 2026-08-06.
 **Why.** The bracket is the floor: it works in every terminal, degrades to nothing worse than a label, and is what the user asked for. Inline images are a bonus for terminals that support them, not a dependency.
 
 **Cost.** Diagram-heavy editorials read worse than in a browser. Mitigated by `o` → open the full editorial in a browser.
+
+### D-007a — Correction: editorials are markdown, and go through a different door
+
+The heading above says "HTML → markdown → Glamour". That is right for **problem statements**. It is wrong for editorials, and the difference was only visible once a real one was fetched.
+
+`question.solution.content` is **markdown already**, with HTML embedded in it: `<iframe>` playground embeds holding the reference implementations, Vimeo players, `<div>` figure wrappers, and `$$…$$` display math. Running it through `HTMLToMarkdown` parses the prose as one text node and loses every heading.
+
+**So the pipeline inverts.** `render.Editorial` keeps the markdown and reduces the embedded HTML to the same bracket markers statements use — `[▸ 1 — code]`, `[▸ 2 — video]` — labelled by what the URL points at, because the reader is deciding whether to leave the terminal for it. Everything else in D-007 holds: same markers, same number keys, same LaTeX approximation.
+
+One consequence for `latex.go`: `$$…$$` needed its own rule **before** the inline `$…$` one. Given `$$O(n^2)$$` the inline pattern matches the middle and leaves a stray dollar on each side.
 
 ---
 
