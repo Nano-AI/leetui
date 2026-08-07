@@ -222,20 +222,28 @@ is inside their home directory. The pane states the situation and prints the two
 
 ## Phase 7 — The website
 
-The last piece. Nothing here is started.
+The last piece. The page is up; the install story around it is not.
 
-- [ ] Decide what it is *for* — a landing page for the tool, or a place your solved
-      problems and notes are published from. These are different projects
-- [ ] If it publishes: the workspace already holds a `README.md` per problem with the
-      statement, and `notes.md` the user wrote. Phase 4's git integration is what would
-      get them somewhere a site can read
+- [x] **Decide what it is for** — a landing page for the tool. See below
+- [x] **The page**, in `site/`, deployed to Pages by Actions
+- [ ] A domain
 - [ ] Install story: `go install`, a Homebrew tap, and prebuilt binaries per platform
 - [ ] Screenshots or an asciinema cast — the board and the flip are the pitch
 
-**Open question, worth settling before any code:** a site that publishes solutions is a
-different thing from a site that advertises the tool. The first needs the git phase and a
-decision about what is public; the second needs a domain and half a day. Do not start
-until which one is chosen.
+**Settled 2026-08-06: this repository's site advertises the tool.** The two are different
+projects and they belong in different repositories. A site that *publishes solutions*
+reads a workspace — `~/leetcode`, with a `README.md` and `notes.md` per problem — so it
+belongs there, next to the thing it publishes, and it needs a separate decision about what
+is public. Nothing about that is blocked now that Phase 4 has landed; it is just not this.
+
+`site/index.html` is one self-contained file with no build step, deployed by
+`.github/workflows/pages.yml` on changes to `site/` only. It applies the Departure Board
+system rather than reinventing one: the six tokens, one mono family, hierarchy from weight
+→ case → colour → indentation, and green used exactly once — on the verdict, which is the
+whole reason a verdict lands.
+
+**One manual step:** GitHub → Settings → Pages → Source: **GitHub Actions**. The workflow
+cannot enable it for you.
 
 ---
 
