@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Nano-AI/leetui/internal/config"
@@ -35,6 +36,7 @@ func runImage(a *app, args []string) (int, error) {
 	fs, _ := flags("image")
 	cols := fs.Int("cols", 60, "cell width to draw within")
 	rows := fs.Int("rows", 20, "cell height to draw within")
+	editorial := fs.Bool("editorial", false, "take the figure from the editorial (premium)")
 	rest, err := parseFlags(fs, args)
 	if err != nil {
 		return exitProblem, err
@@ -68,9 +70,20 @@ func runImage(a *app, args []string) (int, error) {
 		return exitProblem, err
 	}
 
+	// The statement first, then the editorial. Most figures are in the EDITORIAL —
+	// the statement usually has none, and asking for a figure only to be told the
+	// problem has none, while looking at three of them, is the wrong answer.
 	images := solve.StatementImages(d)
+	where := "statement"
+	if *editorial || len(images) == 0 {
+		if ed, err := a.sync.Editorial(ctx, d.Slug, false); err == nil && ed != nil {
+			if figs := render.EditorialToMarkdown(ed.Content).Images; len(figs) > 0 {
+				images, where = figs, "editorial"
+			}
+		}
+	}
 	if len(images) == 0 {
-		return exitProblem, fmt.Errorf("%s has no figures", d.Slug)
+		return exitProblem, fmt.Errorf("%s has no figures in its statement or editorial", d.Slug)
 	}
 	if which < 1 || which > len(images) {
 		return exitProblem, fmt.Errorf("%s has %d figures; asked for %d",
@@ -78,13 +91,25 @@ func runImage(a *app, args []string) (int, error) {
 	}
 
 	img := images[which-1]
-	fmt.Fprintf(os.Stderr, "%d. %s — figure %d of %d: %s\n",
-		d.NumericID, d.Title, which, len(images), img.Alt)
+	fmt.Fprintf(os.Stderr, "%d. %s — %s figure %d of %d%s\n",
+		d.NumericID, d.Title, where, which, len(images), altNote(img.Alt))
 
+	// A playground or a video is a real marker with a real number — pressing it in the
+	// app opens a browser, which is right. It is just not a picture, and trying to
+	// draw one fails as a bare 403 that explains nothing.
+	if !img.IsDrawable() {
+		return exitProblem, fmt.Errorf("figure %d of %s is a %s, not an image — open it:\n    %s",
+			which, d.Slug, mediaKind(img.URL), img.URL)
+	}
+
+	a.log.Printf("image fetch %s", img.URL)
 	data, err := fetchImage(ctx, img.URL)
 	if err != nil {
-		return exitProblem, err
+		// Name the URL: a 403 or a 404 is about THAT asset, and without it the user
+		// cannot tell a broken resolver from a figure LeetCode does not serve.
+		return exitProblem, fmt.Errorf("%s: %w", img.URL, err)
 	}
+	a.log.Printf("image ok %d bytes", len(data))
 
 	var seq string
 	if g.Protocol == config.ProtocolITerm {
@@ -95,7 +120,10 @@ func runImage(a *app, args []string) (int, error) {
 		// draws nothing and reports nothing.
 		png, err := render.ToPNG(data)
 		if err != nil {
-			return exitProblem, err
+			// Name the URL. "unknown format" alone leaves the user with no way to
+			// tell a broken decoder from a figure LeetCode serves as something else,
+			// or from an HTML error page arriving with a 200.
+			return exitProblem, fmt.Errorf("%s: %w", img.URL, err)
 		}
 		seq = render.KittyImage(png, *cols, *rows)
 	}
@@ -111,6 +139,26 @@ func runImage(a *app, args []string) (int, error) {
 //
 // Capped, because the response is written straight to a terminal: an unbounded read of
 // something that is not the image we asked for would spray it across the screen.
+// altNote appends a figure's description when it has one worth printing.
+// mediaKind names what a non-drawable marker is, for the message that says so.
+func mediaKind(url string) string {
+	switch {
+	case strings.Contains(url, "/playground/"):
+		return "code playground"
+	case strings.Contains(url, "vimeo"), strings.Contains(url, "youtube"):
+		return "video"
+	default:
+		return "web embed"
+	}
+}
+
+func altNote(alt string) string {
+	if alt == "" || alt == "figure" {
+		return ""
+	}
+	return ": " + alt
+}
+
 func fetchImage(ctx context.Context, url string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {

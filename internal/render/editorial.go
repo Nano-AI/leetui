@@ -23,8 +23,19 @@ var (
 	// a sidebar; Glamour renders it literally as "[TOC]".
 	reTOC = regexp.MustCompile(`(?m)^\s*\[TOC\]\s*$`)
 
-	reIframe  = regexp.MustCompile(`(?is)<iframe[^>]*\bsrc="([^"]+)"[^>]*>.*?</iframe>`)
-	reImgTag  = regexp.MustCompile(`(?is)<img[^>]*>`)
+	reIframe = regexp.MustCompile(`(?is)<iframe[^>]*\bsrc="([^"]+)"[^>]*>.*?</iframe>`)
+	reImgTag = regexp.MustCompile(`(?is)<img[^>]*>`)
+
+	// Editorials are markdown with embedded HTML (D-007a), and their figures are
+	// MARKDOWN images — `![img](/Figures/134/1.png)` — not <img> tags. Only the tags
+	// were handled, so a figure arrived as literal "img /Figures/134/1.png": not a
+	// marker anything could open, and not a URL anything could fetch.
+	// reAnyMedia matches all three forms in one alternation, so a single pass can number
+	// them in the order they appear. Iframes lead, or an <img> nested in one would be
+	// matched separately and counted twice.
+	reAnyMedia = regexp.MustCompile(`(?is)<iframe[^>]*>.*?</iframe>|<iframe[^>]*/?>|<img[^>]*>|!\[[^\]]*\]\([^)]*\)`)
+
+	reMdImage = regexp.MustCompile(`!\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)`)
 	reSrcAttr = regexp.MustCompile(`(?i)\bsrc="([^"]+)"`)
 	reAltAttr = regexp.MustCompile(`(?i)\balt="([^"]*)"`)
 
@@ -58,23 +69,46 @@ func EditorialToMarkdown(md string) Document {
 
 	// Order matters: iframes are matched before <img>, because a stripped <div> would
 	// otherwise leave an iframe's attributes loose in the text.
-	md = reIframe.ReplaceAllStringFunc(md, func(tag string) string {
-		m := reIframe.FindStringSubmatch(tag)
-		if len(m) != 2 {
-			return ""
-		}
-		url := m[1]
-		images = append(images, Image{URL: url, Alt: mediaLabel(url)})
-		return marker(len(images), mediaLabel(url))
-	})
+	// ONE PASS, so the markers are numbered in DOCUMENT ORDER.
+	//
+	// Replacing each kind in its own pass numbered every <img> before every markdown
+	// image regardless of where they sat, so a figure halfway down could be marker 1
+	// and pressing it opened something else entirely. ReplaceAllStringFunc scans
+	// left to right, so one alternation over all three keeps the count honest.
+	md = reAnyMedia.ReplaceAllStringFunc(md, func(tag string) string {
+		url, alt := "", ""
 
-	md = reImgTag.ReplaceAllStringFunc(md, func(tag string) string {
-		src := attr(reSrcAttr, tag)
-		if src == "" {
+		switch {
+		case strings.HasPrefix(strings.ToLower(tag), "<iframe"):
+			m := reIframe.FindStringSubmatch(tag)
+			if len(m) != 2 {
+				return ""
+			}
+			url, alt = m[1], mediaLabel(m[1])
+
+		case strings.HasPrefix(tag, "!["):
+			m := reMdImage.FindStringSubmatch(tag)
+			if len(m) != 3 {
+				return ""
+			}
+			alt, url = strings.TrimSpace(m[1]), editorialURL(m[2])
+			// LeetCode writes ![img](...) for most figures, which names nothing.
+			if alt == "img" {
+				alt = ""
+			}
+
+		default:
+			src := attr(reSrcAttr, tag)
+			if src == "" {
+				return ""
+			}
+			url, alt = editorialURL(src), attr(reAltAttr, tag)
+		}
+
+		if url == "" {
 			return ""
 		}
-		alt := attr(reAltAttr, tag)
-		images = append(images, Image{URL: src, Alt: alt})
+		images = append(images, Image{URL: url, Alt: alt})
 		if alt == "" {
 			return marker(len(images), "figure")
 		}
@@ -122,4 +156,69 @@ func attr(re *regexp.Regexp, tag string) string {
 		return strings.TrimSpace(m[1])
 	}
 	return ""
+}
+
+// editorialFigureBase is where LeetCode serves an editorial's figures.
+//
+// Their paths arrive RELATIVE — `/Figures/134/1.png` — and resolving them against
+// leetcode.com gives a 404. They live under /explore, which is not guessable and was
+// found by trying the three candidates against a real figure.
+// Spelled out rather than imported: render is a pure formatting package and must not
+// depend on the API client, the same reason glamour.go repeats the palette.
+const editorialFigureBase = "https://leetcode.com/explore"
+
+// editorialURL makes a figure's path absolute.
+//
+// A relative path is not something a caller can fetch or a browser can open, so it is
+// resolved here rather than at each of the places that would otherwise have to know.
+// Anything already absolute is left exactly as it is.
+func editorialURL(src string) string {
+	src = strings.TrimSpace(src)
+	if src == "" {
+		return ""
+	}
+	switch {
+	case strings.HasPrefix(src, "http://"), strings.HasPrefix(src, "https://"):
+		return src
+	case strings.HasPrefix(src, "//"):
+		return "https:" + src
+	}
+
+	// Editorials write `../Figures/134/1.png`, relative to wherever the card that
+	// contains them lives. Joining that to the base verbatim gives
+	// `/explore/../Figures/…`, which LeetCode does not normalise and answers 404.
+	//
+	// Proper URL resolution does not help either: `..` from `/explore/` is
+	// `/Figures/…`, and that is a 404 too. The figures are genuinely served from
+	// `/explore/Figures/…`, so the traversal is stripped rather than followed.
+	// Established by fetching all three candidates, not deduced.
+	for {
+		switch {
+		case strings.HasPrefix(src, "../"):
+			src = src[3:]
+		case strings.HasPrefix(src, "./"):
+			src = src[2:]
+		case strings.HasPrefix(src, "/"):
+			src = src[1:]
+		default:
+			return editorialFigureBase + "/" + src
+		}
+	}
+}
+
+// IsDrawable reports whether an Image is an actual picture.
+//
+// The marker list deliberately mixes figures with code playgrounds and video embeds:
+// they are all things a number opens, and renumbering to exclude some would mean the
+// key in the pane and the argument on the command line disagreed.
+//
+// So they stay numbered together, and anything that wants to DRAW one asks first —
+// otherwise a playground is fetched as a picture and fails as a bare 403, which
+// explains nothing.
+func (i Image) IsDrawable() bool {
+	switch mediaLabel(i.URL) {
+	case "code", "video":
+		return false
+	}
+	return true
 }
