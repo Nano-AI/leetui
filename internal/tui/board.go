@@ -38,7 +38,7 @@ const (
 	colTodo   = 4
 	colDiff   = 3
 	colAC     = 4
-	colStatus = 7
+	colStatus = 5
 	colComp   = 16
 	minTitle  = 16
 )

@@ -48,26 +48,27 @@ func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols
 
 // todoMark shows whether a problem is on the user's list.
 //
-// A dot rather than a word, because unlike SOLVED or TRIED this is a yes-or-no and a
-// column of "TODO TODO TODO" would compete with the titles for the eye.
-//
 // A glyph is only allowed to be a glyph when something else names it, and the FIRST thing
 // asked about this column was what the dot meant — because its header was blank. The
-// header is now "TODO"; the dot sits under it and needs no legend of its own. Do not
+// header is now "TODO"; the mark sits under it and needs no legend of its own. Do not
 // remove that header. Amber because it is the user's own annotation, not LeetCode's data.
 func todoMark(on bool) string {
 	if !on {
 		return ""
 	}
-	// Indented one cell so it falls under the middle of the four-character header.
-	return " " + lipgloss.NewStyle().Foreground(theme.Amber).Render("●")
+	return theme.Center(
+		lipgloss.NewStyle().Foreground(theme.Amber).Render(theme.Glyphs().Todo), colTodo)
 }
 
-// rowState is the progress column.
+// rowState is the progress column: solved, tried, or out of reach.
 //
-// It says what the reader most needs to know about the row, in one word: whether they
-// have solved it, tried it, or cannot open it. Words rather than glyphs — a "✓" needs a
-// legend, "SOLVED" does not.
+// A glyph rather than a word (D-023). `✓ ✓ ◐ ⊘ ✓` scans down a column in a way
+// `SOLVED SOLVED TRIED LOCKED SOLVED` does not, and it costs two fewer cells. That trade
+// only holds because the column is headed STATE — an unheaded glyph is the mistake this
+// board has already made twice.
+//
+// theme.Glyphs falls back to ASCII where the terminal cannot be trusted with the width of
+// `✓`, which is Ambiguous and may be drawn two cells wide.
 //
 // LOCKED depends on the ACCOUNT, not on the problem.
 //
@@ -79,13 +80,16 @@ func todoMark(on bool) string {
 //
 // Solved is bone, never green: green belongs to the judge alone.
 func rowState(r store.Row, premium bool) string {
+	g := theme.Glyphs()
 	switch {
 	case r.Solved():
-		return lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render("SOLVED")
+		// Bone and bold, never green: green belongs to the judge alone.
+		return theme.Center(
+			lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render(g.Solved), colStatus)
 	case r.Status == "notac":
-		return theme.Meta.Render("TRIED")
+		return theme.Center(theme.Label.Render(g.Tried), colStatus)
 	case r.PaidOnly && !premium:
-		return theme.Meta.Render("LOCKED")
+		return theme.Center(theme.Meta.Render(g.Locked), colStatus)
 	default:
 		return ""
 	}

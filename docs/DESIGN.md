@@ -127,6 +127,9 @@ concession to convention here; the metaphor requires them.
   survives for anything that genuinely wants a bar rather than a number.
 - **Focused pane** is marked by its bezel turning `amber`. Not by a background shift, not
   by a border-weight change.
+- **State is a glyph** — `✓` solved, `◐` tried, `⊘` locked (D-023), with an ASCII set for
+  terminals that cannot be trusted with the width of `✓`. Legible only because the column
+  is headed `STATE`; see the rule immediately below.
 - **Every column carries a header.** The board has now shipped an unlabelled glyph twice
   — the acceptance sparkline (D-020) and the todo dot (D-022) — and both times the first
   question asked of it was what the mark meant. A glyph is only allowed to be a glyph when

@@ -128,7 +128,10 @@ Config is written to `~/.config/leetui/config.toml`; the database lives in
 
 Browsing is the list and nothing else, full width — the same reason
 leetcode.com/problemset is a table and nothing else. `DIF` uses LeetCode's own
-colours, teal / amber / red, so it reads without a legend.
+colours, teal / amber / red, so it reads without a legend. `STATE` is `✓` solved,
+`◐` tried, `⊘` locked; rows alternate a faint band so the eye can track across
+one. Terminals that cannot be trusted with the width of `✓` get `x` `~` `-`
+automatically.
 
 `enter` opens the problem; `esc` comes back to exactly where you were.
 
@@ -241,6 +244,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Two screens** — the list is the list; `enter` opens a problem, `esc` comes back
 - **A todo list you can script** — `m` in the app, `leetui todo add` from anywhere
 - **Difficulty in LeetCode's own teal / amber / red** — reads without a legend
+- **Every column has a header** — a glyph is only a glyph when something names it
 - **Keys** — vim-first, arrows always work, everything remappable
 
 ---

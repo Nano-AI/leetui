@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 194 files, ~20,814 lines, mean 107, max 218.
+Current: 199 files, ~21,184 lines, mean 106, max 207.
 
 ## Package map
 
@@ -21,6 +21,7 @@ cmd/leetui/                 main.go dispatch · tui.go the app · cli.go the sub
                             cmd_solve.go · cmd_submit.go · cmd_todo.go · report.go
 internal/
   config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
+              terminal.go what this terminal can draw (D-023)
   auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
               chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
@@ -47,8 +48,9 @@ internal/
   tui/
     theme/       tokens.go — the only place hex values appear
                  type.go treatments · verdict.go · difficulty.go
+                 glyphs.go the marks, and their ASCII fallback (D-023)
     components/  frame.go the bezel · grid.go rows and rules · flap.go the signature
-                 sparkline.go
+                 paint.go row banding · overlay.go the toast · sparkline.go
     (see internal/tui/doc.go for the file map of state and rendering)
 ```
 

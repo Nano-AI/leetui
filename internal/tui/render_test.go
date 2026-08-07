@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 	"strings"
 	"testing"
 
@@ -62,11 +63,17 @@ func TestBoardShowsSeededProblems(t *testing.T) {
 			t.Errorf("board is missing %q", want)
 		}
 	}
-	// Row state is a word, not a glyph: a "✓" needs a legend, "SOLVED" does not.
-	// Premium problems the user has not touched read as LOCKED.
-	for _, want := range []string{"SOLVED", "TRIED", "LOCKED"} {
-		if !strings.Contains(out, want) {
-			t.Errorf("board is missing the %q state", want)
+	// Row state is a glyph under a header that names the column (D-023). The header is
+	// what makes the marks legible; without it this is the unlabelled-glyph mistake.
+	if !strings.Contains(stripANSI(out), "STATE") {
+		t.Error("the state column lost its header")
+	}
+	g := theme.Glyphs()
+	for name, want := range map[string]string{
+		"solved": g.Solved, "tried": g.Tried, "locked": g.Locked,
+	} {
+		if !strings.Contains(stripANSI(out), want) {
+			t.Errorf("board is missing the %s mark %q", name, want)
 		}
 	}
 }

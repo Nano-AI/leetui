@@ -481,6 +481,32 @@ Added the same day, after the test suite **overwrote a live install's `config.to
 
 ---
 
+## D-023 — The state column is a glyph, under a header
+
+Settled 2026-08-06, chosen from options side by side.
+
+```
+✓  solved      U+2713
+◐  tried       U+25D0 — half filled, for partly done
+⊘  locked      U+2298 — only ever drawn without premium
+```
+
+**Why now, having just argued the opposite twice.** D-020 and D-022 both retired unlabelled glyphs, and the rule that came out of them was not "words beat glyphs" — it was **a glyph is only allowed to be a glyph when something else names it**. The column is headed `STATE`. With the header, `✓ ✓ ◐ ⊘ ✓` scans down in a way `SOLVED SOLVED TRIED LOCKED SOLVED` never did, and it costs two fewer cells. Remove that header and this decision is void.
+
+**The width risk, and the fallback.** `✓` and `⊘` are East-Asian **Ambiguous**: a terminal may legitimately draw them two cells wide, and in a grid ruled to the column that shears every row below. So `theme.Glyphs()` has an ASCII set (`x` `~` `-` `*`), selected once at startup by `config.PreferASCII` from:
+
+- `ui.ascii` in config, which always wins
+- a locale that is not UTF-8 — the strongest signal, since the terminal is not being told to decode multi-byte characters at all
+- `TERM` of `linux` (the kernel console, 256 glyphs), `dumb`, `vt100`, `vt220`, or unset
+
+An unset locale is **not** treated as failure: macOS terminals routinely leave `LANG` unset while handling UTF-8 perfectly, and the config flag covers anyone this gets wrong.
+
+`TestGridSurvivesAmbiguousWidth` renders the board in both modes and asserts every row measures exactly the terminal width, which is the failure this is all guarding against.
+
+**Known gap.** The frame itself is still box-drawing (`╭─┼─╯`) in ASCII mode. A terminal that genuinely cannot render `✓` cannot render those either, so ASCII mode is currently half a promise. Completing it is a Phase 6 item and is recorded there rather than left implied.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

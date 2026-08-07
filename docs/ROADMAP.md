@@ -174,6 +174,8 @@ have surfaced.
 - [x] **Todo list** (D-022) — `m` / `M` in the app, `leetui todo` from a script, with
       `--json` for agents. See `docs/AGENTS.md`
 - [x] **`LEETUI_CONFIG_DIR`** (D-022a) — after the test suite overwrote a live config
+- [x] **State is a glyph** (D-023) — `✓` `◐` `⊘` under a `STATE` header, with an ASCII
+      set for terminals that cannot be trusted with the width of `✓`
 
 ## Phase 4 — Git
 
@@ -190,10 +192,35 @@ have surfaced.
       and discoverable without memorising a key. Writes through to `config.toml`, so
       what you set in the palette survives the session.
 - [ ] Keymap remapping UI
-- [ ] `NO_COLOR`, `--ascii`, `--no-motion`, 256-color fallback
 - [ ] 80×24 responsive collapse
 - [ ] Opt-in inline images (Kitty / iTerm2)
 - [ ] Local JS/TS runner (before Java — see D-004)
+
+## Phase 6 — Terminal compatibility
+
+- [ ] **Finish ASCII mode.** `config.PreferASCII` and `theme.Glyphs` landed with D-023 and
+      cover the state and todo marks, but the frame is still box-drawing (`╭─┼─╯`). A
+      terminal that cannot render `✓` cannot render those either, so the promise is
+      currently half kept. `components.Frame` needs an ASCII rule set
+- [ ] `NO_COLOR`, 256-colour and monochrome profiles
+- [ ] `--ascii` flag alongside the config key
+
+## Phase 7 — The website
+
+The last piece. Nothing here is started.
+
+- [ ] Decide what it is *for* — a landing page for the tool, or a place your solved
+      problems and notes are published from. These are different projects
+- [ ] If it publishes: the workspace already holds a `README.md` per problem with the
+      statement, and `notes.md` the user wrote. Phase 4's git integration is what would
+      get them somewhere a site can read
+- [ ] Install story: `go install`, a Homebrew tap, and prebuilt binaries per platform
+- [ ] Screenshots or an asciinema cast — the board and the flip are the pitch
+
+**Open question, worth settling before any code:** a site that publishes solutions is a
+different thing from a site that advertises the tool. The first needs the git phase and a
+decision about what is public; the second needs a domain and half a day. Do not start
+until which one is chosen.
 
 ---
 
@@ -213,4 +240,5 @@ Verified 2026-08-06 on this machine:
 | rustc | **not installed** — D-004 lists Rust as free from leetgo, but local Rust runs need the toolchain. Go/Python/C++ are the working set here until `rustup` is installed. |
 | java | pre-9 (rejects `--version`) — remote-only anyway per D-004 |
 | nvim | present at /opt/homebrew/bin/nvim |
-| `$EDITOR` | unset in the shell. `~/.config/leetui/config.toml` sets `editor = "nvim"`, which takes precedence, so leetui is covered. Setting `EDITOR` in the shell profile is still worth doing for everything else. |
+| `$EDITOR` | unset in the shell. leetui's own config sets `editor = "nvim"`, which takes precedence, so leetui is covered. Setting `EDITOR` in the shell profile is still worth doing for everything else. |
+| config path | `~/Library/Application Support/leetui/config.toml` on macOS — **not** `~/.config`, which is what `os.UserConfigDir()` returns here. `LEETUI_CONFIG_DIR` overrides it (D-022a). |

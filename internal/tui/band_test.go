@@ -131,12 +131,13 @@ func TestBandCoversTheWholeRow(t *testing.T) {
 func TestLockedDependsOnTheAccount(t *testing.T) {
 	m := boot(t, true, 100, 20)
 
-	if !strings.Contains(stripANSI(m.View()), "LOCKED") {
-		t.Fatal("a signed-out account sees no LOCKED; the fixture has a paid-only problem")
+	locked := theme.Glyphs().Locked
+	if !strings.Contains(stripANSI(m.View()), locked) {
+		t.Fatalf("a signed-out account sees no %q; the fixture has a paid-only problem", locked)
 	}
 
 	m.premium = true
-	if strings.Contains(stripANSI(m.View()), "LOCKED") {
+	if strings.Contains(stripANSI(m.View()), locked) {
 		t.Error("a Premium account is still being told a problem is locked")
 	}
 }

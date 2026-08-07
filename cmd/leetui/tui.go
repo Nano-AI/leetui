@@ -5,8 +5,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/Nano-AI/leetui/internal/config"
 	"github.com/Nano-AI/leetui/internal/tui"
 	"github.com/Nano-AI/leetui/internal/tui/components"
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 // runTUI opens the app. This is what `leetui` with no subcommand does, and it is the
@@ -27,6 +29,10 @@ func runTUI(args []string) error {
 	// Motion is opt-out via flag or config. The app stays fully legible without it —
 	// motion never carries information on its own.
 	components.ReduceMotion = *noMotion || a.cfg.UI.ReduceMotion
+
+	// Decided once, from the config and the environment. A terminal that cannot draw the
+	// state column's glyphs at one cell each would shear the whole grid.
+	theme.ASCII = config.PreferASCII(a.cfg)
 
 	opts := []tea.ProgramOption{tea.WithAltScreen()}
 	if a.cfg.UI.Mouse {

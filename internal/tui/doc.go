@@ -13,8 +13,9 @@
 //
 //	model.go        the Model struct, New, Init
 //	messages.go     every tea.Msg this package defines
-//	update.go       Update dispatch; update_sync.go handles every background job,
-//	                update_solve.go the run and submit loop
+//	update.go       Update dispatch; update_sync.go every background job,
+//	                update_solve.go the run and submit loop, update_content.go
+//	                the fetched-content messages and their staleness checks
 //	keys.go         the main keymap; keys_modal.go covers search and sign-in,
 //	                keys_filter.go the board's filter cycles
 //	cursor.go       cursor movement, scrolling, difficulty filters
