@@ -75,11 +75,66 @@ func TestPassthroughDoublesEscapes(t *testing.T) {
 	if !strings.HasPrefix(out, "\x1bPtmux;") {
 		t.Errorf("not wrapped: %q", out)
 	}
-	if strings.Contains(out[7:len(out)-2], "\x1b") && !strings.Contains(out, "\x1b\x1b") {
+	if !strings.Contains(out, "\x1b\x1b_G") {
 		t.Error("inner escapes were not doubled; tmux would cut the payload short")
 	}
 	if !strings.HasSuffix(out, "\x1b\\") {
 		t.Error("unterminated DCS")
+	}
+}
+
+// TestPassthroughWrapsEachChunk is the bug that made images silently fail in tmux.
+//
+// The first version put the whole image in ONE DCS. That works for a thumbnail and
+// fails for anything real: a 100 KB PNG is about 33 chunks, tmux caps what a single DCS
+// may carry, and the overflow is dropped with no error and no picture.
+func TestPassthroughWrapsEachChunk(t *testing.T) {
+	// Three chunks' worth, so the sequence genuinely has several escapes.
+	png := make([]byte, KittyChunk*3)
+	seq := KittyImage(png, 40, 20)
+
+	chunks := strings.Count(seq, "\x1b_G")
+	if chunks < 3 {
+		t.Fatalf("fixture produced %d chunks, want at least 3", chunks)
+	}
+
+	out := Passthrough(seq)
+	wrappers := strings.Count(out, "\x1bPtmux;")
+	if wrappers != chunks {
+		t.Errorf("%d chunks got %d tmux wrappers — tmux would drop the overflow",
+			chunks, wrappers)
+	}
+
+	// No wrapper may contain a raw (undoubled) ESC, or tmux ends it early.
+	for _, part := range strings.Split(out, "\x1bPtmux;")[1:] {
+		body := strings.TrimSuffix(part, "\x1b\\")
+		if strings.Contains(strings.ReplaceAll(body, "\x1b\x1b", ""), "\x1b") {
+			t.Error("a wrapper carries an undoubled ESC")
+		}
+	}
+}
+
+// iTerm sends ONE sequence terminated by BEL rather than ST, and it must still be
+// wrapped exactly once — not split, not dropped.
+func TestPassthroughHandlesITerm(t *testing.T) {
+	out := Passthrough(ITermImage([]byte("data"), 10, 5))
+	if n := strings.Count(out, "\x1bPtmux;"); n != 1 {
+		t.Errorf("iTerm sequence got %d wrappers, want 1", n)
+	}
+	if !strings.HasSuffix(out, "\x1b\\") {
+		t.Error("unterminated DCS")
+	}
+}
+
+// A sequence with no recognised terminator is passed through whole rather than
+// discarded — silently dropping one would be the worst possible failure here.
+func TestSplitEscapesKeepsAnUnterminatedTail(t *testing.T) {
+	parts := splitEscapes("\x1b_Gm=1;a\x1b\\\x1b_Gm=0;b")
+	if len(parts) != 2 {
+		t.Fatalf("got %d parts, want 2: %q", len(parts), parts)
+	}
+	if parts[1] != "\x1b_Gm=0;b" {
+		t.Errorf("tail was mangled: %q", parts[1])
 	}
 }
 
@@ -88,8 +143,7 @@ func TestPassthroughDoublesEscapes(t *testing.T) {
 // exactly the silent failure this path exists to avoid.
 func TestToPNGConvertsJPEG(t *testing.T) {
 	var jpg bytes.Buffer
-	img := image.NewRGBA(image.Rect(0, 0, 8, 8))
-	if err := jpeg.Encode(&jpg, img, nil); err != nil {
+	if err := jpeg.Encode(&jpg, image.NewRGBA(image.Rect(0, 0, 8, 8)), nil); err != nil {
 		t.Fatalf("build fixture: %v", err)
 	}
 	if bytes.HasPrefix(jpg.Bytes(), pngMagic) {

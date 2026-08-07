@@ -105,18 +105,18 @@ func reportGraphics(w io.Writer) int {
 	fmt.Fprintf(w, "  %-14s %s\n", "protocol", g.Protocol)
 
 	if !g.Blocked {
-		fmt.Fprintf(w, "  %-14s your terminal can draw them; leetui does not yet\n", "images")
-		fmt.Fprintf(w, "  %-14s figures open in your browser — press 1-9\n", "")
+		fmt.Fprintf(w, "  %-14s ok — leetui image <problem> [n]\n", "images")
+		fmt.Fprintf(w, "  %-14s inside the app, 1-9 opens a figure in your browser\n", "")
 		return 0
 	}
 
 	// The whole reason this command exists. tmux drops the escape sequence and nothing
 	// anywhere reports it, so a figure would simply never appear and no error is raised.
-	fmt.Fprintf(w, "  %-14s BLOCKED by tmux\n", "images")
+	fmt.Fprintf(w, "  %-14s BLOCKED by tmux — leetui image will draw nothing\n", "images")
 	for _, line := range splitLines(g.Fix) {
 		fmt.Fprintf(w, "  %s\n", line)
 	}
-	fmt.Fprintf(w, "  %-14s worth fixing now — inline images will need it\n", "")
+	fmt.Fprintf(w, "  %-14s tmux must be RESTARTED after this, not just reloaded\n", "")
 	return 1
 }
 

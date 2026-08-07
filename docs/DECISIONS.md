@@ -629,6 +629,22 @@ Python gets the same treatment through `sys.path`, and its per-folder copy is de
 
 ---
 
+## D-030 — Every escape gets its own tmux wrapper
+
+Settled 2026-08-07, after images failed silently in kitty inside tmux.
+
+tmux drops sequences it does not recognise unless `allow-passthrough` is on, and even then each payload must be wrapped in its own DCS with every `ESC` doubled. The first implementation wrapped **the whole image in one DCS**.
+
+That works for a thumbnail and fails for anything real. A 100 KB PNG is ~33 kitty chunks; tmux caps what a single DCS may carry, and the overflow is dropped — no error, no picture, nothing in any log. Precisely the silent failure the graphics detection exists to prevent, reintroduced one layer down.
+
+Each escape is now wrapped individually. `TestPassthroughWrapsEachChunk` builds a three-chunk image and asserts one wrapper per chunk, because the single-wrapper version passed every test that only used a small one.
+
+**Verified against a real figure inside tmux:** 27 KB out, seven chunks, seven wrappers, every inner `ESC` doubled.
+
+**`allow-passthrough` must be on, and tmux must be RESTARTED** — reloading the config is not enough for an already-running server. `leetui doctor` reports the state and prints the fix, since nothing else ever will.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

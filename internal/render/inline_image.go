@@ -55,7 +55,8 @@ func ToPNG(data []byte) ([]byte, error) {
 // KittyChunk is the payload size per escape.
 //
 // Kitty's protocol requires the base64 be split, and 4096 is the documented chunk size.
-// Larger works on kitty itself and breaks through tmux, which has its own buffer limits.
+// Larger works on kitty directly and breaks through tmux, which buffers a whole DCS
+// before forwarding it.
 const KittyChunk = 4096
 
 // KittyImage encodes a PNG for kitty's graphics protocol.
@@ -96,14 +97,55 @@ func ITermImage(png []byte, cols, rows int) string {
 		cols, rows, len(png), base64.StdEncoding.EncodeToString(png))
 }
 
-// Passthrough wraps an escape so it survives tmux.
+// Passthrough wraps escapes so they survive tmux.
 //
 // tmux eats sequences it does not recognise unless `allow-passthrough` is on, and even
-// then the payload must be wrapped in its own DCS and every ESC inside it doubled —
+// then the payload must be wrapped in its own DCS with every ESC inside it doubled —
 // otherwise tmux terminates the wrapper at the first one and prints the rest as text.
 //
-// `leetui doctor` reports when passthrough is off, because the failure is otherwise
-// completely silent: no error anywhere, just a figure that never appears.
+// EACH ESCAPE GETS ITS OWN WRAPPER. The first version put the whole image in a single
+// DCS, which works for a thumbnail and fails for anything real: a 100 KB PNG is about
+// 33 chunks, tmux caps what one DCS may carry, and the overflow is dropped silently —
+// no error, no picture, exactly the failure this path exists to avoid.
+//
+// `leetui doctor` reports when passthrough is off, because that failure is equally
+// silent.
 func Passthrough(seq string) string {
-	return "\x1bPtmux;" + strings.ReplaceAll(seq, "\x1b", "\x1b\x1b") + "\x1b\\"
+	var b strings.Builder
+	for _, part := range splitEscapes(seq) {
+		b.WriteString("\x1bPtmux;")
+		b.WriteString(strings.ReplaceAll(part, "\x1b", "\x1b\x1b"))
+		b.WriteString("\x1b\\")
+	}
+	return b.String()
+}
+
+// splitEscapes cuts a run of terminal escapes into individual ones.
+//
+// Kitty's chunks end with ST (ESC \\) and iTerm's single sequence ends with BEL, so the
+// split is on whichever terminator appears. Anything without one is returned whole
+// rather than dropped — a sequence this does not recognise is not a sequence it should
+// be silently discarding.
+func splitEscapes(seq string) []string {
+	var out []string
+	rest := seq
+	for len(rest) > 0 {
+		st := strings.Index(rest, "\x1b\\")
+		bel := strings.IndexByte(rest, '\a')
+
+		end := -1
+		switch {
+		case st >= 0 && (bel < 0 || st < bel):
+			end = st + 2
+		case bel >= 0:
+			end = bel + 1
+		}
+		if end < 0 {
+			out = append(out, rest)
+			break
+		}
+		out = append(out, rest[:end])
+		rest = rest[end:]
+	}
+	return out
 }
