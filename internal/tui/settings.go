@@ -95,7 +95,14 @@ func (m Model) viewSettings() string {
 		keyW = maxInt(keyW, len(s.Key))
 	}
 
-	for i, s := range rows {
+	// Window to what fits. Seventeen settings do not fit an 80x24 terminal, and a
+	// screen whose whole job is listing the options must not drop any of them.
+	room := maxInt(m.height-9, 3)
+	first := clamp(m.settingsIdx-room/2, 0, maxInt(len(rows)-room, 0))
+	last := minInt(first+room, len(rows))
+
+	for i, s := range rows[first:last] {
+		i += first
 		cursor := "  "
 		style := theme.Body
 		if i == m.settingsIdx {
@@ -103,19 +110,35 @@ func (m Model) viewSettings() string {
 			style = lipgloss.NewStyle().Foreground(theme.Bone).Bold(true)
 		}
 
+		// TRUNCATE, never Width(): lipgloss wraps anything longer, and a workspace
+		// path is longer. One row became ten and the screen fell off the terminal —
+		// the same trap that used to shear the pane bezel.
+		const valueW = 12
 		value := s.Get(&m.cfg)
-		if value == "" {
+		switch {
+		case value == "":
 			value = "—"
+		case strings.HasPrefix(value, "/"), strings.HasPrefix(value, "~"):
+			// A path identifies itself by its tail, so it is shortened from the left.
+			value = fitPath(value, valueW)
+		default:
+			value = truncate(value, valueW)
 		}
 
+		helpW := maxInt(m.width-keyW-valueW-8, 8)
 		b.WriteString(fmt.Sprintf("%s %s  %s  %s\n",
 			theme.Label.Render(cursor),
-			theme.Label.Width(keyW).Render(s.Key),
-			style.Width(10).Render(value),
-			theme.Meta.Render(truncate(s.Help, maxInt(m.width-keyW-20, 10)))))
+			theme.Label.Render(padRight(s.Key, keyW)),
+			style.Render(padRight(value, valueW)),
+			theme.Meta.Render(truncate(s.Help, helpW))))
 	}
 
-	b.WriteString("\n " + theme.Meta.Render("Written to "+m.cfg.Path()) + "\n")
+	if last < len(rows) || first > 0 {
+		b.WriteString(" " + theme.Meta.Render(fmt.Sprintf("   %d of %d",
+			m.settingsIdx+1, len(rows))) + "\n")
+	}
+	b.WriteString("\n " + theme.Meta.Render(truncate("Written to "+m.cfg.Path(),
+		maxInt(m.width-2, 20))) + "\n")
 	b.WriteString("\n " +
 		theme.Label.Render("enter") + theme.Body.Render(" toggle or edit   ") +
 		theme.Label.Render(":") + theme.Body.Render(" command line   ") +

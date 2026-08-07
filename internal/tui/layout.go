@@ -11,12 +11,13 @@ import "github.com/charmbracelet/lipgloss"
 // never disagree — the bug that makes a list cursor vanish off-screen.
 
 const (
-	railHeight   = 3 // bezel, wordmark line, bezel
-	hintsHeight  = 1
-	statusHeight = 1 // always reserved; see chromeHeight
-	searchHeight = 3 // framed input: top bezel, field, bottom bezel
-	frameChrome  = 2 // a frame's top and bottom bezel
-	headerRows   = 2 // column header + its divider
+	railHeight    = 3 // bezel, wordmark line, bezel
+	hintsHeight   = 1
+	statusHeight  = 1 // always reserved; see chromeHeight
+	searchHeight  = 3 // framed input: top bezel, field, bottom bezel
+	paletteHeight = 2 // the command line, and its hint or error
+	frameChrome   = 2 // a frame's top and bottom bezel
+	headerRows    = 2 // column header + its divider
 )
 
 // chromeHeight reserves the status row unconditionally.
@@ -28,6 +29,11 @@ func (m Model) chromeHeight() int {
 	h := railHeight + hintsHeight + statusHeight
 	if m.searching {
 		h += searchHeight
+	}
+	// Counted here, not just drawn: a section the body does not know about pushes the
+	// last row of the board off the bottom of the terminal.
+	if m.paletteOpen {
+		h += paletteHeight
 	}
 	return h
 }

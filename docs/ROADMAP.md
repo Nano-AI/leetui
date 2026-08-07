@@ -213,7 +213,10 @@ is inside their home directory. The pane states the situation and prints the two
       spoils nothing
 - [x] **The help scrolls** rather than dropping bindings. Two columns bought one
       doubling and then stopped; this screen grows every time a feature does
-- [ ] 80×24 responsive collapse
+- [x] **80×24 responsive collapse** — the floor every emulator still defaults to, so
+      `TestFramesFitTerminal` runs EVERY screen at it rather than a sample. That found
+      two: the settings list did not fit at all, and the command palette drew two rows
+      the layout had not reserved, pushing the board's last row off the bottom
 - [ ] Opt-in inline images (Kitty / iTerm2)
 - [x] **Local JS/TS runner** (D-004 said this was the cheap one; it was). One driver and
       one binary for both: Node strips TypeScript's types itself from v23, so `solution.ts`

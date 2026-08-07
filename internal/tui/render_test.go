@@ -30,6 +30,18 @@ func TestFramesFitTerminal(t *testing.T) {
 		{"detail focus", 120, 32, true, []tea.Msg{key("tab")}},
 		{"git", 120, 32, true, []tea.Msg{key("v")}},
 		{"git narrow", 78, 24, true, []tea.Msg{key("v")}},
+
+		// 80x24 is the floor every terminal emulator still defaults to, so it gets
+		// every screen rather than a sample.
+		{"80x24 board", 80, 24, true, nil},
+		{"80x24 solve", 80, 24, true, []tea.Msg{key("enter")}},
+		{"80x24 help", 80, 24, true, []tea.Msg{key("?")}},
+		{"80x24 settings", 80, 24, true, []tea.Msg{key("V")}},
+		{"80x24 git", 80, 24, true, []tea.Msg{key("v")}},
+		{"80x24 palette", 80, 24, true, []tea.Msg{key(":")}},
+		{"80x24 search", 80, 24, true, []tea.Msg{key("/"), key("l")}},
+		{"80x24 companies", 80, 24, true, []tea.Msg{key("c")}},
+		{"80x24 auth", 80, 24, true, []tea.Msg{key("a")}},
 	}
 
 	for _, tc := range cases {

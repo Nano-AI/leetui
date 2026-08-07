@@ -2,7 +2,10 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
@@ -67,3 +70,12 @@ func minInt(a, b int) int {
 // package-level var here would be initialised before it (D-026).
 func sep1() string { return " " + theme.Chars().Bullet + " " }
 func sep2() string { return "  " + theme.Chars().Bullet + "  " }
+
+// padRight pads to a column width without lipgloss's Width(), which WRAPS anything
+// longer instead of leaving it alone. The caller truncates first.
+func padRight(s string, w int) string {
+	if gap := w - lipgloss.Width(s); gap > 0 {
+		return s + strings.Repeat(" ", gap)
+	}
+	return s
+}
