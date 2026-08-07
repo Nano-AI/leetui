@@ -209,7 +209,11 @@ is inside their home directory. The pane states the situation and prints the two
 - [ ] Keymap remapping UI
 - [ ] 80×24 responsive collapse
 - [ ] Opt-in inline images (Kitty / iTerm2)
-- [ ] Local JS/TS runner (before Java — see D-004)
+- [x] **Local JS/TS runner** (D-004 said this was the cheap one; it was). One driver and
+      one binary for both: Node strips TypeScript's types itself from v23, so `solution.ts`
+      needs no transpiler, no tsconfig and no second toolchain. JavaScript also takes
+      **design problems**, which Go and C++ decline — a design problem in JS is a
+      constructor function and its prototype, with no type declarations to reconstruct
 
 ## Phase 6 — Terminal compatibility ✅ **COMPLETE**
 

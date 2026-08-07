@@ -99,7 +99,10 @@ var style = ansi.StyleConfig{
 				Color:           p(cBone),
 				BackgroundColor: p(cFlap),
 			},
-			Margin: p(uint(1)),
+			// No margin. The background now bounds the block, so an indent adds
+			// nothing visually — and it pushed a full-width line one cell over the
+			// pane, where its padding wrapped onto a blank row of its own.
+			Margin: p(uint(0)),
 		},
 		Chroma: &ansi.Chroma{
 			// Every Chroma token needs the background too. Without it a highlighted

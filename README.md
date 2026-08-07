@@ -5,7 +5,7 @@ the terminal — with full Premium parity and optional GitHub sync.
 
 **Status: Phase 4 complete — browse, solve, premium, and git all work.**
 Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
-against the examples without leaving the terminal (Python, Go, C++), and submit to the
+against the examples without leaving the terminal (Python, Go, C++, JS/TS), and submit to the
 judge. Company packs, editorials, and the premium filter are in. An accepted solution
 commits itself; pushing is yours to press. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
@@ -270,7 +270,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Go + Bubbletea/Lipgloss/Glamour** — single static binary
 - **Auth** — paste `LEETCODE_SESSION` + `csrftoken`, browser import as convenience, stored in the OS keychain
 - **Run local, submit remote** — tight loop stays offline, correctness of record comes from the judge
-- **Local execution: Python, Go, C++** — vendored drivers, zero new dependencies. Everything else edits and submits normally and runs on the judge
+- **Local execution: Python, Go, C++, JavaScript, TypeScript** — vendored drivers, zero new dependencies. Everything else edits and submits normally and runs on the judge
 - **Full Premium parity** — company packs, editorials, premium problems. No mock assessments
 - **SQLite + FTS5** (`modernc.org/sqlite`, pure Go) for instant offline search
 - **Company packs sync one at a time** — 984 companies × 5 timeframes is ~5,000 requests; one pack is ~24

@@ -42,8 +42,8 @@ var langs = []Lang{
 	{Slug: "rust", Display: "Rust", Ext: ".rs"},
 
 	{Slug: "java", Display: "Java", Ext: ".java"},
-	{Slug: "javascript", Display: "JavaScript", Ext: ".js"},
-	{Slug: "typescript", Display: "TypeScript", Ext: ".ts"},
+	{Slug: "javascript", Display: "JavaScript", Ext: ".js", Local: true},
+	{Slug: "typescript", Display: "TypeScript", Ext: ".ts", Local: true},
 	{Slug: "python", Display: "Python", Ext: ".py"},
 	{Slug: "c", Display: "C", Ext: ".c"},
 	{Slug: "csharp", Display: "C#", Ext: ".cs"},

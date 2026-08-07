@@ -72,16 +72,23 @@ func leadingBackground(line string) (string, bool) {
 	return head, true
 }
 
-// fillLine pads one code-block line out to width with background-coloured space.
+// fillLine rebuilds one code-block line as content, then background out to width.
 //
-// Glamour's own trailing padding is dropped first: it is unstyled, so left in place it
-// would sit as a bar of page colour between the text and the fill.
+// Glamour's own trailing padding is dropped FIRST, always — including when the line
+// already reaches the width. That case looked safe and was the bug: Glamour indents a
+// code block by its margin, so a full line plus that padding is wider than the pane,
+// and the pane's wrap pushed the overflowing spaces onto a row of their own. A blank
+// band under an example, from padding nobody could see.
+//
+// Dropping the padding also removes a second problem: it is unstyled, so left in place
+// it sits as a bar of page colour between the text and the fill.
 func fillLine(line, bg string, width int) string {
 	visible := ansi.StringWidth(strings.TrimRight(ansi.Strip(line), " "))
+	content := ansi.Truncate(line, visible, "")
 	if visible >= width {
-		return line
+		return content
 	}
-	return ansi.Truncate(line, visible, "") + bg + strings.Repeat(" ", width-visible) + reset
+	return content + bg + strings.Repeat(" ", width-visible) + reset
 }
 
 const (

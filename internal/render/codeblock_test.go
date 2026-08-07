@@ -55,3 +55,38 @@ func TestProseIsNotPainted(t *testing.T) {
 		}
 	}
 }
+
+// TestNoCodeBlockLineExceedsWidth is the blank-band bug: Glamour indents a code block by
+// its margin, so a full line plus its trailing padding came out WIDER than the pane. The
+// pane's wrap then pushed those invisible spaces onto a row of their own, leaving a band
+// of background under the example with nothing in it.
+func TestNoCodeBlockLineExceedsWidth(t *testing.T) {
+	for _, width := range []int{40, 58, 74, 100} {
+		// A line engineered to land exactly at the limit, plus one comfortably over.
+		long := strings.Repeat("x", width)
+		md := "Text.\n\n```\n" + long + "\nshort\n" + strings.Repeat("y", width+20) + "\n```\n"
+
+		out, err := Markdown(md, width)
+		if err != nil {
+			t.Fatalf("render at %d: %v", width, err)
+		}
+		for i, line := range strings.Split(out, "\n") {
+			if _, ok := leadingBackground(line); !ok {
+				continue
+			}
+			// A line whose CONTENT genuinely exceeds the pane is the caller's
+			// problem — the detail pane hard-wraps it. What must never happen is
+			// padding pushing a line over, because that wraps invisible spaces.
+			content := ansi.StringWidth(strings.TrimRight(ansi.Strip(line), " "))
+			got := ansi.StringWidth(line)
+			if content <= width && got != width {
+				t.Errorf("width %d: line %d has %d cells of content but is %d wide",
+					width, i, content, got)
+			}
+			if content > width && got != content {
+				t.Errorf("width %d: line %d was padded past its own content (%d > %d)",
+					width, i, got, content)
+			}
+		}
+	}
+}

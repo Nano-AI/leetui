@@ -46,12 +46,21 @@ func NewLocal() *Local { return &Local{Timeout: DefaultTimeout} }
 // designSupported lists languages whose driver handles class-with-operations problems.
 var designSupported = map[string]bool{
 	"python3": true,
+	// JavaScript gets these because a design problem in JS is just a constructor
+	// function and its prototype — no type declarations to reconstruct, which is what
+	// stops Go and C++ from taking them.
+	"javascript": true,
+	"typescript": true,
 }
 
 var toolchains = map[string]string{
 	"python3": "python3",
 	"golang":  "go",
 	"cpp":     "c++",
+	// One binary for both. Node strips TypeScript's types itself from v23, so
+	// solution.ts needs no transpiler, no tsconfig, and no second toolchain.
+	"javascript": "node",
+	"typescript": "node",
 }
 
 // detect probes PATH once, so a run does not pay for it per case.
@@ -116,6 +125,8 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 		return l.generateGo(p, meta, dir)
 	case "cpp":
 		return l.generateCpp(p, meta, dir)
+	case "javascript", "typescript":
+		return l.generateJS(p, meta, lang, dir)
 	default:
 		return fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}
@@ -141,6 +152,8 @@ func (l *Local) Run(ctx context.Context, dir string, lang Lang, cases []TestCase
 		return l.runGo(ctx, dir, cases, rule)
 	case "cpp":
 		return l.runCpp(ctx, dir, cases, rule)
+	case "javascript", "typescript":
+		return l.runJS(ctx, dir, lang, cases, rule)
 	default:
 		return Result{}, fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}
