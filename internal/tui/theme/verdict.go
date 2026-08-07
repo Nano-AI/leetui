@@ -60,6 +60,24 @@ func (v Verdict) Color() lipgloss.Color {
 	}
 }
 
+// CasePass and CaseFail colour a LOCAL test case.
+//
+// Green and red were the judge's alone, and the reason was good: the verdict flip is the
+// boldest moment in the app and nothing should compete with it. In practice the run panel
+// is what you stare at while solving, and a column of amber FAILs beside a bone PASS is
+// slower to scan than the two colours everyone already reads without thinking.
+//
+// So the distinction moved from COLOUR to TREATMENT. A judge's verdict is letterspaced —
+// `A C C E P T E D`, the Display face, reserved for the judge and the wordmark. A local
+// case is plain uppercase. Same palette, different voice, and the flip still lands.
+//
+// Bold rather than tinted-and-limp: these have to read at a glance from across the room,
+// which is the only reason the column exists.
+var (
+	CasePass = lipgloss.NewStyle().Foreground(AC).Bold(true)
+	CaseFail = lipgloss.NewStyle().Foreground(WA).Bold(true)
+)
+
 // Resolved reports whether the judge has spoken. Unresolved verdicts render as a flap
 // held mid-flip — that is the app's only loading state.
 func (v Verdict) Resolved() bool { return v >= Accepted }

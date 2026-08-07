@@ -83,27 +83,27 @@ func (m Model) viewCase(i int, c runner.CaseResult, inner int) string {
 
 	switch {
 	case c.Err != nil:
-		// Errors are amber, not red: red belongs to the judge (docs/DESIGN.md).
-		b.WriteString(" " + label + "  " + theme.Label.Render("CRASHED") + "\n")
+		b.WriteString(" " + label + "  " + theme.CaseFail.Render("CRASHED") + "\n")
 		for _, line := range wrapPlain(c.Err.Error(), inner) {
 			b.WriteString("   " + theme.Meta.Render(line) + "\n")
 		}
 		return b.String()
 
 	case !c.Judged:
+		// Neither passed nor failed, so neither colour. This case ran and there was
+		// nothing to check it against — saying so in grey is the honest answer.
 		b.WriteString(" " + label + "  " + theme.Meta.Render("NO EXPECTED ANSWER") + "\n")
 		b.WriteString(field("out", c.Actual, inner))
 		return b.String()
 
 	case c.Passed:
 		// A passing case collapses: it needs acknowledgement, not inspection.
-		b.WriteString(" " + label + "  " +
-			lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render("PASS") +
+		b.WriteString(" " + label + "  " + theme.CasePass.Render("PASS") +
 			"  " + theme.Meta.Render(truncate(oneLine(c.Actual), inner-16)) + "\n")
 		return b.String()
 
 	default:
-		b.WriteString(" " + label + "  " + theme.Label.Render("FAIL") + "\n")
+		b.WriteString(" " + label + "  " + theme.CaseFail.Render("FAIL") + "\n")
 		b.WriteString(field("in ", c.Case.Input, inner))
 		b.WriteString(field("want", c.Case.Expected, inner))
 		b.WriteString(field("got ", c.Actual, inner))
