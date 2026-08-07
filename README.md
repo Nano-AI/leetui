@@ -148,7 +148,15 @@ remote             = ""     # empty means the branch's own upstream
 
 ## Install
 
-With Homebrew — no Go toolchain needed:
+One line, nothing installed first:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh
+```
+
+It picks the binary for your machine, **verifies it against the release's own
+checksums**, and installs it somewhere on your PATH. [Read it first](install.sh) — that
+goes for every install script on the internet, including this one.
 
 ```sh
 brew tap Nano-AI/tap

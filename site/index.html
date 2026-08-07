@@ -192,7 +192,13 @@ a:hover { text-decoration-color: var(--amber); }
 
 /* Hero ------------------------------------------------------------ */
 
-.hero { padding-block: clamp(2rem, 6vw, 3.5rem) 0; }
+.hero { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(2rem, 5vw, 3rem); }
+
+/* The panels are different heights, so without a floor the board below jumps
+   every time you switch method. Reserving the tallest keeps the page still —
+   a control that moves the thing under it reads as a glitch. */
+.hero .tab-panel { min-height: 8.5rem; }
+@media (max-width: 40rem) { .hero .tab-panel { min-height: 11rem; } }
 
 .thesis {
   font-size: clamp(1.5rem, 1.1rem + 2.1vw, 2.6rem);
@@ -208,14 +214,6 @@ a:hover { text-decoration-color: var(--amber); }
   margin: 0 0 1.75rem;
   max-width: 58ch;
   color: var(--bone);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
-  margin-bottom: clamp(2rem, 5vw, 3rem);
 }
 
 /* The install line is a terminal line, so it looks like one.
@@ -431,6 +429,50 @@ a:hover { text-decoration-color: var(--amber); }
 .codes dt { color: var(--amber); font-weight: 700; }
 .codes dd { margin: 0; font-size: 0.8rem; }
 
+/* Install methods, as a segmented control.
+   A visitor needs ONE of these, and stacking all three makes them read all
+   three. Three methods is a real choice set, so a control that encodes the
+   choice is structure rather than decoration.
+
+   Quiet on purpose: the split-flap is the page's one bold thing. Active is
+   the system's voice — amber, with the rule under it — and that is all. */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--hinge);
+  margin-bottom: 1.15rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  font: inherit;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  background: none;
+  border: 0;
+  /* The active rule sits ON the container's border, so switching tabs moves
+     a mark rather than nudging the layout. */
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--bone); }
+.tab[aria-selected="true"] {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+/* Without JavaScript every panel stays visible and the control never appears,
+   which is the current page — the enhancement can only ever add. */
+.tabs { display: none; }
+.js .tabs { display: flex; }
+.js .tab-panel[hidden] { display: none; }
+
 /* A file label, the way the terminal titles a pane. */
 .filename { margin: 0 0 0.45rem; }
 
@@ -499,13 +541,62 @@ a:hover { text-decoration-color: var(--amber); }
       A terminal client for LeetCode. 4,013 problems, searchable offline.
     </p>
 
-    <div class="hero-actions">
-      <div class="command">
-        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
-        <button class="copy-btn" type="button" data-copy="#install-cmd">Copy</button>
-      </div>
-      <a href="https://github.com/Nano-AI/leetui">Read the source</a>
+    <div class="tabs" role="tablist" aria-label="Install method">
+      <button class="tab" type="button" role="tab" id="tab-script"
+              aria-controls="panel-script" aria-selected="true">Script</button>
+      <button class="tab" type="button" role="tab" id="tab-brew"
+              aria-controls="panel-brew" aria-selected="false" tabindex="-1">Homebrew</button>
+      <button class="tab" type="button" role="tab" id="tab-go"
+              aria-controls="panel-go" aria-selected="false" tabindex="-1">Go</button>
+      <button class="tab" type="button" role="tab" id="tab-binary"
+              aria-controls="panel-binary" aria-selected="false" tabindex="-1">Binary</button>
     </div>
+
+    <div class="tab-panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script">
+      <div class="command">
+        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-script">curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh</code></span>
+        <button class="copy-btn" type="button" data-copy="#install-cmd-script">Copy</button>
+      </div>
+      <p class="caption meta">
+        Picks the binary for your machine, checks it against the release&rsquo;s own
+        checksums, and puts it somewhere on your PATH.
+        <a href="https://github.com/Nano-AI/leetui/blob/main/install.sh">Read it first</a>
+        &mdash; that goes for every install script, including this one.
+      </p>
+    </div>
+
+    <div class="tab-panel" id="panel-brew" role="tabpanel" aria-labelledby="tab-brew" hidden>
+      <div class="command">
+        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-brew">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
+        <button class="copy-btn" type="button" data-copy="#install-cmd-brew">Copy</button>
+      </div>
+      <p class="caption meta">
+        <code>brew trust</code> is Homebrew&rsquo;s gate on third-party taps.
+      </p>
+    </div>
+
+    <div class="tab-panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" hidden>
+      <div class="command">
+        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-go">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+        <button class="copy-btn" type="button" data-copy="#install-cmd-go">Copy</button>
+      </div>
+      <p class="caption meta">
+        Go 1.24+. Puts the binary in <code>~/go/bin</code>, which is often not on your
+        PATH &mdash; add it if <code>leetui</code> is not found.
+      </p>
+    </div>
+
+    <div class="tab-panel" id="panel-binary" role="tabpanel" aria-labelledby="tab-binary" hidden>
+      <p class="caption meta" style="margin-top:0">
+        macOS (Apple silicon and Intel), Linux (x86-64 and arm64), and Windows, from
+        <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static
+        file, nothing to install alongside it.
+      </p>
+    </div>
+
+    <p class="caption meta" style="margin-top:1.4rem">
+      <a href="https://github.com/Nano-AI/leetui">Read the source</a>
+    </p>
   </section>
 
   <div class="wrap boards">
@@ -712,38 +803,18 @@ All 2 cases passed. Submit with: leetui submit two-sum</span></code></pre>
 
     <section class="pane" aria-labelledby="install-title">
       <div class="pane-head">
-        <span class="pane-title utility" id="install-title">Install</span>
+        <span class="pane-title utility" id="install-title">Requirements</span>
       </div>
       <div class="pane-body">
-        <p class="filename utility">Homebrew</p>
-        <div class="command">
-          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-2">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
-          <button class="copy-btn" type="button" data-copy="#install-cmd-2">Copy</button>
-        </div>
-        <p class="caption meta">
-          No toolchain needed. <code>brew trust</code> is Homebrew&rsquo;s gate on
-          third-party taps.
-        </p>
-
-        <p class="filename utility" style="margin-top:1.4rem">With Go</p>
-        <div class="command">
-          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-3">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
-          <button class="copy-btn" type="button" data-copy="#install-cmd-3">Copy</button>
-        </div>
-        <p class="caption meta">
-          Go 1.24+. This puts the binary in <code>~/go/bin</code>, which is often not on
-          your PATH &mdash; add it if <code>leetui</code> is not found.
-        </p>
-
-        <p class="caption meta" style="margin-top:1.4rem">
-          Or a prebuilt binary for macOS, Linux or Windows from
-          <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static
-          file, nothing to install alongside it.
+        <p class="caption meta" style="margin-top:0">
+          One static binary; nothing to install alongside it. Python, Go, C++, JavaScript
+          and TypeScript run on your machine if you have them &mdash; everything else runs
+          on the judge, which needs nothing local at all. Session cookies go to the OS
+          keychain, never to disk.
         </p>
         <p class="caption meta">
-          Python, Go, C++, JavaScript and TypeScript run on your machine; everything else
-          runs on the judge. Cookies go to the OS keychain. <code>leetui doctor</code>
-          reports what this machine has.
+          <code>leetui doctor</code> reports what this machine has, what is missing, and
+          the command that fixes each one.
         </p>
       </div>
     </section>
@@ -905,6 +976,51 @@ All 2 cases passed. Submit with: leetui submit two-sum</span></code></pre>
 
   if (document.readyState !== "loading") { run(); }
   else { document.addEventListener("DOMContentLoaded", run); }
+
+  /* Install methods.
+     Progressive enhancement: the class below is what reveals the control and
+     hides the inactive panels, so a page with no JavaScript shows all three
+     stacked — which is exactly what it showed before this existed. The
+     enhancement can only ever add. */
+  document.documentElement.classList.add("js");
+
+  var tablist = document.querySelector('[role="tablist"]');
+  if (tablist) {
+    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        // Roving tabindex: the group is ONE tab stop, and arrows move within
+        // it. Leaving every tab focusable makes a keyboard user walk through
+        // all three to reach the command they wanted.
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+      });
+      if (focus) { tab.focus(); }
+    }
+
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener("click", function () { select(tab, false); });
+      tab.addEventListener("keydown", function (e) {
+        var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (step) {
+          e.preventDefault();
+          select(tabs[(i + step + tabs.length) % tabs.length], true);
+          return;
+        }
+        if (e.key === "Home") { e.preventDefault(); select(tabs[0], true); }
+        if (e.key === "End") { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+      });
+    });
+
+    // The script is the default because it needs nothing installed first. Windows
+    // has neither a POSIX shell nor Homebrew by default, so the honest answer
+    // there is the binary.
+    var win = navigator.platform && navigator.platform.indexOf("Win") === 0;
+    select(win ? document.getElementById("tab-binary") : tabs[0], false);
+  }
 
   /* Copy. The button says what happens, and then says what happened. */
   Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (btn) {
