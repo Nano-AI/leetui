@@ -66,6 +66,11 @@ var commands = []command{
 		summary: "print a problem's folder, for scripting",
 		run:     runPath,
 	},
+	{
+		name:    "doctor",
+		summary: "check this machine: toolchains, editor, terminal images",
+		run:     runDoctor,
+	},
 }
 
 func lookupCommand(name string) (command, bool) {
