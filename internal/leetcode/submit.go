@@ -1,9 +1,11 @@
 package leetcode
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -58,10 +60,59 @@ type Judgement struct {
 	RuntimeError     string   `json:"runtime_error"`
 	LastTestcase     string   `json:"last_testcase"`
 	ExpectedOutput   string   `json:"expected_output"`
-	CodeOutput       []string `json:"code_output"`
+	CodeOutput       Lines    `json:"code_output"`
 
 	SubmissionID json.Number `json:"submission_id"`
 }
+
+// Lines is a field the judge sends as EITHER a list of strings or a single string.
+//
+// `code_output` is the one that bites. Running against the examples returns an array —
+// one entry per test case — but submitting returns a bare string, usually "". The two
+// endpoints share a response shape in every other respect, so a []string field decodes
+// the run fine and then fails every submission with:
+//
+//	json: cannot unmarshal string into Go struct field Judgement.code_output of type []string
+//
+// which surfaced as "Submit failed" on a submission the judge had actually accepted.
+//
+// Decoding leniently here rather than at the call site: this is the boundary with
+// somebody else's undocumented API, and it is the right place to absorb its shape.
+type Lines []string
+
+// UnmarshalJSON accepts a string, a list of strings, or null.
+func (l *Lines) UnmarshalJSON(b []byte) error {
+	trimmed := bytes.TrimSpace(b)
+	if len(trimmed) == 0 || bytes.Equal(trimmed, []byte("null")) {
+		*l = nil
+		return nil
+	}
+
+	if trimmed[0] == '[' {
+		var list []string
+		if err := json.Unmarshal(trimmed, &list); err != nil {
+			return err
+		}
+		*l = list
+		return nil
+	}
+
+	var single string
+	if err := json.Unmarshal(trimmed, &single); err != nil {
+		return err
+	}
+	// An empty string is no output, not one blank line — otherwise a passing
+	// submission reports a phantom line of output it never produced.
+	if single == "" {
+		*l = nil
+		return nil
+	}
+	*l = strings.Split(single, "\n")
+	return nil
+}
+
+// String joins the lines for display.
+func (l Lines) String() string { return strings.Join(l, "\n") }
 
 // Done reports whether the judge has finished.
 func (j Judgement) Done() bool { return j.State == "SUCCESS" }

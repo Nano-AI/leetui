@@ -94,7 +94,7 @@ func reportJudgement(w io.Writer, j leetcode.Judgement) int {
 	if j.LastTestcase != "" {
 		fmt.Fprintf(w, "  in    %s\n", oneLine(j.LastTestcase))
 		fmt.Fprintf(w, "  want  %s\n", oneLine(j.ExpectedOutput))
-		fmt.Fprintf(w, "  got   %s\n", oneLine(strings.Join(j.CodeOutput, "\n")))
+		fmt.Fprintf(w, "  got   %s\n", oneLine(j.CodeOutput.String()))
 	}
 	// Fullest message first: the short form is a summary of the long one.
 	for _, msg := range []string{j.FullCompileError, j.CompileError, j.RuntimeError} {
