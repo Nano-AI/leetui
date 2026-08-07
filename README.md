@@ -175,17 +175,19 @@ Config is written to `~/.config/leetui/config.toml`; the database lives in
 ## Shape of the thing
 
 ```
-╭──────────────────────────────────────────────────────────────────────────────╮
-│ L E E T U I                                ⏱ 00:12:04 ┊ ◆ premium ┊ ada     │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─ PROBLEMS ──────────────────────────────────────────── "cache" ┊ 12 ─╮
-│ #      │ PROBLEM                                    │ DIF │ ACC  │ STATE │
-├────────┼────────────────────────────────────────────┼─────┼─────┼────────┤
-│ ▌ 0146 │ LRU Cache                                  │ MED │ 43%  │ SOLVED│
-│   0460 │ LFU Cache                                  │ HRD │ 44%  │ TRIED │
-│   1650 │ Lowest Common Ancestor of a Binary Tree III│ MED │ 80%  │ LOCKED│
-╰────────┴────────────────────────────────────────────┴─────┴─────┴────────╯
- enter open ┊ / search ┊ c companies ┊ 1·2·3 difficulty ┊ u unsolved ┊ q quit
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ L E E T U I                                                              ⏱ --:--:-- ┊ signed out │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ PROBLEMS ─────────────────────────────────────────────────────────────────────────────────── 4 ─╮
+│ #      │ TODO │ PROBLEM                                  │ DIF │ ACC  │ STATE │ ASKED BY         │
+├────────┼──────┼──────────────────────────────────────────┼─────┼──────┼───────┼──────────────────┤
+│ ▌ 0001 │      │ Two Sum                                  │ ESY │ 58%  │   ✓   │                  │
+│   0042 │      │ Trapping Rain Water                      │ HRD │ 61%  │       │                  │
+│   0146 │      │ LRU Cache                                │ MED │ 43%  │   ◐   │                  │
+│   1650 │      │ Lowest Common Ancestor of a Binary Tree… │ MED │ 80%  │   ⊘   │                  │
+│        │      │                                          │     │      │       │                  │
+╰────────┴──────┴──────────────────────────────────────────┴─────┴──────┴───────┴──────────────────╯
+ enter open ┊ m mark ┊ M my list ┊ / search ┊ c companies ┊ 1·2·3 difficulty ┊ u unsolved ┊ S sync
 ```
 
 Browsing is the list and nothing else, full width — the same reason
