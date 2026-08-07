@@ -1,0 +1,110 @@
+name: Release
+
+# Prebuilt binaries, so installing does not require a Go toolchain.
+#
+# `go install` stays the documented path for anyone who has Go — it is one line and
+# always current. This is for everyone else, and for the Homebrew tap, which needs a
+# tarball and a checksum to point at.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      # A tagged build that does not pass its own tests should not become a download.
+      # The suite is offline, so this needs no credentials and cannot flake on the API.
+      - run: go test ./...
+      - run: go vet ./...
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - {goos: darwin, goarch: arm64}   # Apple silicon
+          - {goos: darwin, goarch: amd64}   # Intel Macs
+          - {goos: linux, goarch: amd64}
+          - {goos: linux, goarch: arm64}    # servers, Raspberry Pi, Asahi
+          - {goos: windows, goarch: amd64}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # CGO off, always. leetui's only C-adjacent dependency is SQLite, and D-009 chose
+      # modernc.org/sqlite — a pure-Go translation — precisely so a cross-compiled build
+      # needs no C toolchain for each target. This is that decision being cashed in.
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: '0'
+        run: |
+          version="${GITHUB_REF_NAME}"
+          [ "${version}" = "main" ] && version="dev"
+          out="leetui"
+          [ "${GOOS}" = "windows" ] && out="leetui.exe"
+
+          # -s -w drops the symbol table and DWARF: nothing debugs a release binary from
+          # a download, and it takes ~25% off a 27MB file.
+          go build -trimpath \
+            -ldflags "-s -w -X main.version=${version}" \
+            -o "dist/${out}" ./cmd/leetui
+
+      - name: Package
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          name="leetui_${GITHUB_REF_NAME}_${GOOS}_${GOARCH}"
+          cd dist
+          # README and LICENSE ride along: a tarball that is only a binary gives its
+          # recipient nowhere to look.
+          cp ../README.md ../LICENSE . 2>/dev/null || true
+          if [ "${GOOS}" = "windows" ]; then
+            zip -q "${name}.zip" leetui.exe README.md LICENSE 2>/dev/null || zip -q "${name}.zip" leetui.exe
+          else
+            tar czf "${name}.tar.gz" leetui README.md LICENSE 2>/dev/null || tar czf "${name}.tar.gz" leetui
+          fi
+          rm -f leetui leetui.exe README.md LICENSE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leetui_${{ matrix.goos }}_${{ matrix.goarch }}
+          path: dist/*
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      # One checksums file over every archive. A Homebrew formula needs the sha256, and
+      # so does anyone who would rather verify a download than trust it.
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

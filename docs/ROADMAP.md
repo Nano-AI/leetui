@@ -244,7 +244,16 @@ The last piece. The page is up; the install story around it is not.
 - [x] **Decide what it is for** — a landing page for the tool. See below
 - [x] **The page**, in `site/`, deployed to Pages by Actions
 - [ ] A domain
-- [ ] Install story: `go install`, a Homebrew tap, and prebuilt binaries per platform
+- [x] **Prebuilt binaries per platform** — `.github/workflows/release.yml` builds five
+      targets on a `v*` tag, with a checksums file. `CGO_ENABLED=0` throughout, which is
+      D-009's pure-Go SQLite being cashed in: every target cross-compiles from one runner
+      with no C toolchain. Verified locally on all five before the workflow was written
+- [x] **`--version`**, stamped by the release build
+- [ ] A Homebrew tap (needs a tagged release to point at)
+- [ ] **A LICENSE.** The repo has none, so it is "all rights reserved" by default —
+      which contradicts the install instructions, and the vendored leetgo drivers are MIT
+      and require their notice be carried. Blocking for a real release; the choice is the
+      owner's
 - [ ] Screenshots or an asciinema cast — the board and the flip are the pitch
 
 **Settled 2026-08-06: this repository's site advertises the tool.** The two are different

@@ -134,6 +134,31 @@ remote             = ""     # empty means the branch's own upstream
 
 ---
 
+## Install
+
+With Go:
+
+```sh
+go install github.com/Nano-AI/leetui/cmd/leetui@latest
+```
+
+`go install` puts binaries in `$(go env GOPATH)/bin`, which is **often not on your PATH**.
+If `leetui` is not found afterwards, add it:
+
+```sh
+echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+Without Go, take a prebuilt binary from
+[Releases](https://github.com/Nano-AI/leetui/releases) — macOS (Apple silicon and Intel),
+Linux (x86-64 and arm64), and Windows. One static file, no runtime to install.
+
+```sh
+leetui doctor    # what this machine can and cannot do, and how to fix it
+```
+
+---
+
 ## Working on leetui
 
 ```sh

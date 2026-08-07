@@ -15,6 +15,15 @@ import (
 	"github.com/Nano-AI/leetui/internal/solve"
 )
 
+// version is stamped at build time by the release workflow:
+//
+//	go build -ldflags "-X main.version=v1.2.3"
+//
+// "dev" for anything built without it, which is every `go run` and `go install` from
+// source — and saying "dev" is more useful than printing a version those builds do not
+// actually have.
+var version = "dev"
+
 func main() {
 	os.Exit(dispatch(os.Args[1:]))
 }
@@ -30,6 +39,9 @@ func dispatch(args []string) int {
 		case len(args) == 1 && (args[0] == "-h" || args[0] == "--help"):
 			usage(os.Stdout)
 			return exitOK
+		case len(args) == 1 && (args[0] == "-v" || args[0] == "--version"):
+			fmt.Println("leetui " + version)
+			return exitOK
 		}
 		if err := runTUI(args); err != nil {
 			fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
@@ -39,6 +51,10 @@ func dispatch(args []string) int {
 	}
 
 	name := args[0]
+	if name == "version" {
+		fmt.Println("leetui " + version)
+		return exitOK
+	}
 	if name == "help" {
 		usage(os.Stdout)
 		return exitOK
