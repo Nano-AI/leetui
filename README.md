@@ -3,7 +3,8 @@
 A terminal client for LeetCode. Browse, search, solve, run, and submit without leaving
 the terminal — with full Premium parity and optional GitHub sync.
 
-**Status: Phase 4 complete — browse, solve, premium, and git all work.**
+**Status: all seven phases complete.** Not yet tagged, so there is no release to
+download and no Homebrew tap — build it with `go install` until there is.
 Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
 against the examples without leaving the terminal (Python, Go, C++, JS/TS), and submit to the
 judge. Company packs, editorials, and the premium filter are in. An accepted solution

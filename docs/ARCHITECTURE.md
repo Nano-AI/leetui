@@ -12,18 +12,21 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 238 files, ~26,730 lines, mean 112, max 263.
+Current: 245 files, ~27,715 lines, mean 113, max 263.
 
 ## Package map
 
 ```
 cmd/leetui/                 main.go dispatch · tui.go the app · cli.go the subcommands
                             cmd_solve.go · cmd_submit.go · cmd_todo.go · report.go
+                            cmd_doctor.go what this machine can do · cmd_image.go
+                            watch.go the results as their own pane
 internal/
   config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
               terminal.go what this terminal can draw (D-023, D-026)
               settings.go the settable registry — palette and settings view share it
               graphics.go which image protocol, and what is blocking it
+              debug.go the redacted trace log (D-028)
   auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
               chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
@@ -36,10 +39,13 @@ internal/
   syncer/     syncer.go · progress.go · problems.go the resumable job · detail.go
               companies.go registry+one pack · editorial.go
   render/     html.go converter · walk.go dispatch · inline.go · blocks.go
+              codeblock.go example blocks painted to full width
+              inline_image.go kitty + iTerm2 encoders, tmux passthrough
               whitespace.go · text.go · latex.go · glamour.go theme
               editorial.go markdown-with-HTML, a separate door (D-007a)
   runner/     interfaces + language registry, vendored per-language drivers (D-005)
               python.go · golang.go · cpp.go · javascript.go (JS and TS, D-004)
+              globals.go the shared half of a driver, and its migration (D-029)
               scaffold.go the two-region solution file · extract.go what gets submitted
               testcase.go example inputs + scraped answers · overrides.go comparators
   solve/      prepare.go problem-folder layout · run.go generate+execute

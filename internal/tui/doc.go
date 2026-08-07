@@ -35,6 +35,7 @@
 //	todo.go         m and M — the user's own list (D-022)
 //	git.go          the repository's state and commands; git_keys.go drives it,
 //	                including the push confirmation (D-025)
+//	judge.go        the verdict and the local run's wording
 //	palette.go      the : command line over the settings registry (D-027)
 //	settings.go     the settings screen and the tag/hint reveal toggles (D-027a)
 //
@@ -50,6 +51,7 @@
 //	search.go       the search panel
 //	setup.go        the first-run screen
 //	git_view.go     the repository screen — branch, changes, commits (D-025)
+//	docs.go         the reference — everything leetui can do, keys and not
 //	help.go         the key reference, folding to columns when it must
 //	signin.go       the sign-in panel
 //	company_view.go the company browser; picker_view.go the selection lists
