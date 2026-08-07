@@ -248,7 +248,7 @@ is inside their home directory. The pane states the situation and prints the two
 - [x] **`--ascii` flag** alongside `ui.ascii`. The flag wins outright — it is the escape
       hatch for a terminal the detection reads wrong, and someone who typed it has decided
 
-## Phase 7 — The website ✅ **the page is live; the rest needs a purchase or a tag**
+## Phase 7 — The website ✅ **COMPLETE** — page live, v0.1.0 released, brew installable
 
 The last piece. The page is up; the install story around it is not.
 
@@ -267,13 +267,15 @@ The last piece. The page is up; the install story around it is not.
       `packaging/homebrew/leetui.rb`, and the release workflow fills its four sha256
       lines from the checksums it just computed and pushes it to the tap. Doing that by
       hand is four copy-pastes per release, which is four chances to ship a formula that
-      will not install. **Two manual steps remain, both one-time:** create
-      `Nano-AI/homebrew-tap`, and set a `HOMEBREW_TAP_TOKEN` secret. Without the secret
-      the step is skipped, so a release never fails on a tap that does not exist yet
+      will not install. **Live:** `Nano-AI/homebrew-tap` exists and `brew install leetui`
+      was verified end to end on 2026-08-07. Setting a `HOMEBREW_TAP_TOKEN` secret makes
+      future releases update the formula themselves; without it the step skips, so a
+      release never fails on it
 - [x] **LICENSE — MIT**, with `NOTICE` carrying leetgo's. MIT because the vendored
       drivers are MIT and the README already credited them as such, so anything more
-      restrictive would have been incompatible with code already in the tree. Easily
-      changed before a tag if the owner wants otherwise; nothing depends on it yet
+      restrictive would have been incompatible with code already in the tree
+- [x] **v0.1.0 released** — five platforms plus checksums, built and published by the
+      workflow on the tag
 - [x] **Screenshot** — captured from the real `View()` into the README, so it cannot
       drift from the product. Re-take with `LEETUI_SHOTS=1 go test ./internal/tui`
 - [x] **An asciinema cast** — `docs/demo.cast`, generated from the real `View()` through

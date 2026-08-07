@@ -3,8 +3,8 @@
 A terminal client for LeetCode. Browse, search, solve, run, and submit without leaving
 the terminal — with full Premium parity and optional GitHub sync.
 
-**Status: all seven phases complete.** Not yet tagged, so there is no release to
-download and no Homebrew tap — build it with `go install` until there is.
+**Status: v0.1.0 released.** All seven phases complete. Install with Homebrew, `go
+install`, or a prebuilt binary for macOS, Linux, or Windows.
 Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
 against the examples without leaving the terminal (Python, Go, C++, JS/TS), and submit to the
 judge. Company packs, editorials, and the premium filter are in. An accepted solution
@@ -148,6 +148,14 @@ remote             = ""     # empty means the branch's own upstream
 
 ## Install
 
+With Homebrew — no Go toolchain needed:
+
+```sh
+brew tap Nano-AI/tap
+brew trust nano-ai/tap    # Homebrew gates third-party taps
+brew install leetui
+```
+
 With Go:
 
 ```sh
@@ -159,14 +167,6 @@ If `leetui` is not found afterwards, add it:
 
 ```sh
 echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
-```
-
-With Homebrew:
-
-```sh
-brew tap Nano-AI/tap
-brew trust nano-ai/tap    # Homebrew gates third-party taps
-brew install leetui
 ```
 
 Without either, take a prebuilt binary from

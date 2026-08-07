@@ -715,13 +715,30 @@ All 2 cases passed. Submit with: leetui submit two-sum</span></code></pre>
         <span class="pane-title utility" id="install-title">Install</span>
       </div>
       <div class="pane-body">
+        <p class="filename utility">Homebrew</p>
         <div class="command">
-          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-2">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-2">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
           <button class="copy-btn" type="button" data-copy="#install-cmd-2">Copy</button>
         </div>
         <p class="caption meta">
-          Go 1.24+. <code>go install</code> puts binaries in <code>~/go/bin</code>, which
-          is often not on your PATH — add it if <code>leetui</code> is not found.
+          No toolchain needed. <code>brew trust</code> is Homebrew&rsquo;s gate on
+          third-party taps.
+        </p>
+
+        <p class="filename utility" style="margin-top:1.4rem">With Go</p>
+        <div class="command">
+          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-3">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+          <button class="copy-btn" type="button" data-copy="#install-cmd-3">Copy</button>
+        </div>
+        <p class="caption meta">
+          Go 1.24+. This puts the binary in <code>~/go/bin</code>, which is often not on
+          your PATH &mdash; add it if <code>leetui</code> is not found.
+        </p>
+
+        <p class="caption meta" style="margin-top:1.4rem">
+          Or a prebuilt binary for macOS, Linux or Windows from
+          <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static
+          file, nothing to install alongside it.
         </p>
         <p class="caption meta">
           Python, Go, C++, JavaScript and TypeScript run on your machine; everything else
