@@ -1,7 +1,14 @@
 # leetui
 
+[![Release](https://img.shields.io/github/v/release/Nano-AI/leetui?style=flat-square&color=E8A33D&labelColor=1B1D24)](https://github.com/Nano-AI/leetui/releases)
+[![License](https://img.shields.io/badge/license-MIT-E6E3DA?style=flat-square&labelColor=1B1D24)](LICENSE)
+[![Release build](https://img.shields.io/github/actions/workflow/status/Nano-AI/leetui/release.yml?style=flat-square&label=build&labelColor=1B1D24)](https://github.com/Nano-AI/leetui/actions/workflows/release.yml)
+[![Go](https://img.shields.io/github/go-mod/go-version/Nano-AI/leetui?style=flat-square&labelColor=1B1D24&color=6B7080)](go.mod)
+
 A terminal client for LeetCode. Browse, search, solve, run, and submit without leaving
 the terminal — with full Premium parity and optional GitHub sync.
+
+**[Website](https://nano-ai.github.io/leetui/) · [Install](#install) · [Keys](#run-it) · [For agents](docs/AGENTS.md) · [Report a bug](https://github.com/Nano-AI/leetui/issues/new)**
 
 **Status: v0.1.0 released.** All seven phases complete. Install with Homebrew, `go
 install`, or a prebuilt binary for macOS, Linux, or Windows.
@@ -376,6 +383,27 @@ docs/                DECISIONS · DESIGN · ARCHITECTURE · ROADMAP
 ```
 
 ---
+
+## Contributing
+
+The docs in `docs/` are the on-ramp — `DECISIONS.md` first. Every architectural choice is
+recorded there with what it costs and what would reverse it, so a change that contradicts
+one is a conversation rather than a surprise in review.
+
+```sh
+go test ./...     # offline, and must stay green
+go vet ./...
+```
+
+Two house rules, both from `docs/ARCHITECTURE.md`:
+
+- **Files stay in the 100–200 line range.** One file, one job.
+- **Hex colours live in `internal/tui/theme` and nowhere else.**
+
+If you change behaviour, the test that would have caught the old behaviour is the one
+worth writing. Several of the bugs in this repo's history were found by a test that
+failed against the previous commit — and a couple were shipped by tests that passed
+vacuously, which is the failure to watch for.
 
 ## Credits
 
