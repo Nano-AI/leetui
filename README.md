@@ -161,7 +161,15 @@ If `leetui` is not found afterwards, add it:
 echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
 ```
 
-Without Go, take a prebuilt binary from
+With Homebrew:
+
+```sh
+brew tap Nano-AI/tap
+brew trust nano-ai/tap    # Homebrew gates third-party taps
+brew install leetui
+```
+
+Without either, take a prebuilt binary from
 [Releases](https://github.com/Nano-AI/leetui/releases) — macOS (Apple silicon and Intel),
 Linux (x86-64 and arm64), and Windows. One static file, no runtime to install.
 

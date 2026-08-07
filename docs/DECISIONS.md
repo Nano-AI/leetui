@@ -633,5 +633,9 @@ Python gets the same treatment through `sys.path`, and its per-folder copy is de
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)
 - [x] Whether `notes.md` is committed to the GitHub repo or gitignored by default — **committed, opt-out via `git.commit_notes`** (D-024). It is the user's own writing and the reason a solutions repo is worth reading; anyone who would rather not publish a half-finished thought turns it off.
-- [ ] Rate-limit budget: requests/sec ceiling for the company sync, empirically determined
+- [~] Rate-limit budget. **Measured 2026-08-07:** a full 4,013-problem sync at **8 req/s**
+  completed in 19.9s with no 429 and a 4.7 MB peak heap. That is evidence the shipped
+  default of 2 is conservative, not proof of a ceiling — finding the actual limit means
+  provoking one, which risks an account. `internal/syncer/cost_test.go` re-runs the
+  measurement.
 - [ ] Whether premium study plans get a dedicated view or fold into company packs
