@@ -85,22 +85,35 @@ var style = ansi.StyleConfig{
 			Suffix:          " ",
 		},
 	},
+	// An example block is DATA, not prose — the input, the output, and the walk-through
+	// are what you check your understanding against, and they were rendering in a grey a
+	// shade off body text with no background at all. On a wall of paragraphs that reads
+	// as more paragraph.
+	//
+	// The flap background is the same treatment inline `code` already carries, so a
+	// block and a span of code look related instead of unrelated. It is one step off the
+	// page base — enough to bound the block, not enough to compete with the statement.
 	CodeBlock: ansi.StyleCodeBlock{
 		StyleBlock: ansi.StyleBlock{
-			StylePrimitive: ansi.StylePrimitive{Color: p(cBone)},
-			Margin:         p(uint(1)),
+			StylePrimitive: ansi.StylePrimitive{
+				Color:           p(cBone),
+				BackgroundColor: p(cFlap),
+			},
+			Margin: p(uint(1)),
 		},
 		Chroma: &ansi.Chroma{
-			Text:          ansi.StylePrimitive{Color: p(cBone)},
-			Keyword:       ansi.StylePrimitive{Color: p(cAmber), Bold: p(true)},
-			KeywordType:   ansi.StylePrimitive{Color: p(cAmber)},
-			NameFunction:  ansi.StylePrimitive{Color: p(cBone), Bold: p(true)},
-			NameBuiltin:   ansi.StylePrimitive{Color: p(cAmber)},
-			Comment:       ansi.StylePrimitive{Color: p(cDim), Italic: p(true)},
-			LiteralString: ansi.StylePrimitive{Color: p(cDim)},
-			LiteralNumber: ansi.StylePrimitive{Color: p(cBone)},
-			Operator:      ansi.StylePrimitive{Color: p(cDim)},
-			Punctuation:   ansi.StylePrimitive{Color: p(cDim)},
+			// Every Chroma token needs the background too. Without it a highlighted
+			// keyword punches a hole in the block.
+			Text:          ansi.StylePrimitive{Color: p(cBone), BackgroundColor: p(cFlap)},
+			Keyword:       ansi.StylePrimitive{Color: p(cAmber), Bold: p(true), BackgroundColor: p(cFlap)},
+			KeywordType:   ansi.StylePrimitive{Color: p(cAmber), BackgroundColor: p(cFlap)},
+			NameFunction:  ansi.StylePrimitive{Color: p(cBone), Bold: p(true), BackgroundColor: p(cFlap)},
+			NameBuiltin:   ansi.StylePrimitive{Color: p(cAmber), BackgroundColor: p(cFlap)},
+			Comment:       ansi.StylePrimitive{Color: p(cDim), Italic: p(true), BackgroundColor: p(cFlap)},
+			LiteralString: ansi.StylePrimitive{Color: p(cDim), BackgroundColor: p(cFlap)},
+			LiteralNumber: ansi.StylePrimitive{Color: p(cBone), BackgroundColor: p(cFlap)},
+			Operator:      ansi.StylePrimitive{Color: p(cDim), BackgroundColor: p(cFlap)},
+			Punctuation:   ansi.StylePrimitive{Color: p(cDim), BackgroundColor: p(cFlap)},
 			Background:    ansi.StylePrimitive{BackgroundColor: p(cInk)},
 		},
 	},
@@ -149,7 +162,10 @@ func Markdown(md string, width int) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("render markdown: %w", err)
 	}
-	return out, nil
+	// Glamour colours the characters of a code block and pads the rest of the line with
+	// plain spaces, so the background stops at the last character. Fill it out, or the
+	// examples read as a ragged smear rather than a bounded block.
+	return paintCodeBlocks(out, width), nil
 }
 
 // HTML converts LeetCode HTML and renders it in one step, returning the referenced

@@ -146,15 +146,73 @@ func wrapPlain(s string, width int) []string {
 	}
 	var out []string
 	for _, para := range strings.Split(strings.TrimRight(s, "\n"), "\n") {
-		for lipgloss.Width(para) > width {
-			cut := width
-			for cut > 0 && lipgloss.Width(para[:cut]) > width {
-				cut--
+		out = append(out, wrapWords(para, width)...)
+	}
+	return out
+}
+
+// wrapWords breaks a line at spaces, and only splits a word when the word itself is
+// wider than the pane.
+//
+// The previous version cut at the column regardless, so a compiler saying
+//
+//	error: non-void function does not return a value [-Wreturn-type]
+//
+// arrived as "non-void f / unction does not return a value [-Werr / or,-Wreturn-type]".
+// A compile error is read closely, under mild stress, and mid-word breaks make it look
+// like the error itself is garbled.
+func wrapWords(para string, width int) []string {
+	if para == "" {
+		return []string{""}
+	}
+
+	var out []string
+	var line strings.Builder
+
+	flush := func() {
+		out = append(out, line.String())
+		line.Reset()
+	}
+
+	for _, word := range strings.Fields(para) {
+		switch {
+		// A token longer than the pane — a long path, a mangled C++ symbol — has no
+		// break point, so it is cut. Better a split identifier than a blown frame.
+		case lipgloss.Width(word) > width:
+			if line.Len() > 0 {
+				flush()
 			}
-			out = append(out, para[:cut])
-			para = para[cut:]
+			for lipgloss.Width(word) > width {
+				cut := width
+				for cut > 0 && lipgloss.Width(word[:cut]) > width {
+					cut--
+				}
+				out = append(out, word[:cut])
+				word = word[cut:]
+			}
+			line.WriteString(word)
+
+		case line.Len() == 0:
+			line.WriteString(word)
+
+		case lipgloss.Width(line.String())+1+lipgloss.Width(word) > width:
+			flush()
+			line.WriteString(word)
+
+		default:
+			line.WriteString(" " + word)
 		}
-		out = append(out, para)
+	}
+	if line.Len() > 0 || len(out) == 0 {
+		flush()
+	}
+
+	// Leading whitespace is meaningful in a compiler's source excerpt (the caret line
+	// under the offending column), so it is preserved on the first line.
+	if indent := para[:len(para)-len(strings.TrimLeft(para, " \t"))]; indent != "" && len(out) > 0 {
+		if lipgloss.Width(indent+out[0]) <= width {
+			out[0] = indent + out[0]
+		}
 	}
 	return out
 }
