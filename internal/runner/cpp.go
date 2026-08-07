@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
 const (
@@ -62,12 +64,14 @@ func cppType(t string) (cType, builder string, err error) {
 
 // generateCpp writes the header and a main() that decodes arguments and calls Solution.
 func (l *Local) generateCpp(p Problem, meta Meta, dir string) error {
-	header, err := drivers.ReadFile("drivers/cpp/driver.h")
-	if err != nil {
-		return fmt.Errorf("read embedded cpp driver: %w", err)
+	// The header is identical for every problem, so it lives once in the workspace's
+	// globals/ directory rather than beside every solution (D-029).
+	if err := writeGlobalDriver(dir, cppHeaderFile, "drivers/cpp/driver.h"); err != nil {
+		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, cppHeaderFile), header, 0o644); err != nil {
-		return fmt.Errorf("write cpp driver: %w", err)
+	// A folder created before the driver moved still says #include "leetui_driver.h".
+	if err := migrateInclude(dir, cppHeaderFile); err != nil {
+		return err
 	}
 
 	var decls, args strings.Builder
@@ -116,7 +120,7 @@ int main() {
     Solution sol;
 %s%s    return 0;
 }
-`, cppHeaderFile, len(meta.Params), decls.String(), call)
+`, workspace.GlobalRef(cppHeaderFile), len(meta.Params), decls.String(), call)
 
 	if err := os.WriteFile(filepath.Join(dir, cppMainFile), []byte(main), 0o644); err != nil {
 		return fmt.Errorf("write cpp main: %w", err)

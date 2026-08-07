@@ -29,7 +29,7 @@ func TestScaffoldGivesTheEditorWhatItNeeds(t *testing.T) {
 	for _, tc := range []struct{ slug, meta, want string }{
 		// One include carries the std headers, `using namespace std`, and the node types,
 		// so `vector<int>` resolves.
-		{"cpp", twoSumMeta, `#include "leetui_driver.h"`},
+		{"cpp", twoSumMeta, `#include "../globals/leetui_driver.h"`},
 		// The driver shares this package, which is what puts ListNode in scope.
 		{"golang", twoSumMeta, "package main"},
 		// LeetCode's annotations say List[int] and Optional[ListNode].

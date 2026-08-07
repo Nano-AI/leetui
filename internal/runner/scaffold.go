@@ -3,6 +3,8 @@ package runner
 import (
 	"fmt"
 	"strings"
+
+	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
 // Solution-file scaffolding.
@@ -130,7 +132,7 @@ func (s Scaffold) preamble() string {
 		// One include does all of it: the driver header carries the std headers,
 		// `using namespace std`, and the node types. It is #pragma once, so the
 		// generated main including both it and this file is fine.
-		return fmt.Sprintf("#include %q\n", cppHeaderFile)
+		return fmt.Sprintf("#include %q\n", workspace.GlobalRef(cppHeaderFile))
 
 	case "python3", "python":
 		return s.pythonPreamble()

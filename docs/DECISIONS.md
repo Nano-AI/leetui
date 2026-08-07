@@ -607,6 +607,28 @@ That is enough to tell two sessions apart in a trace and useless to anyone who o
 
 ---
 
+## D-029 — The shared half of a driver lives in globals/
+
+Settled 2026-08-07, at the user's suggestion, which was right.
+
+Each language's driver splits in two: a part generated from **this** problem's metaData — argument decoding, the call, the return shape — and a part that is **byte-identical for every problem**. The second half was written into each problem folder, which put ~19KB of scaffolding beside every solution and buried the four files you edit under four you never open.
+
+```
+globals/leetui_driver.h          written once
+globals/_leetui_driver.py
+0001-two-sum/leetui_main.cpp     #include "../globals/leetui_driver.h"
+```
+
+**The objection was clangd, and a relative path answers it.** I argued against sharing on the grounds that a shared directory needs `-I` and a `compile_commands.json`, so every `solution.cpp` would show red squiggles in an editor — and the whole product thesis is that you edit in your own editor. The user pointed out that `"../globals/…"` is *relative*: a quoted include resolves against the including file's own directory. No flag, no compile database, and clangd follows it with zero configuration. Verified by compiling one before changing anything.
+
+Python gets the same treatment through `sys.path`, and its per-folder copy is deleted — left in place it would **shadow** the shared one, hiding a stale driver behind a current one.
+
+**Existing folders are migrated.** Every problem created before this says `#include "leetui_driver.h"`, and doing nothing would greet each of them with `fatal error: file not found`. That line is one leetui wrote, above the `@leetui code=start` marker, in the region the docs and `scaffold.go` both call scaffolding rather than code — so rewriting exactly it is in scope, and nothing below the marker is read. The stale copy is removed at the same time: left there the old include would still resolve, and the migration would look optional until the day it was not.
+
+**What this costs.** A problem folder is no longer self-contained — you cannot zip one and compile it elsewhere without `globals/`. Nobody does that, and it was never a promise.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

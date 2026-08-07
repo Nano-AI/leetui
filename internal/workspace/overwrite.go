@@ -18,6 +18,7 @@ import (
 const generatedIgnores = `# Written by leetui. Solutions, notes, and testcases are yours; these are not.
 __pycache__/
 _leetui_*
+globals/
 leetui_driver.*
 leetui_main.*
 leetui_bin

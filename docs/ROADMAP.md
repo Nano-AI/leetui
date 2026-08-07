@@ -222,6 +222,8 @@ is inside their home directory. The pane states the situation and prints the two
       reports when tmux is swallowing the escape, which is otherwise completely silent
 - [x] **JPEG is re-encoded** — kitty's `f=100` means PNG, LeetCode serves plenty of
       JPEGs, and handing one over draws nothing and reports nothing. Found by running it
+- [x] **Debug logging** (D-028) — `--debug` / `LEETUI_DEBUG=1`, redacted at the source
+- [x] **Shared drivers in `globals/`** (D-029) — ~19KB out of every problem folder
 - [ ] **Images INSIDE the statement pane.** Deliberately not done: an image escape
       occupies cells the layout must have reserved, and a protocol the terminal
       mis-measures shears the frame — the same failure as an unwrapped long line, but

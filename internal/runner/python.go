@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/Nano-AI/leetui/internal/workspace"
 )
 
 // Generated filenames. The leading underscore keeps them out of the way alphabetically
@@ -22,13 +24,13 @@ const (
 // generatePython writes the vendored driver and an entry point wired to this problem's
 // signature.
 func (l *Local) generatePython(p Problem, meta Meta, dir string) error {
-	driver, err := drivers.ReadFile("drivers/python3/driver.py")
-	if err != nil {
-		return fmt.Errorf("read embedded python driver: %w", err)
+	if err := writeGlobalDriver(dir, pyDriverFile, "drivers/python3/driver.py"); err != nil {
+		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, pyDriverFile), driver, 0o644); err != nil {
-		return fmt.Errorf("write python driver: %w", err)
-	}
+	// The entry point is regenerated every run and already points at globals/, so a
+	// copy left in the problem folder is only clutter — and one that would shadow the
+	// shared driver on sys.path, hiding a stale version behind a current one.
+	_ = os.Remove(filepath.Join(dir, pyDriverFile))
 
 	if meta.IsDesign() {
 		return l.writePythonDesignEntry(meta, dir)
@@ -49,13 +51,15 @@ func (l *Local) generatePython(p Problem, meta Meta, dir string) error {
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+_here = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _here)
+sys.path.insert(0, os.path.join(_here, "..", %q))
 
 from %s import run  # noqa: E402
 from solution import Solution  # noqa: E402
 
 run(Solution, %q, %s, mutates=%s)
-`, strings.TrimSuffix(pyDriverFile, ".py"), meta.Name, string(types), mutates)
+`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), meta.Name, string(types), mutates)
 
 	if err := os.WriteFile(filepath.Join(dir, pyEntryFile), []byte(entry), 0o644); err != nil {
 		return fmt.Errorf("write python entry point: %w", err)
@@ -171,13 +175,15 @@ func (l *Local) writePythonDesignEntry(meta Meta, dir string) error {
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+_here = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _here)
+sys.path.insert(0, os.path.join(_here, "..", %q))
 
 from %s import run_design  # noqa: E402
 from solution import %s  # noqa: E402
 
 run_design(%s, %s)
-`, strings.TrimSuffix(pyDriverFile, ".py"), meta.Classname, meta.Classname, string(encoded))
+`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), meta.Classname, meta.Classname, string(encoded))
 
 	if err := os.WriteFile(filepath.Join(dir, pyEntryFile), []byte(entry), 0o644); err != nil {
 		return fmt.Errorf("write python design entry point: %w", err)

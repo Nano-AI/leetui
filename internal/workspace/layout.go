@@ -32,6 +32,31 @@ const (
 	TestcasesFile = "testcases.txt"
 )
 
+// GlobalsDir holds the parts of a driver that are identical for every problem.
+//
+// They used to be written into each problem folder, which put ~19KB of byte-identical
+// scaffolding beside every solution and buried the four files you actually edit under
+// four you never open.
+//
+// A sibling directory rather than a shared path elsewhere, because the include stays
+// RELATIVE — `#include "../globals/leetui_driver.h"` resolves with no -I flag and no
+// compile_commands.json, so clangd follows it with zero configuration. That was the
+// objection to sharing them at all, and a relative path answers it.
+const GlobalsDir = "globals"
+
+// Globals returns the shared-driver directory, creating it if needed.
+func (w Workspace) Globals() (string, error) {
+	dir := filepath.Join(w.Root, GlobalsDir)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return "", fmt.Errorf("create globals dir: %w", err)
+	}
+	return dir, nil
+}
+
+// GlobalRef is how a generated file refers to a shared driver from inside a problem
+// folder. One level up, then down.
+func GlobalRef(name string) string { return "../" + GlobalsDir + "/" + name }
+
 // Workspace is a root directory holding problem folders.
 type Workspace struct {
 	Root string
