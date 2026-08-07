@@ -124,28 +124,35 @@ a:hover { text-decoration-color: var(--amber); }
   position: relative;
 }
 
-/* The title sits ON the top rule and masks it with its own ink
-   background, which is what ╭─ PROBLEMS ─╮ does. Only the label is
-   masked; the rule runs the full width behind it. */
+/* The frame's top rule, exactly as the terminal draws it:
+   ╭─ PROBLEMS ──────────────────── "cache" ┊ 5 ─╮
+
+   Title hard left, note hard right, and the rule running between them.
+   Each label masks the border with its own ink background.
+
+   A zero-height flex line with align-items:center already sits the
+   children ON the border — an extra translateY lifts the whole header
+   clear of the pane, which is what it was doing. */
 .pane-head {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0 1.3rem;
   height: 0;
-  transform: translateY(-0.62rem);
+  padding: 0 1.15rem;
 }
 
 .pane-title,
 .pane-note {
   background: var(--ink);
-  padding-inline: 0.45rem;
+  padding-inline: 0.5rem;
   flex: none;
   max-width: 45%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* The note rides the right end of the rule, never beside the title. */
+.pane-note { margin-left: auto; }
 
 .pane-body { padding: 0.35rem 1.15rem 1.35rem; }
 
@@ -211,7 +218,10 @@ a:hover { text-decoration-color: var(--amber); }
   margin-bottom: clamp(2rem, 5vw, 3rem);
 }
 
-/* The install line is a terminal line, so it looks like one. */
+/* The install line is a terminal line, so it looks like one.
+   Only the command scrolls. The button is pinned outside that region —
+   inside it, a narrow screen scrolls Copy out of reach and the control
+   is simply gone. */
 .command {
   display: inline-flex;
   align-items: center;
@@ -221,6 +231,13 @@ a:hover { text-decoration-color: var(--amber); }
   background: var(--flap);
   padding: 0.6rem 0.85rem;
   max-width: 100%;
+}
+.command-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow-x: auto;
   scrollbar-width: thin;
 }
@@ -394,6 +411,36 @@ a:hover { text-decoration-color: var(--amber); }
 .snippet .c { color: var(--dim); }
 .snippet .marker { color: var(--amber); }
 .snippet .k { color: var(--bone); font-weight: 700; }
+/* Amber, not red: an alert is the system speaking, and red is the
+   judge's alone. Same rule the app follows in its status line. */
+.snippet .warn { color: var(--amber); }
+
+.snippet .prompt { color: var(--amber); }
+.snippet .str { color: var(--dim); }
+
+/* Exit codes. A figure and what it means — the figure is the label, so
+   it gets the system's voice and the meaning gets content. */
+.codes { margin: 0; }
+.codes div {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: baseline;
+}
+.codes div + div { margin-top: 0.4rem; }
+.codes dt { color: var(--amber); font-weight: 700; }
+.codes dd { margin: 0; font-size: 0.8rem; }
+
+/* A file label, the way the terminal titles a pane. */
+.filename { margin: 0 0 0.45rem; }
+
+/* One line under an artifact. If it needs two, the artifact is not
+   showing enough on its own. */
+.caption {
+  margin: 0.7rem 0 0;
+  max-width: 62ch;
+  font-size: 0.8rem;
+}
 
 .langs { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; }
 .langs li { display: flex; gap: 0.75rem; align-items: baseline; }
@@ -420,7 +467,7 @@ a:hover { text-decoration-color: var(--amber); }
 @media (max-width: 40rem) {
   .col-acc, .cell-acc { display: none; }
 }
-@media (max-width: 27rem) {
+@media (max-width: 22rem) {
   .col-dif, .cell-dif { display: none; }
   .sub-row { grid-template-columns: 3.4rem minmax(0, 1fr); }
   .sub-row .sub-lang { display: none; }
@@ -449,15 +496,12 @@ a:hover { text-decoration-color: var(--amber); }
   <section class="wrap hero">
     <h1 class="thesis">A submission queue is <span class="said">a departure board</span>.</h1>
     <p class="lede">
-      leetui is a terminal client for LeetCode. Browse and search 4,013 problems offline,
-      run them against the examples locally, and submit to the judge — while your editor
-      stays open in the next pane.
+      A terminal client for LeetCode. 4,013 problems, searchable offline.
     </p>
 
     <div class="hero-actions">
       <div class="command">
-        <span class="prompt" aria-hidden="true">$</span>
-        <code id="install-cmd">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code>
+        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
         <button class="copy-btn" type="button" data-copy="#install-cmd">Copy</button>
       </div>
       <a href="https://github.com/Nano-AI/leetui">Read the source</a>
@@ -540,26 +584,23 @@ a:hover { text-decoration-color: var(--amber); }
       <div class="pane-body">
         <div class="subs">
           <div class="sub-row">
-            <span class="meta">0001</span>
+            <span class="meta sub-id">0001</span>
             <span class="meta sub-lang">python3</span>
             <span class="flap flap-face" data-verdict="ac">accepted</span>
           </div>
           <div class="sub-row">
-            <span class="meta">0042</span>
+            <span class="meta sub-id">0042</span>
             <span class="meta sub-lang">cpp</span>
             <span class="flap flap-face">wrong answer</span>
           </div>
           <div class="sub-row">
-            <span class="meta">0146</span>
+            <span class="meta sub-id">0146</span>
             <span class="meta sub-lang">go</span>
-            <span class="flap flap-face" id="verdict" data-verdict="" aria-live="polite">pending</span>
+            <span class="flap flap-face">pending</span>
           </div>
         </div>
 
-        <p class="no-spinner meta">
-          There are no spinners. A pending submission is a flap held mid&#8209;flip —
-          that is the loading state, everywhere, and it is the only one.
-        </p>
+        <p class="no-spinner meta">No spinners. Pending is a flap held mid-flip.</p>
       </div>
     </section>
 
@@ -570,17 +611,13 @@ a:hover { text-decoration-color: var(--amber); }
     <section class="pane" aria-labelledby="solution-title">
       <div class="pane-head">
         <span class="pane-title utility" id="solution-title">Solution</span>
-        <span class="pane-note utility" aria-hidden="true">python3</span>
+        <span class="pane-note utility" aria-hidden="true">0020-valid-parentheses</span>
       </div>
       <div class="pane-body">
-        <p class="section-lede">
-          leetui is the LeetCode side of the desk. Editing happens wherever you already
-          work — nvim in the next tmux pane, a VS Code terminal — so every problem folder
-          says exactly where its file is. Saving re-runs the tests on its own.
-        </p>
-
         <div class="two-up">
-          <pre class="snippet"><code><span class="c"># 20. Valid Parentheses · Easy</span>
+          <div>
+            <p class="filename utility">solution.py</p>
+            <pre class="snippet"><code><span class="c"># 20. Valid Parentheses &middot; Easy</span>
 <span class="c"># https://leetcode.com/problems/valid-parentheses/</span>
 
 <span class="k">from</span> typing <span class="k">import</span> List, Optional
@@ -590,24 +627,20 @@ a:hover { text-decoration-color: var(--amber); }
     <span class="k">def</span> isValid(self, s: str) -&gt; bool:
         ...
 <span class="marker"># @leetui code=end</span></code></pre>
+            <p class="caption meta">Only the marked region is submitted.</p>
+          </div>
 
-          <dl class="facts">
-            <div>
-              <dt>Only the marked region is submitted</dt>
-              <dd>Everything above it is imports and driver types LeetCode supplies
-                itself and would reject as duplicates.</dd>
-            </div>
-            <div>
-              <dt>Test cases are a plain text file</dt>
-              <dd>Seeded from the examples, hand-editable, and never overwritten once
-                you add your own.</dd>
-            </div>
-            <div>
-              <dt>A local mismatch never claims to be the judge</dt>
-              <dd>LeetCode's metadata cannot express in-place mutation or unordered
-                answers, so leetui says so and points at the judge.</dd>
-            </div>
-          </dl>
+          <div>
+            <p class="filename utility">testcases.txt</p>
+            <pre class="snippet"><code>"()[]{}"
+output:
+true
+
+"(]"
+output:
+false</code></pre>
+            <p class="caption meta">Yours to edit. Never overwritten.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -615,39 +648,64 @@ a:hover { text-decoration-color: var(--amber); }
     <section class="pane" aria-labelledby="repo-title">
       <div class="pane-head">
         <span class="pane-title utility" id="repo-title">Repository</span>
-        <span class="pane-note utility" aria-hidden="true">main &#9482; 3 ahead</span>
+        <span class="pane-note utility" aria-hidden="true">press v</span>
       </div>
       <div class="pane-body">
-        <p class="section-lede">
-          Make your workspace a git repository and an accepted verdict commits itself —
-          solution, statement, test cases, notes — with a subject you would have written:
+        <pre class="snippet"><code><span class="k">main</span>  <span class="c">&middot;</span>  <span class="warn">2 commits not on origin/main</span>
+<span class="c">clean &mdash; everything is committed</span>
+
+<span class="k">1a2b3c4</span>  solve(0146): lru cache &mdash; go, 58ms, beats 91.2%   <span class="c">3 minutes ago</span>
+<span class="k">9f8e7d6</span>  solve(0001): two sum &mdash; python3, 41ms            <span class="c">2 hours ago</span>
+
+<span class="marker">p</span> push   <span class="marker">R</span> refresh   <span class="marker">esc</span> back</code></pre>
+        <p class="caption meta">
+          Accepted commits itself. Push asks first, and names the remote&rsquo;s URL.
         </p>
+      </div>
+    </section>
 
-        <pre class="snippet"><code>solve(0146): lru cache &mdash; go, 58ms, beats 91.2%</code></pre>
+    <section class="pane" aria-labelledby="cli-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="cli-title">Command line</span>
+        <span class="pane-note utility" aria-hidden="true">leetui help</span>
+      </div>
+      <div class="pane-body">
+        <pre class="snippet"><code><span class="prompt">$</span> leetui todo add two-sum lru-cache <span class="k">--note</span> <span class="str">"phone screen prep"</span>
+<span class="c">added 2 problems</span>
 
-        <div class="two-up" style="margin-top:1.4rem">
-          <dl class="facts">
-            <div>
-              <dt>No co-author trailer, no session link</dt>
-              <dd>You wrote it. A solutions repo is something people show other people.</dd>
-            </div>
-            <div>
-              <dt>Pushing is never automatic</dt>
-              <dd>It lives in one screen, behind a confirmation that names the remote's
-                URL — not &ldquo;origin&rdquo;.</dd>
-            </div>
-          </dl>
-          <dl class="facts">
-            <div>
-              <dt>Only the files it was asked about</dt>
-              <dd>Work you staged in another pane is never swept into a commit.</dd>
-            </div>
-            <div>
-              <dt>leetui never runs <code>git init</code> for you</dt>
-              <dd>A stray <code>.git</code> in a directory you did not mean to version is
-                a real annoyance. It prints the two commands instead.</dd>
-            </div>
-          </dl>
+<span class="prompt">$</span> leetui todo <span class="k">--json</span> | jq -r <span class="str">'.[] | select(.status != "ac") | .slug'</span>
+<span class="c">two-sum
+lru-cache</span>
+
+<span class="prompt">$</span> leetui run two-sum
+<span class="c">case 1  ok     [0,1]
+case 2  ok     [1,2]
+
+All 2 cases passed. Submit with: leetui submit two-sum</span></code></pre>
+
+        <div class="two-up" style="margin-top:1.2rem">
+          <div>
+            <p class="filename utility">Exit codes are the API</p>
+            <dl class="codes">
+              <div><dt>0</dt><dd>it worked &mdash; and for <code>run</code>, every case passed</dd></div>
+              <div><dt>1</dt><dd>it ran and the answer was wrong</dd></div>
+              <div><dt>2</dt><dd>it could not run: unknown problem, missing toolchain, not signed in</dd></div>
+            </dl>
+          </div>
+          <div>
+            <p class="filename utility">Written for agents</p>
+            <p class="caption meta" style="margin-top:0">
+              The todo list is a queue anything can write to, so a script can stack up
+              problems from a job description and they are waiting on the board next time
+              you open it. Every operation is idempotent &mdash; adding twice is not an
+              error, so nothing has to check before it acts.
+            </p>
+            <p class="caption meta">
+              <code>submit</code> is the one command with outside effects, and it says so.
+              There is no push command at all.
+              <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">docs/AGENTS.md</a>
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -657,30 +715,14 @@ a:hover { text-decoration-color: var(--amber); }
         <span class="pane-title utility" id="install-title">Install</span>
       </div>
       <div class="pane-body">
-        <div class="two-up">
-          <div>
-            <p class="section-lede">
-              One static binary, Go 1.24 or newer. Sign in from inside the app by pasting
-              your session cookies — they go to the OS keychain, never to disk, and are
-              never printed.
-            </p>
-            <div class="command">
-              <span class="prompt" aria-hidden="true">$</span>
-              <code id="install-cmd-2">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code>
-              <button class="copy-btn" type="button" data-copy="#install-cmd-2">Copy</button>
-            </div>
-          </div>
-
-          <div>
-            <p class="utility" style="margin:0 0 .7rem">Runs locally</p>
-            <ul class="langs">
-              <li><span class="name">Python</span><span class="where">runs on your machine</span></li>
-              <li><span class="name">Go</span><span class="where">runs on your machine</span></li>
-              <li><span class="name">C++</span><span class="where">runs on your machine</span></li>
-              <li><span class="name meta">Everything else</span><span class="where">edits and submits normally, runs on the judge</span></li>
-            </ul>
-          </div>
+        <div class="command">
+          <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-2">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+          <button class="copy-btn" type="button" data-copy="#install-cmd-2">Copy</button>
         </div>
+        <p class="caption meta">
+          Go 1.24+. Python, Go and C++ run on your machine; everything else runs on the
+          judge. Cookies go to the OS keychain.
+        </p>
       </div>
     </section>
 
@@ -758,9 +800,54 @@ a:hover { text-decoration-color: var(--amber); }
     el.textContent = verdictText(el.textContent.trim());
   });
 
-  /* The load sequence: the state column resolves top to bottom, then one
-     submission goes PENDING -> JUDGING -> ACCEPTED and the board comes
-     to rest. That is the whole motion budget. */
+  /* The queue rolls.
+     A real departure board is never finished — the roster shifts up, the
+     new arrival sits pending, and the flaps chatter down the column. So
+     this loops rather than settling once, which is closer to the fixture
+     the app is imitating than a single flip was.
+
+     Still one animation, still only in this pane. And it stops dead for
+     anyone who asked for less motion: the markup already reads correctly
+     without a single frame running. */
+
+  var QUEUE = [
+    { id: "0001", lang: "python3", verdict: "accepted",     tone: "ac" },
+    { id: "0042", lang: "cpp",     verdict: "wrong answer", tone: "" },
+    { id: "0146", lang: "go",      verdict: "accepted",     tone: "ac" },
+    { id: "0208", lang: "python3", verdict: "accepted",     tone: "ac" },
+    { id: "0460", lang: "go",      verdict: "wrong answer", tone: "" },
+    { id: "1650", lang: "go",      verdict: "accepted",     tone: "ac" },
+  ];
+
+  var ROW_STAGGER = 130;   /* flaps chatter down the column, never in unison */
+  var JUDGE_HOLD  = 850;   /* how long the newest sits pending */
+  var CYCLE_REST  = 4200;  /* long enough to read the board before it moves */
+
+  function rollQueue(rows, offset) {
+    rows.forEach(function (row, n) {
+      var next = QUEUE[(offset + n) % QUEUE.length];
+      setTimeout(function () {
+        row.id.textContent = next.id;
+        row.lang.textContent = next.lang;
+
+        /* The newest submission is the one being judged, so it lands on
+           PENDING and resolves a beat later. The rows above it are
+           history and settle straight onto their verdict. */
+        if (n === rows.length - 1) {
+          flipTo(row.flap, verdictText("pending"), "", function () {
+            setTimeout(function () {
+              flipTo(row.flap, verdictText(next.verdict), next.tone);
+            }, JUDGE_HOLD);
+          });
+          return;
+        }
+        flipTo(row.flap, verdictText(next.verdict), next.tone);
+      }, n * ROW_STAGGER);
+    });
+  }
+
+  /* The load sequence: the state column resolves top to bottom, then the
+     submissions queue starts rolling and keeps rolling. */
   function run() {
     var cells = document.querySelectorAll("[data-flip-state]");
     Array.prototype.forEach.call(cells, function (cell, n) {
@@ -771,16 +858,27 @@ a:hover { text-decoration-color: var(--amber); }
       }, reduced.matches ? 0 : 260 + n * 90);
     });
 
-    var verdict = document.getElementById("verdict");
-    if (!verdict) { return; }
+    var rows = Array.prototype.map.call(
+      document.querySelectorAll(".sub-row"),
+      function (el) {
+        return {
+          id: el.querySelector(".sub-id"),
+          lang: el.querySelector(".sub-lang"),
+          flap: el.querySelector(".flap")
+        };
+      }
+    ).filter(function (r) { return r.id && r.lang && r.flap; });
 
-    setTimeout(function () {
-      flipTo(verdict, verdictText("judging"), null, function () {
-        setTimeout(function () {
-          flipTo(verdict, verdictText("accepted"), "ac");
-        }, 900);
-      });
-    }, reduced.matches ? 0 : 1200);
+    if (!rows.length || reduced.matches) { return; }
+
+    var offset = 0;
+    var cycleMs = rows.length * ROW_STAGGER + JUDGE_HOLD + CYCLE_REST;
+
+    setTimeout(function tick() {
+      rollQueue(rows, offset);
+      offset = (offset + 1) % QUEUE.length;
+      setTimeout(tick, cycleMs);
+    }, 1200);
   }
 
   if (document.readyState !== "loading") { run(); }
