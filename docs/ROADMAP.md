@@ -217,7 +217,16 @@ is inside their home directory. The pane states the situation and prints the two
       `TestFramesFitTerminal` runs EVERY screen at it rather than a sample. That found
       two: the settings list did not fit at all, and the command palette drew two rows
       the layout had not reserved, pushing the board's last row off the bottom
-- [ ] Opt-in inline images (Kitty / iTerm2)
+- [x] **Inline images (Kitty / iTerm2)** — `leetui image <problem> [n]`, plus tested
+      encoders for both protocols and the tmux passthrough wrapper. `leetui doctor`
+      reports when tmux is swallowing the escape, which is otherwise completely silent
+- [x] **JPEG is re-encoded** — kitty's `f=100` means PNG, LeetCode serves plenty of
+      JPEGs, and handing one over draws nothing and reports nothing. Found by running it
+- [ ] **Images INSIDE the statement pane.** Deliberately not done: an image escape
+      occupies cells the layout must have reserved, and a protocol the terminal
+      mis-measures shears the frame — the same failure as an unwrapped long line, but
+      impossible to recover from without quitting. As a command there is no frame to
+      shear, and it composes into a tmux pane the way `run --watch` does
 - [x] **Local JS/TS runner** (D-004 said this was the cheap one; it was). One driver and
       one binary for both: Node strips TypeScript's types itself from v23, so `solution.ts`
       needs no transpiler, no tsconfig and no second toolchain. JavaScript also takes

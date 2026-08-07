@@ -98,3 +98,18 @@ func Statement(d *store.Detail) string {
 	}
 	return doc.Markdown
 }
+
+// StatementImages lists the figures a statement references, in the order they appear.
+//
+// Same converter the pane's numbered markers come from, so `leetui image two-sum 2` and
+// pressing `2` in the app mean the same picture. Two lists would drift.
+func StatementImages(d *store.Detail) []render.Image {
+	if d == nil || strings.TrimSpace(d.Content) == "" {
+		return nil
+	}
+	doc, err := render.HTMLToMarkdown(d.Content)
+	if err != nil {
+		return nil
+	}
+	return doc.Images
+}

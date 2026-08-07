@@ -75,6 +75,10 @@ leetui path two-sum        # prints the folder, for scripting
 
 leetui todo add two-sum --note "from the JD"
 leetui todo --json         # stable array, for agents
+
+leetui run --watch         # stays open, re-runs on save — put it in its own pane
+leetui image two-sum 1     # draw a figure, on kitty / iTerm2 / WezTerm / Ghostty
+leetui doctor              # what this machine can do, and how to fix what it cannot
 ```
 
 A problem can be a slug, a folder name, a path to either, or omitted to mean the current

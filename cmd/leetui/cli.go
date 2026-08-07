@@ -67,6 +67,11 @@ var commands = []command{
 		run:     runPath,
 	},
 	{
+		name: "image", usage: "[problem] [n]",
+		summary: "draw a statement's figure, on a terminal that can show one",
+		run:     runImage,
+	},
+	{
 		name:    "doctor",
 		summary: "check this machine: toolchains, editor, terminal images",
 		run:     runDoctor,
