@@ -135,9 +135,12 @@ jobs:
 
           sed -i "s/^  version \".*\"/  version \"${version}\"/" tap/Formula/leetui.rb
           for target in darwin_arm64 darwin_amd64 linux_arm64 linux_amd64; do
-            up=$(echo "${target}" | tr '[:lower:]' '[:upper:]')
             sed -i "s/REPLACE_WITH_${target}_SHA/$(sha "${target}")/" tap/Formula/leetui.rb
           done
+
+          # Refuse to publish a formula still carrying a placeholder: it would install
+          # cleanly for nobody and the failure would surface as a checksum mismatch.
+          ! grep -q REPLACE_WITH tap/Formula/leetui.rb
 
           cd tap
           git config user.name  "github-actions[bot]"
