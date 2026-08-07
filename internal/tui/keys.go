@@ -34,6 +34,8 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case m.mode == modeCompany:
 		return m.handleCompanyKey(msg)
+	case m.mode == modeGit:
+		return m.handleGitKey(msg)
 	case m.mode == modeAuth:
 		return m.handleAuthKey(msg)
 	case m.searching:
@@ -157,6 +159,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "sync":
 		return m.startSync()
+
+	case "git":
+		return m.openGit()
 
 	case "auth":
 		m.mode = modeAuth

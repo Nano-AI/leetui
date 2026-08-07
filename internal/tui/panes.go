@@ -47,6 +47,14 @@ const (
 	// Separate from the board because browsing and solving want opposite things from the
 	// screen — a list wants width, a statement wants to be the only thing on it (D-018).
 	modeSolve
+
+	// modeGit is the workspace repository: branch, what is uncommitted, what is
+	// unpushed, and the last few commits.
+	//
+	// A mode rather than a strip on the board. Pushing lives in here and nowhere else,
+	// so publishing takes two deliberate keypresses and the second one is pressed while
+	// looking at the remote's URL (D-011).
+	modeGit
 )
 
 // Layout breakpoints. Panes collapse rather than truncating mid-glyph.

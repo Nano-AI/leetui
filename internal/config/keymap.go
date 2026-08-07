@@ -38,6 +38,7 @@ var DefaultKeymap = map[string]string{
 	"timer":       "t",
 	"timer_reset": "T",
 	"auth":        "a",
+	"git":         "v",
 	"help":        "?",
 	"quit":        "q",
 }

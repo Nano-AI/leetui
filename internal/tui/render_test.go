@@ -28,6 +28,8 @@ func TestFramesFitTerminal(t *testing.T) {
 		{"searching", 120, 32, true, []tea.Msg{key("/"), key("l")}},
 		{"filtered", 120, 32, true, []tea.Msg{key("2")}},
 		{"detail focus", 120, 32, true, []tea.Msg{key("tab")}},
+		{"git", 120, 32, true, []tea.Msg{key("v")}},
+		{"git narrow", 78, 24, true, []tea.Msg{key("v")}},
 	}
 
 	for _, tc := range cases {

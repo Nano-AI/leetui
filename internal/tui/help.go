@@ -53,6 +53,8 @@ func helpGroups() []helpGroup {
 		}},
 		{"do", [][2]string{
 			{"S", "sync problems — press again to pause"},
+			{"v", "the repository — accepted commits itself"},
+			{"", "pushing lives in there, and asks first"},
 			{"a", "sign in with session cookies"},
 			{"o", "open the problem on leetcode.com"},
 			{"1-9", "open marker N, in the problem pane"},

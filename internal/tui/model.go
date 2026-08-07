@@ -134,6 +134,11 @@ type Model struct {
 	toast   *toast
 	toastID int
 
+	// git is the repository view's state (D-011). Read on demand rather than kept
+	// current: a status refresh per keystroke would take the index lock away from
+	// whatever the user has running in the next pane.
+	git gitPane
+
 	// Transient status line.
 	status    string
 	statusErr bool

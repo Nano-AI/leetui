@@ -101,6 +101,11 @@ type Git struct {
 	// out. When set, a mismatch aborts the commit rather than writing to the wrong place.
 	Branch string `toml:"branch"`
 
+	// Remote is the remote a push goes to. Empty means the branch's own upstream, and
+	// a branch with no upstream is not pushed at all — leetui will not pick a remote
+	// for solutions on the user's behalf.
+	Remote string `toml:"remote"`
+
 	// CommitNotes controls whether notes.md is committed alongside solutions.
 	CommitNotes bool `toml:"commit_notes"`
 }

@@ -138,6 +138,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.username, m.premium = msg.status.Username, msg.status.IsPremium
 		return m, nil
 
+	case gitLoadedMsg:
+		m.git = msg.pane
+		return m, nil
+
+	case gitCommittedMsg:
+		return m.handleCommitted(msg)
+
+	case gitPushedMsg:
+		return m.handlePushed(msg)
+
 	case toastMsg:
 		return m, m.showToast(msg.title, msg.body)
 

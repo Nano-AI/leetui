@@ -37,8 +37,16 @@ func (m Model) handleJudgement(msg judgeMsg) (tea.Model, tea.Cmd) {
 		// Record the verdict locally. Without this the board keeps whatever the last full
 		// sync said — you submit, the judge says Accepted, and the row still reads TRIED
 		// until the next re-sync.
-		return m, tea.Batch(cmd, m.recordVerdict(msg.judgement),
-			status(judgeSummary(msg.judgement), !msg.judgement.Accepted()))
+		cmds := []tea.Cmd{cmd, m.recordVerdict(msg.judgement),
+			status(judgeSummary(msg.judgement), !msg.judgement.Accepted())}
+
+		// Commit the moment the work is provably correct (D-011). Only on Accepted: a
+		// wrong answer is not a milestone. Returns nil when the feature is off, and says
+		// nothing when the workspace is not a repository — see handleCommitted.
+		if msg.judgement.Accepted() {
+			cmds = append(cmds, m.commitAccepted(msg.judgement))
+		}
+		return m, tea.Batch(cmds...)
 	}
 	return m, nil
 }

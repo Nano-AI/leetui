@@ -44,6 +44,13 @@ func newTestModel(t *testing.T, seeded bool) Model {
 	}
 
 	cfg := config.Default()
+
+	// And point the workspace somewhere disposable. The default is ~/leetcode, which on
+	// a developer's machine is their REAL workspace and quite possibly a real git
+	// repository — the repository view would read it, and its contents would decide
+	// what the test sees.
+	cfg.Workspace = t.TempDir()
+
 	// Offline transport: the detail loader would otherwise fetch statements from
 	// leetcode.com on every cursor move. Unit tests must not touch the network.
 	cl := leetcode.New(leetcode.WithHTTPClient(&http.Client{Transport: offlineTransport{}}))

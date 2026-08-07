@@ -76,6 +76,8 @@ func (m Model) View() string {
 		return m.viewAuth()
 	case modeCompany:
 		return m.viewCompanies()
+	case modeGit:
+		return m.viewGit()
 	}
 
 	var sections []string
