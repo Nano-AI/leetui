@@ -72,11 +72,19 @@ func runPath(a *app, args []string) (int, error) {
 // problem — the folder, the scaffolded solution, and the test cases all appear.
 func runRun(a *app, args []string) (int, error) {
 	fs, lang := flags("run")
+	// --watch turns this into the results pane: it stays up and re-runs on every save,
+	// so it can live in a tmux pane beside the app and the editor.
+	watch := fs.Bool("watch", false, "stay open and re-run whenever the solution changes")
+	fs.BoolVar(watch, "w", false, "shorthand for --watch")
 	rest, err := parseFlags(fs, args)
 	if err != nil {
 		return exitProblem, err
 	}
 	arg := first(rest)
+
+	if *watch {
+		return runWatch(a, arg, *lang)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()

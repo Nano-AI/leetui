@@ -111,6 +111,10 @@ Prepares first, so this works on a machine that has never seen the problem. Loca
 execution covers **Python, Go, and C++**; anything else exits `2` and tells you to submit
 instead.
 
+`--watch` stays open and re-runs on every save, clearing between runs so the pane shows
+one result. It is for a human in a terminal pane, **not for an agent** — it never exits on
+its own.
+
 A failing case prints input, expected, and actual:
 
 ```
