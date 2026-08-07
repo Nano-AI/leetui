@@ -198,7 +198,7 @@ have surfaced.
 directory someone did not mean to version is a real annoyance, and the default workspace
 is inside their home directory. The pane states the situation and prints the two commands.
 
-## Phase 5 — Polish
+## Phase 5 — Polish ✅ **COMPLETE**
 
 - [x] **Settings view** (`V`) and the **`:` command palette** — two views onto ONE
       registry (`internal/config/settings.go`), so they cannot disagree about what
@@ -246,7 +246,7 @@ is inside their home directory. The pane states the situation and prints the two
 - [x] **`--ascii` flag** alongside `ui.ascii`. The flag wins outright — it is the escape
       hatch for a terminal the detection reads wrong, and someone who typed it has decided
 
-## Phase 7 — The website
+## Phase 7 — The website · **the page is live**
 
 The last piece. The page is up; the install story around it is not.
 

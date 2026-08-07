@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 216 files, ~23,495 lines, mean 109, max 212.
+Current: 238 files, ~26,730 lines, mean 112, max 263.
 
 ## Package map
 
@@ -21,7 +21,9 @@ cmd/leetui/                 main.go dispatch · tui.go the app · cli.go the sub
                             cmd_solve.go · cmd_submit.go · cmd_todo.go · report.go
 internal/
   config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
-              terminal.go what this terminal can draw (D-023)
+              terminal.go what this terminal can draw (D-023, D-026)
+              settings.go the settable registry — palette and settings view share it
+              graphics.go which image protocol, and what is blocking it
   auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
               chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
@@ -37,6 +39,7 @@ internal/
               whitespace.go · text.go · latex.go · glamour.go theme
               editorial.go markdown-with-HTML, a separate door (D-007a)
   runner/     interfaces + language registry, vendored per-language drivers (D-005)
+              python.go · golang.go · cpp.go · javascript.go (JS and TS, D-004)
               scaffold.go the two-region solution file · extract.go what gets submitted
               testcase.go example inputs + scraped answers · overrides.go comparators
   solve/      prepare.go problem-folder layout · run.go generate+execute
@@ -53,6 +56,8 @@ internal/
     theme/       tokens.go — the only place hex values appear
                  type.go treatments · verdict.go · difficulty.go
                  glyphs.go the marks, and their ASCII fallback (D-023)
+                 chars.go the frame's characters, box-drawing or ASCII (D-026)
+                 profile.go how much colour this terminal has
     components/  frame.go the bezel · grid.go rows and rules · flap.go the signature
                  paint.go row banding · overlay.go the toast · sparkline.go
     (see internal/tui/doc.go for the file map of state and rendering)

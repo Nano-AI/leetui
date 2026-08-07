@@ -559,6 +559,30 @@ D-023 gave the state column an ASCII fallback and left the frame in box-drawing.
 
 ---
 
+## D-027 — One settable registry, two views
+
+Settled 2026-08-07, finishing Phase 5.
+
+The roadmap asked for a settings view, a `:` command palette, and a keymap remapping UI as three items. They are one: a table of what can be changed, and two ways to look at it.
+
+`internal/config/settings.go` holds every option — its name, what it means, how to read it, how to write it. `:set` types into it, the settings screen lists it, and keybindings resolve through it on demand rather than being duplicated into it (D-013 already owns the action list; a second copy would drift). Adding an option means adding a row; nothing else needs to know.
+
+**Both write through to `config.toml`.** A preference you have to set again every morning is not a preference.
+
+**A duplicate binding is refused, not resolved.** `:set keys.submit x` when `x` is already `run` fails. Silently accepting it would shadow one of the two actions, and which one wins depends on Go's map iteration order — so the same config would behave differently between runs.
+
+### D-027a — Tags and hints are spoilers
+
+Added the same day, from use.
+
+`hash-table` printed beside a problem **answers the question the problem is asking**, and reading it is not a decision — by the time you have registered the word while deciding whether to attempt the thing, it is too late. Same for hints, which exist to tell you the approach.
+
+Both are hidden by default. `z` and `Z` reveal them, and the line still states how many exist, because a blank space reads as "there are none" rather than "there are three you have not looked at".
+
+**Searching by tag is untouched.** That is the use that spoils nothing: you go looking for graph problems, you are not told this one is a graph problem. **Company names are never hidden** — which company asked says nothing about how to solve it, and it is the entire point of a company pack.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

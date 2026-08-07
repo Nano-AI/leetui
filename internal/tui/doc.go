@@ -35,6 +35,8 @@
 //	todo.go         m and M — the user's own list (D-022)
 //	git.go          the repository's state and commands; git_keys.go drives it,
 //	                including the push confirmation (D-025)
+//	palette.go      the : command line over the settings registry (D-027)
+//	settings.go     the settings screen and the tag/hint reveal toggles (D-027a)
 //
 // File map — rendering:
 //
