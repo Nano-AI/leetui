@@ -68,13 +68,38 @@ func (m Model) viewDetail(w, h int) string {
 	// declined to break, which are code, and breaking code at spaces misaligns it.
 	body := ansi.Hardwrap(m.detailBody(row), maxInt(f.InnerWidth()-2, 8), false)
 	lines := strings.Split(body, "\n")
-	start := clamp(m.detailScroll, 0, maxInt(len(lines)-1, 0))
 	room := maxInt(f.InnerHeight()-3, 1)
+
+	// Stop when the LAST screenful is filled, not when the last line is.
+	//
+	// Clamping to len(lines)-1 let ctrl-d walk the statement off the top of the pane
+	// until one line was left staring at an empty box. There is nothing below the end
+	// of a problem, so scrolling there is only ever a mistake to undo.
+	start := clamp(m.detailScroll, 0, maxScroll(len(lines), room))
 	end := minInt(start+room, len(lines))
 	for _, line := range lines[start:end] {
 		b.WriteString(" " + line + "\n")
 	}
 	return f.Render(b.String())
+}
+
+// maxScroll is the furthest offset that still fills the pane.
+func maxScroll(lines, room int) int { return maxInt(lines-room, 0) }
+
+// detailMaxScroll is how far the statement on screen can scroll.
+//
+// Computed from the same geometry and the same wrap the view uses, because a clamp that
+// disagrees with what is drawn stops in the wrong place — which is the bug it is here to
+// prevent, one layer up.
+func (m Model) detailMaxScroll() int {
+	if m.cursor < 0 || m.cursor >= len(m.rows) {
+		return 0
+	}
+	w, h := m.detailSize()
+	f := components.Frame{Width: w, Height: h}
+
+	body := ansi.Hardwrap(m.detailBody(m.rows[m.cursor]), maxInt(f.InnerWidth()-2, 8), false)
+	return maxScroll(len(strings.Split(body, "\n")), maxInt(f.InnerHeight()-3, 1))
 }
 
 // detailBody picks what to show under the heading.

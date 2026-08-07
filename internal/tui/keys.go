@@ -94,7 +94,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "down":
 		if m.focus == paneDetail {
-			m.detailScroll++
+			m.detailScroll = minInt(m.detailScroll+1, m.detailMaxScroll())
 			return m, nil
 		}
 		return m.moveCursor(1)
@@ -120,6 +120,12 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m.moveCursorTo(0)
 	case "bottom":
+		// Mirrors "top", which has always scrolled the statement when the statement is
+		// focused. G moving the board cursor instead was the odd one out.
+		if m.focus == paneDetail {
+			m.detailScroll = m.detailMaxScroll()
+			return m, nil
+		}
 		return m.moveCursorTo(len(m.rows) - 1)
 
 	case "search":

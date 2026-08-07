@@ -16,7 +16,7 @@ func (m Model) moveCursor(delta int) (tea.Model, tea.Cmd) {
 // instead of the list, so ctrl-d does the expected thing wherever focus happens to be.
 func (m Model) scrollBy(delta int) (tea.Model, tea.Cmd) {
 	if m.focus == paneDetail {
-		m.detailScroll = maxInt(m.detailScroll+delta, 0)
+		m.detailScroll = clamp(m.detailScroll+delta, 0, m.detailMaxScroll())
 		return m, nil
 	}
 	return m.moveCursorTo(m.cursor + delta)

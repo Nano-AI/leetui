@@ -123,11 +123,24 @@ func (m Model) viewSolveBody(h int) string {
 		return m.viewDetail(m.width, h)
 	}
 
-	detailW := m.width * 3 / 5
+	detailW, _ := m.detailSize()
 	return lipgloss.JoinHorizontal(lipgloss.Top,
 		m.viewDetail(detailW, h),
 		m.viewSidePane(m.width-detailW, h),
 	)
+}
+
+// detailSize is the statement pane's frame size.
+//
+// Shared with the scroll clamp rather than computed twice: the clamp has to know how much
+// of the statement is on screen, and geometry that disagrees with the view is how you get
+// a scroll that stops in the wrong place.
+func (m Model) detailSize() (w, h int) {
+	h = m.bodyHeight()
+	if m.width < wideMin {
+		return m.width, h
+	}
+	return m.width * 3 / 5, h
 }
 
 // viewSidePane is the working column: what file you are editing, then what happened.
