@@ -8,6 +8,7 @@ import (
 	"github.com/Nano-AI/leetui/internal/tui/components"
 	"github.com/Nano-AI/leetui/internal/tui/theme"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // ---------------------------------------------------------------------------
@@ -56,7 +57,16 @@ func (m Model) viewDetail(w, h int) string {
 	b.WriteString(" " + theme.Meta.Render(truncate(strings.Join(tags, " ┊ "), f.InnerWidth()-2)) + "\n")
 	b.WriteString(" " + theme.Rule.Render(strings.Repeat("╌", maxInt(f.InnerWidth()-2, 1))) + "\n")
 
-	body := m.detailBody(row)
+	// Hard-wrap before splitting, so one line here is one row on screen.
+	//
+	// Glamour wraps prose but leaves CODE BLOCKS alone, which is right for code and
+	// wrong for a pane: an example like `[4,5,0,-2,-3,1], [5], [5,0], …` is one long
+	// line, and an unwrapped long line used to shear the bezel off mid-pane. Wrapping
+	// also keeps the scroll honest — a line the user scrolls past is a line they saw.
+	//
+	// Hardwrap rather than word-wrap: this only ever affects lines Glamour already
+	// declined to break, which are code, and breaking code at spaces misaligns it.
+	body := ansi.Hardwrap(m.detailBody(row), maxInt(f.InnerWidth()-2, 8), false)
 	lines := strings.Split(body, "\n")
 	start := clamp(m.detailScroll, 0, maxInt(len(lines)-1, 0))
 	room := maxInt(f.InnerHeight()-3, 1)

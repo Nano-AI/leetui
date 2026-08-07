@@ -5,6 +5,7 @@ import (
 
 	"github.com/Nano-AI/leetui/internal/tui/theme"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 )
 
 // A Frame is the bezel around a pane.
@@ -95,8 +96,19 @@ func (f Frame) Render(body string) string {
 		if rules[i] {
 			l, r = SepLeft, SepRight
 		}
+		// ONE BODY LINE IS ONE FRAME ROW. Always.
+		//
+		// lipgloss's Width() PADS a short line and WRAPS a long one, and the wrap is
+		// what breaks the bezel: an over-long line becomes two visual rows, the right
+		// edge lands after the second, and every row below is shifted by one — the
+		// border appears to shear off mid-pane. A statement's code blocks are not
+		// wrapped by Glamour, so any problem with a long example does this.
+		//
+		// Truncating here is the invariant, not the fix: content is wrapped to width
+		// before it ever reaches a frame. This is the guarantee that a pane cannot be
+		// corrupted by whatever it was handed.
 		out.WriteString(edge.Render(l))
-		out.WriteString(lipgloss.NewStyle().Width(inner).MaxWidth(inner).Render(line))
+		out.WriteString(pad(ansi.Truncate(line, inner, ""), inner))
 		out.WriteString(edge.Render(r))
 		out.WriteString("\n")
 	}
@@ -160,4 +172,16 @@ func (f Frame) top(edge, label lipgloss.Style) string {
 		edge.Render(strings.Repeat(edgeH, fill)) +
 		label.Render(right) +
 		edge.Render(strings.Repeat(edgeH, tail)+cornerTR)
+}
+
+// pad right-fills a line to exactly w cells.
+//
+// Deliberately not lipgloss's Width(): that wraps anything longer than w, which is the
+// bug this replaced. The caller has already truncated, so this only ever adds.
+func pad(s string, w int) string {
+	gap := w - ansi.StringWidth(s)
+	if gap <= 0 {
+		return s
+	}
+	return s + strings.Repeat(" ", gap)
 }
