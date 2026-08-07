@@ -47,7 +47,7 @@ func (m Model) viewPicker() string {
 	}
 
 	hint := " " + theme.Meta.Render("enter  choose") +
-		theme.Rule.Render("  ┊  ") + theme.Meta.Render("esc  cancel")
+		theme.Rule.Render(sep2()) + theme.Meta.Render("esc  cancel")
 
 	return lipgloss.JoinVertical(lipgloss.Left, "", f.Render(b.String()), hint)
 }
@@ -56,7 +56,7 @@ func (m Model) pickerLine(r pickerRow, selected bool, inner int) string {
 	marker := "  "
 	label := theme.Body.Render(r.label)
 	if selected {
-		marker = theme.Label.Render("▌ ")
+		marker = theme.Label.Render(theme.Chars().Cursor + " ")
 		label = lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render(r.label)
 	}
 

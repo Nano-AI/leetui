@@ -196,5 +196,5 @@ func (m Model) boardSummary() string {
 	if len(parts) == 0 {
 		return count
 	}
-	return strings.Join(parts, " ┊ ") + " ┊ " + count
+	return strings.Join(parts, sep1()) + sep1() + count
 }

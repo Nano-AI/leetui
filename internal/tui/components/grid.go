@@ -19,9 +19,9 @@ func RuleRow(widths []int, focused bool) string {
 	parts := make([]string, len(widths))
 	for i, w := range widths {
 		// +2 for the single space of padding on each side of a cell.
-		parts[i] = strings.Repeat(edgeH, w+2)
+		parts[i] = strings.Repeat(chars().EdgeH, w+2)
 	}
-	return edge.Render(strings.Join(parts, SepCross))
+	return edge.Render(strings.Join(parts, SepCross()))
 }
 
 // Row joins cells with padded vertical separators:
@@ -30,7 +30,7 @@ func RuleRow(widths []int, focused bool) string {
 //
 // Cells must already be sized; Row only adds the separators and padding.
 func Row(cells []string) string {
-	sep := theme.Rule.Render(" " + SepV + " ")
+	sep := theme.Rule.Render(" " + SepV() + " ")
 	return " " + strings.Join(cells, sep) + " "
 }
 

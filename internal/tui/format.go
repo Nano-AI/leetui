@@ -3,6 +3,8 @@ package tui
 import (
 	"fmt"
 	"time"
+
+	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
 
 // ---------------------------------------------------------------------------
@@ -57,3 +59,11 @@ func minInt(a, b int) int {
 	}
 	return b
 }
+
+// sep1 and sep2 are the inline separators, spaced for their two uses: sep1 between items
+// in a list, sep2 between key hints where the extra air keeps pairs from merging.
+//
+// Functions rather than constants because theme.ASCII is decided at startup and a
+// package-level var here would be initialised before it (D-026).
+func sep1() string { return " " + theme.Chars().Bullet + " " }
+func sep2() string { return "  " + theme.Chars().Bullet + "  " }

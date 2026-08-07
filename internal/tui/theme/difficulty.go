@@ -91,7 +91,7 @@ func (d Difficulty) Render() string {
 func ID(id int, selected bool) string {
 	num := pad4(id)
 	if selected {
-		return lipgloss.NewStyle().Foreground(Amber).Bold(true).Render("▌ " + num)
+		return lipgloss.NewStyle().Foreground(Amber).Bold(true).Render(Chars().Cursor + " " + num)
 	}
 	return lipgloss.NewStyle().Foreground(Dim).Render("  " + num)
 }

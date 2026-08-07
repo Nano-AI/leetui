@@ -541,6 +541,24 @@ Three supporting rules, each from a way this can go wrong:
 
 ---
 
+## D-026 — One charset, chosen once
+
+Settled 2026-08-07, finishing Phase 6.
+
+D-023 gave the state column an ASCII fallback and left the frame in box-drawing. That made ASCII mode **half a promise**: a terminal that cannot render `✓` cannot render `╭─┼─╯` either, and a bezel of question marks is worse than no bezel at all.
+
+`theme.Charset` now covers everything non-ASCII the interface draws — bezel corners and edges, column rules and their joints, the dashed divider, the inline separators (`┊`, `·`), and the cursor bar. One set, selected by the same `theme.ASCII` the glyphs use, so a terminal is never asked to draw one half and not the other.
+
+**Every joint is `+` in the ASCII set.** Distinguishing `┬` from `┼` from `┴` would mean inventing a convention the reader has to learn, and the grid's structure is already carried by alignment — the joints only have to not look broken.
+
+`TestASCIIModeDrawsNoBoxCharacters` renders the board, the solve screen, help and the repository view and fails on any of the eighteen characters this is meant to replace. That test found the last one: the cursor bar was still a literal `▌` inside `theme.ID`.
+
+**Colour degrades separately.** `theme.DetectProfile` reports truecolor / 256 / 16 / none. 256-colour needs nothing — it quantises and amber stays amber. Nothing in this app was ever encoded in colour alone, so a verdict keeps its letterspacing, `PASS` keeps saying `PASS`, and `ESY`/`MED`/`HRD` are words before they are colours.
+
+**The one real gap was focus.** DESIGN.md says the focused pane is marked by its bezel turning amber and never by a border-style change. That assumes colour exists; on a monochrome terminal it leaves no indicator at all, and "which pane does `tab` move" becomes unanswerable. So monochrome is the stated exception: the focused pane's title takes a marker. Nowhere else needed one.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

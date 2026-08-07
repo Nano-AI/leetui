@@ -51,7 +51,7 @@ func (m Model) viewRail() string {
 		right = append(right, theme.Meta.Render("free"), theme.Meta.Render(m.username))
 	}
 
-	rightStr := strings.Join(right, theme.Rule.Render(" ┊ "))
+	rightStr := strings.Join(right, theme.Rule.Render(sep1()))
 
 	f := components.Frame{Width: m.width, Height: railHeight}
 	gap := f.InnerWidth() - lipgloss.Width(mark) - lipgloss.Width(rightStr) - 2

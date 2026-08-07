@@ -108,7 +108,7 @@ func (m Model) viewHelp() string {
 func renderHelpGroup(g helpGroup, ruleWidth int) string {
 	var b strings.Builder
 	b.WriteString("\n " + theme.Utility.Render(theme.UtilityText(g.name)) + " " +
-		theme.Rule.Render(strings.Repeat("╌", maxInt(ruleWidth-len(g.name)-3, 1))) + "\n")
+		theme.Rule.Render(strings.Repeat(theme.Chars().DashRule, maxInt(ruleWidth-len(g.name)-3, 1))) + "\n")
 	for _, r := range g.rows {
 		b.WriteString(fmt.Sprintf("   %s  %s\n",
 			theme.Label.Width(10).Render(r[0]),

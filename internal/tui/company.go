@@ -40,7 +40,7 @@ func (p pack) Label() string {
 	if !p.Active() {
 		return ""
 	}
-	return p.Name + " ┊ " + p.Timeframe.Label()
+	return p.Name + sep1() + p.Timeframe.Label()
 }
 
 // openCompanies enters the company browser, refreshing the registry if it is empty.

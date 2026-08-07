@@ -211,14 +211,18 @@ is inside their home directory. The pane states the situation and prints the two
 - [ ] Opt-in inline images (Kitty / iTerm2)
 - [ ] Local JS/TS runner (before Java — see D-004)
 
-## Phase 6 — Terminal compatibility
+## Phase 6 — Terminal compatibility ✅ **COMPLETE**
 
-- [ ] **Finish ASCII mode.** `config.PreferASCII` and `theme.Glyphs` landed with D-023 and
-      cover the state and todo marks, but the frame is still box-drawing (`╭─┼─╯`). A
-      terminal that cannot render `✓` cannot render those either, so the promise is
-      currently half kept. `components.Frame` needs an ASCII rule set
-- [ ] `NO_COLOR`, 256-colour and monochrome profiles
-- [ ] `--ascii` flag alongside the config key
+- [x] **ASCII mode is finished** (D-026) — `theme.Charset` covers the bezel, the column
+      rules, the dashed divider, the inline separators, and the cursor bar, alongside the
+      glyphs D-023 already handled. `TestASCIIModeDrawsNoBoxCharacters` renders every
+      screen and fails on any of the 18 characters it is meant to replace
+- [x] **`NO_COLOR`, 256-colour and monochrome profiles** — `theme.DetectProfile`. Nothing
+      in the app was ever encoded in colour alone, so 256-colour needs nothing but
+      quantising. Monochrome loses the amber bezel that marks focus, which was the one
+      real gap: the focused pane's title takes a marker instead
+- [x] **`--ascii` flag** alongside `ui.ascii`. The flag wins outright — it is the escape
+      hatch for a terminal the detection reads wrong, and someone who typed it has decided
 
 ## Phase 7 — The website
 

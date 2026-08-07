@@ -54,8 +54,8 @@ func (m Model) viewDetail(w, h int) string {
 	if len(row.Companies) > 0 {
 		tags = row.Companies
 	}
-	b.WriteString(" " + theme.Meta.Render(truncate(strings.Join(tags, " ┊ "), f.InnerWidth()-2)) + "\n")
-	b.WriteString(" " + theme.Rule.Render(strings.Repeat("╌", maxInt(f.InnerWidth()-2, 1))) + "\n")
+	b.WriteString(" " + theme.Meta.Render(truncate(strings.Join(tags, sep1()), f.InnerWidth()-2)) + "\n")
+	b.WriteString(" " + theme.Rule.Render(strings.Repeat(theme.Chars().DashRule, maxInt(f.InnerWidth()-2, 1))) + "\n")
 
 	// Hard-wrap before splitting, so one line here is one row on screen.
 	//

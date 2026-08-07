@@ -16,6 +16,7 @@ import (
 func runTUI(args []string) error {
 	fs := flag.NewFlagSet("leetui", flag.ContinueOnError)
 	noMotion := fs.Bool("no-motion", false, "settle the flip animation instantly")
+	ascii := fs.Bool("ascii", false, "draw with ASCII instead of box-drawing characters")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -30,9 +31,18 @@ func runTUI(args []string) error {
 	// motion never carries information on its own.
 	components.ReduceMotion = *noMotion || a.cfg.UI.ReduceMotion
 
-	// Decided once, from the config and the environment. A terminal that cannot draw the
-	// state column's glyphs at one cell each would shear the whole grid.
-	theme.ASCII = config.PreferASCII(a.cfg)
+	// Decided once, from the flag, the config, and the environment. A terminal that
+	// cannot draw the state column's glyphs at one cell each would shear the whole grid,
+	// and the same terminal cannot draw the bezel either (D-026).
+	//
+	// The flag wins outright: it is the escape hatch for a terminal the detection reads
+	// wrong, and someone who typed --ascii has already decided.
+	theme.ASCII = *ascii || config.PreferASCII(a.cfg)
+
+	// How much colour there is, asked once. Everything below truecolor still works —
+	// nothing in this app is encoded in colour alone — but a monochrome terminal loses
+	// the amber bezel that marks focus, so the panes grow a marker instead.
+	theme.Active = theme.DetectProfile()
 
 	opts := []tea.ProgramOption{tea.WithAltScreen()}
 	if a.cfg.UI.Mouse {

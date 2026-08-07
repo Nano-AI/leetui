@@ -49,11 +49,11 @@ func (m Model) viewAuth() string {
 		b.WriteString("  " + theme.Meta.Render("Reads only your leetcode.com cookies.") + "\n")
 	}
 
-	b.WriteString(" " + theme.Rule.Render(strings.Repeat("╌", maxInt(inner-2, 1))) + "\n")
+	b.WriteString(" " + theme.Rule.Render(strings.Repeat(theme.Chars().DashRule, maxInt(inner-2, 1))) + "\n")
 
 	// --- Route 2: paste ------------------------------------------------------
 	b.WriteString(" " + theme.Utility.Render(theme.UtilityText("or paste cookies")) + "\n")
-	b.WriteString(" " + theme.Label.Render("▌ ") + m.authInput.View() + "\n")
+	b.WriteString(" " + theme.Label.Render(theme.Chars().Cursor + " ") + m.authInput.View() + "\n")
 	for _, line := range auth.PasteSteps() {
 		b.WriteString("  " + theme.Meta.Render(truncate(line, inner-3)) + "\n")
 	}
@@ -63,7 +63,7 @@ func (m Model) viewAuth() string {
 	}
 
 	hint := " " + theme.Meta.Render("enter  save") +
-		theme.Rule.Render("  ┊  ") + theme.Meta.Render("esc  cancel")
+		theme.Rule.Render(sep2()) + theme.Meta.Render("esc  cancel")
 
 	return lipgloss.JoinVertical(lipgloss.Left, "", f.Render(b.String()), hint,
 		" "+theme.Meta.Render("Cookies go to your OS keychain, never to disk."))

@@ -67,5 +67,5 @@ func (m Model) viewHints() string {
 		kept = append(kept, k)
 		used = next
 	}
-	return theme.Utility.Render(" " + strings.Join(kept, theme.Rule.Render(" ┊ ")))
+	return theme.Utility.Render(" " + strings.Join(kept, theme.Rule.Render(sep1())))
 }

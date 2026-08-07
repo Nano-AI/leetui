@@ -171,7 +171,7 @@ func (m Model) gitDestination() string {
 
 func gitSection(name string, width int) string {
 	return "\n " + theme.Utility.Render(theme.UtilityText(name)) + " " +
-		theme.Rule.Render(strings.Repeat("╌", maxInt(minInt(width, 72)-len(name)-3, 1))) + "\n"
+		theme.Rule.Render(strings.Repeat(theme.Chars().DashRule, maxInt(minInt(width, 72)-len(name)-3, 1))) + "\n"
 }
 
 func gitFooter(canPush, confirming bool) string {

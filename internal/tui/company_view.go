@@ -53,9 +53,9 @@ func (m Model) viewCompanies() string {
 	}
 
 	hint := " " + theme.Meta.Render("type to narrow") +
-		theme.Rule.Render("  ┊  ") + theme.Meta.Render("↑↓ move") +
-		theme.Rule.Render("  ┊  ") + theme.Meta.Render("enter  pick a timeframe") +
-		theme.Rule.Render("  ┊  ") + theme.Meta.Render("esc  back")
+		theme.Rule.Render(sep2()) + theme.Meta.Render("↑↓ move") +
+		theme.Rule.Render(sep2()) + theme.Meta.Render("enter  pick a timeframe") +
+		theme.Rule.Render(sep2()) + theme.Meta.Render("esc  back")
 
 	return lipgloss.JoinVertical(lipgloss.Left, "",
 		filter.Render(" "+m.companyFilter.View()),
@@ -72,7 +72,7 @@ func (m Model) viewCompanies() string {
 func (m Model) companyLine(c store.Company, selected bool, inner int) string {
 	marker, name := "  ", theme.Body.Render(c.Name)
 	if selected {
-		marker = theme.Label.Render("▌ ")
+		marker = theme.Label.Render(theme.Chars().Cursor + " ")
 		name = lipgloss.NewStyle().Foreground(theme.Bone).Bold(true).Render(c.Name)
 	}
 

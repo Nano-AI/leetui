@@ -38,24 +38,21 @@ type Frame struct {
 	Columns []int
 }
 
-// Box-drawing set. Rounded corners, light lines — the bezel frames the content, it does
-// not compete with it.
-const (
-	cornerTL = "╭"
-	cornerTR = "╮"
-	cornerBL = "╰"
-	cornerBR = "╯"
-	edgeH    = "─"
-	edgeV    = "│"
+// The bezel's characters come from the theme, which picks a box-drawing set or an ASCII
+// one from what the terminal can be trusted with (D-023, D-026). Read through these
+// helpers rather than captured in a var: theme.ASCII is set at startup, and a package
+// var here would be initialised before it.
+func chars() theme.Charset { return theme.Chars() }
 
-	// Column separators inside the frame.
-	SepV     = "│"
-	SepTeeT  = "┬"
-	SepTeeB  = "┴"
-	SepCross = "┼"
-	SepLeft  = "├"
-	SepRight = "┤"
-)
+// SepV is the column rule inside a frame, exported for the grid.
+func SepV() string { return chars().SepV }
+
+// SepTeeT and SepTeeB are where a column rule meets the top and bottom bezel.
+func SepTeeT() string { return chars().SepTeeT }
+func SepTeeB() string { return chars().SepTeeB }
+
+// SepCross is where a column rule crosses the header divider.
+func SepCross() string { return chars().SepCross }
 
 // InnerWidth is the usable width inside the bezel.
 func (f Frame) InnerWidth() int { return maxInt(f.Width-2, 1) }
@@ -85,6 +82,7 @@ func (f Frame) Render(body string) string {
 		rules[r] = true
 	}
 
+	c := chars()
 	inner := f.InnerWidth()
 	lines := strings.Split(body, "\n")
 	for i := 0; i < f.InnerHeight(); i++ {
@@ -92,9 +90,9 @@ func (f Frame) Render(body string) string {
 		if i < len(lines) {
 			line = lines[i]
 		}
-		l, r := edgeV, edgeV
+		l, r := c.EdgeV, c.EdgeV
 		if rules[i] {
-			l, r = SepLeft, SepRight
+			l, r = c.SepLeft, c.SepRight
 		}
 		// ONE BODY LINE IS ONE FRAME ROW. Always.
 		//
@@ -118,29 +116,36 @@ func (f Frame) Render(body string) string {
 }
 
 func (f Frame) bottom(inner int) string {
+	c := chars()
 	if len(f.Columns) < 2 {
-		return cornerBL + strings.Repeat(edgeH, inner) + cornerBR
+		return c.CornerBL + strings.Repeat(c.EdgeH, inner) + c.CornerBR
 	}
 	parts := make([]string, len(f.Columns))
 	for i, w := range f.Columns {
-		parts[i] = strings.Repeat(edgeH, w+2)
+		parts[i] = strings.Repeat(c.EdgeH, w+2)
 	}
-	mid := strings.Join(parts, SepTeeB)
+	mid := strings.Join(parts, c.SepTeeB)
 	// Fall back to a plain edge if the columns do not add up — a mis-sized bezel is
 	// worse than a plain one.
 	if len([]rune(mid)) != inner {
-		return cornerBL + strings.Repeat(edgeH, inner) + cornerBR
+		return c.CornerBL + strings.Repeat(c.EdgeH, inner) + c.CornerBR
 	}
-	return cornerBL + mid + cornerBR
+	return c.CornerBL + mid + c.CornerBR
 }
 
 // top builds the header bezel with the title set into it.
 func (f Frame) top(edge, label lipgloss.Style) string {
+	c := chars()
 	inner := f.InnerWidth()
 
 	left := ""
 	if f.Title != "" {
-		left = " " + theme.UtilityText(f.Title) + " "
+		// The focus marker is empty unless colour has stopped carrying the amber bezel.
+		mark := ""
+		if f.Focused {
+			mark = theme.FocusMark()
+		}
+		left = " " + mark + theme.UtilityText(f.Title) + " "
 	}
 	right := ""
 	if f.Right != "" {
@@ -164,14 +169,14 @@ func (f Frame) top(edge, label lipgloss.Style) string {
 		left, right, tail, fill = "", "", 0, inner-lead
 	}
 	if fill < 0 {
-		return edge.Render(cornerTL + strings.Repeat(edgeH, inner) + cornerTR)
+		return edge.Render(c.CornerTL + strings.Repeat(c.EdgeH, inner) + c.CornerTR)
 	}
 
-	return edge.Render(cornerTL+strings.Repeat(edgeH, lead)) +
+	return edge.Render(c.CornerTL+strings.Repeat(c.EdgeH, lead)) +
 		label.Render(left) +
-		edge.Render(strings.Repeat(edgeH, fill)) +
+		edge.Render(strings.Repeat(c.EdgeH, fill)) +
 		label.Render(right) +
-		edge.Render(strings.Repeat(edgeH, tail)+cornerTR)
+		edge.Render(strings.Repeat(c.EdgeH, tail)+c.CornerTR)
 }
 
 // pad right-fills a line to exactly w cells.
