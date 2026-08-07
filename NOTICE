@@ -1,0 +1,59 @@
+leetui — third-party notices
+============================
+
+leetui itself is MIT licensed; see LICENSE.
+
+This file records code that was ADAPTED INTO this repository, whose licence
+therefore travels with the source rather than with a dependency in go.mod.
+
+
+leetgo
+------
+https://github.com/j178/leetgo
+Copyright (c) 2022 Jo
+MIT License
+
+The per-language test drivers under `internal/runner/drivers/` are adapted
+from leetgo's, and the comparator knowledge behind `internal/runner/overrides.go`
+came from reading it. D-005 records why the drivers were vendored rather than
+imported: importing `leetgo/lang` compiled 144 extra packages, including a
+JavaScript interpreter and a second SQLite driver, none of which serve local
+code execution.
+
+The Python and Go drivers are direct adaptations. The C++ driver is a rewrite
+as a single header, so it needs no build system. The JavaScript driver is new —
+leetgo has none — but follows the same contract so the two behave identically
+from Go's side.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+
+
+Dependencies
+------------
+Everything in go.mod is fetched by the Go toolchain and keeps its own licence
+where it lives; nothing from those modules is copied into this tree. The
+notable ones:
+
+  github.com/charmbracelet/*   MIT   bubbletea, lipgloss, bubbles, glamour
+  modernc.org/sqlite           BSD-3 pure-Go SQLite (D-009)
+  github.com/zalando/go-keyring MIT  OS keychain access (D-002)
+  github.com/pelletier/go-toml MIT   config
+  golang.org/x/*               BSD-3
+
+Run `go list -m all` for the complete set.

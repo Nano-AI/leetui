@@ -337,6 +337,8 @@ docs/                DECISIONS · DESIGN · ARCHITECTURE · ROADMAP
 
 ## Credits
 
+MIT licensed — see [`LICENSE`](LICENSE), and [`NOTICE`](NOTICE) for what was adapted in.
+
 Local codegen and execution build on [`leetgo`](https://github.com/j178/leetgo) (MIT).
 TUI stack is [Charm](https://charm.sh): Bubbletea, Lipgloss, Bubbles, Glamour.
 

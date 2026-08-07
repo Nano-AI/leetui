@@ -36,6 +36,14 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      # A custom domain needs a CNAME file inside the published directory, or Pages
+      # reverts to the github.io address on the next deploy. Set the repository
+      # variable LEETUI_DOMAIN and it is written here; unset, this is a no-op and the
+      # site keeps working at nano-ai.github.io/leetui.
+      - name: Custom domain
+        if: vars.LEETUI_DOMAIN != ''
+        run: echo "${{ vars.LEETUI_DOMAIN }}" > site/CNAME
+
       # The page is a single self-contained file — no build step, nothing to
       # install, nothing to go stale.
       - uses: actions/upload-pages-artifact@v3

@@ -246,24 +246,32 @@ is inside their home directory. The pane states the situation and prints the two
 - [x] **`--ascii` flag** alongside `ui.ascii`. The flag wins outright — it is the escape
       hatch for a terminal the detection reads wrong, and someone who typed it has decided
 
-## Phase 7 — The website · **the page is live**
+## Phase 7 — The website ✅ **the page is live; the rest needs a purchase or a tag**
 
 The last piece. The page is up; the install story around it is not.
 
 - [x] **Decide what it is for** — a landing page for the tool. See below
 - [x] **The page**, in `site/`, deployed to Pages by Actions
-- [ ] A domain
+- [~] **A domain** — the workflow writes a `CNAME` from the `LEETUI_DOMAIN` repository
+      variable, so pointing the site at one is: buy it, set the variable, add the DNS
+      record. Left unset the site keeps working at `nano-ai.github.io/leetui`. Buying a
+      domain is the one step nothing here can do
 - [x] **Prebuilt binaries per platform** — `.github/workflows/release.yml` builds five
       targets on a `v*` tag, with a checksums file. `CGO_ENABLED=0` throughout, which is
       D-009's pure-Go SQLite being cashed in: every target cross-compiles from one runner
       with no C toolchain. Verified locally on all five before the workflow was written
 - [x] **`--version`**, stamped by the release build
-- [ ] A Homebrew tap (needs a tagged release to point at)
-- [ ] **A LICENSE.** The repo has none, so it is "all rights reserved" by default —
-      which contradicts the install instructions, and the vendored leetgo drivers are MIT
-      and require their notice be carried. Blocking for a real release; the choice is the
-      owner's
-- [ ] Screenshots or an asciinema cast — the board and the flip are the pitch
+- [~] **A Homebrew tap** — the formula is written (`packaging/homebrew/leetui.rb`). A tap
+      is its own repository (`Nano-AI/homebrew-tap`), so creating it is a manual step;
+      after the first tag, fill the four sha256 lines from the release's `checksums.txt`
+      and push the formula there
+- [x] **LICENSE — MIT**, with `NOTICE` carrying leetgo's. MIT because the vendored
+      drivers are MIT and the README already credited them as such, so anything more
+      restrictive would have been incompatible with code already in the tree. Easily
+      changed before a tag if the owner wants otherwise; nothing depends on it yet
+- [x] **Screenshot** — captured from the real `View()` into the README, so it cannot
+      drift from the product. Re-take with `LEETUI_SHOTS=1 go test ./internal/tui`
+- [ ] An asciinema cast — needs a real terminal session to record
 
 **Settled 2026-08-06: this repository's site advertises the tool.** The two are different
 projects and they belong in different repositories. A site that *publishes solutions*
