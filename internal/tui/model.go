@@ -2,6 +2,8 @@ package tui
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -150,6 +152,40 @@ type queueItem struct {
 	Lang      string
 	Verdict   theme.Verdict
 	flap      components.Flap
+
+	// What the judge said, kept so the row can show it once the flap settles.
+	//
+	// The verdict alone answers "did it pass". These answer the question you ask half a
+	// second later — how fast, and against whom — and going to leetcode.com to find out
+	// defeats the point of submitting from here.
+	Runtime    string // "58 ms"
+	Memory     string // "20.2 MB"
+	Percentile float64
+
+	// Correct and Total are how far a failing submission got. Nothing else on screen
+	// distinguishes "wrong on case 3 of 63" from "wrong on 62 of 63", and those call for
+	// completely different next moves.
+	Correct, Total int
+}
+
+// stats is the one-line summary shown under a settled verdict, or "" when there is
+// nothing worth saying yet.
+func (q queueItem) stats() string {
+	switch {
+	case q.Verdict == theme.Accepted:
+		out := q.Runtime
+		if q.Percentile > 0 {
+			out += fmt.Sprintf(" · beats %.0f%%", q.Percentile)
+		}
+		if q.Memory != "" {
+			out += " · " + q.Memory
+		}
+		return strings.TrimPrefix(out, " · ")
+	case q.Total > 0:
+		return fmt.Sprintf("%d/%d cases", q.Correct, q.Total)
+	default:
+		return ""
+	}
 }
 
 // New builds the root model. Everything it needs is injected so main owns lifetimes and

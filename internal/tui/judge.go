@@ -32,6 +32,16 @@ func (m Model) handleJudgement(msg judgeMsg) (tea.Model, tea.Cmd) {
 
 		v := verdictOf(msg.judgement)
 		m.queue[i].Verdict = v
+
+		// Keep the judge's figures. Without them the pane answers "did it pass" and
+		// nothing else, and the next question — how fast, and past how many people —
+		// sends you to leetcode.com, which is the trip submitting from here avoids.
+		j := msg.judgement
+		m.queue[i].Runtime = j.Runtime
+		m.queue[i].Memory = j.Memory
+		m.queue[i].Percentile = j.RuntimePercentile
+		m.queue[i].Correct, m.queue[i].Total = j.TotalCorrect, j.TotalTestcases
+
 		cmd := m.queue[i].flap.FlipTo(theme.Display(v.Text()), v.Color())
 
 		// Record the verdict locally. Without this the board keeps whatever the last full

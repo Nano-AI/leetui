@@ -25,8 +25,9 @@ func (m Model) viewQueue(w, h int) string {
 	}
 
 	var b strings.Builder
-	for i, s := range m.queue {
-		if i >= f.InnerHeight() {
+	rows := 0
+	for _, s := range m.queue {
+		if rows >= f.InnerHeight() {
 			break
 		}
 		verdictW := maxInt(f.InnerWidth()-18, 8)
@@ -36,6 +37,16 @@ func (m Model) viewQueue(w, h int) string {
 			cell(s.flap.View(verdictW), verdictW),
 		}))
 		b.WriteString("\n")
+		rows++
+
+		// The figures go on their own line under the verdict rather than beside it.
+		// Beside it they would have to share width with a letterspaced verdict and get
+		// truncated to nothing — and the flip is the moment, so nothing sits next to it.
+		if st := s.stats(); st != "" && rows < f.InnerHeight() {
+			b.WriteString("     " + theme.Meta.Render(truncate(st, maxInt(f.InnerWidth()-6, 4))))
+			b.WriteString("\n")
+			rows++
+		}
 	}
 	return f.Render(b.String())
 }
