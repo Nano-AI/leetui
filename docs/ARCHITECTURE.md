@@ -12,7 +12,7 @@ that one explains *why* each choice was made.
 grow. `internal/tui/doc.go` carries that package's file map; add to it when you add a
 file.
 
-Current: 199 files, ~21,184 lines, mean 106, max 207.
+Current: 216 files, ~23,495 lines, mean 109, max 212.
 
 ## Package map
 
@@ -41,10 +41,14 @@ internal/
               testcase.go example inputs + scraped answers · overrides.go comparators
   solve/      prepare.go problem-folder layout · run.go generate+execute
               locate.go slug from a slug, folder, path, or cwd (D-015)
+              commit.go which files an accepted solution commits (D-011)
   editor/     editor.go detection and launch arguments (D-012)
               pane.go tmux/zellij/WezTerm/Kitty splits (D-012a)
   workspace/  problem-folder layout on disk (D-010), never-overwrite writes
-  vcs/        (Phase 4) git shell-out: status, commit-on-accepted, push
+  vcs/        vcs.go Open+errors · run.go the git exec seam (D-011)
+              status.go+porcelain.go what git says, parsed · commit.go the guard
+              push.go the only outward-facing code in the tree (D-025)
+              message.go the commit subject convention (D-024)
   tui/
     theme/       tokens.go — the only place hex values appear
                  type.go treatments · verdict.go · difficulty.go

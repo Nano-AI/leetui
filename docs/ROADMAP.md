@@ -177,11 +177,26 @@ have surfaced.
 - [x] **State is a glyph** (D-023) — `✓` `◐` `⊘` under a `STATE` header, with an ASCII
       set for terminals that cannot be trusted with the width of `✓`
 
-## Phase 4 — Git
+## Phase 4 — Git ✅ **COMPLETE**
 
-- [ ] `vcs` — status, guarded commit-on-Accepted, explicit push
-- [ ] README.md generation per problem folder
-- [ ] Git pane
+- [x] **`vcs`** — a thin, tested layer over the `git` binary (D-011): porcelain-v2 status
+      with ahead/behind, a guarded commit, and an explicit push. Shells out so the user's
+      credentials, signing, hooks, and `includeIf` config all still apply
+- [x] **Commit on Accepted** — from the app *and* from `leetui submit`, through one
+      `solve.Commit` so the two produce identical history. Refuses on the wrong branch or
+      a detached HEAD, commits only the paths it was asked about, and stays quiet when the
+      workspace is not a repository or the files already match `HEAD`
+- [x] **No trailers on solution commits** (D-024) — those record the user solving a
+      problem, and a co-author line would be a false attribution on their repository
+- [x] **README.md generation per problem folder** — already landed with D-010; the
+      statement is regenerated on every sync, `notes.md` never is
+- [x] **Git pane** (`v`, D-025) — branch, upstream, what is uncommitted in words rather
+      than porcelain codes, and the last eight commits. Push lives in here and nowhere
+      else, behind a confirmation that names the remote's **URL**
+
+**Not done, deliberately:** leetui never runs `git init` for you. A stray `.git` in a
+directory someone did not mean to version is a real annoyance, and the default workspace
+is inside their home directory. The pane states the situation and prints the two commands.
 
 ## Phase 5 — Polish
 

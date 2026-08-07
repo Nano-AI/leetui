@@ -141,6 +141,14 @@ checking. Get explicit confirmation from the user before an agent submits on the
 Requires a signed-in session; exits `2` if there is none. Only the region between the
 `@leetui code=start` / `@leetui code=end` markers is sent.
 
+**An accepted submission commits.** If the workspace is a git repository, `submit` commits
+the solution, statement, test cases, and notes on an `Accepted` verdict, and prints a line
+to stderr saying so. It **never pushes** — nothing in this surface reaches a remote.
+
+The commit is best effort and never changes the exit code: a repository that will not take
+one is a line on stderr and nothing more. Turn it off with `commit_on_accepted = false`
+under `[git]`, or by giving the agent its own `LEETUI_CONFIG_DIR` profile.
+
 ### `leetui path <problem>` — print the folder
 
 ```sh
@@ -222,5 +230,7 @@ never on disk, and never printed — `leetui` will not hand you a session token.
 - **Print credentials.** Nothing here outputs a session token, and debug logging redacts
   them.
 - **Submit without being asked.** See above; it is real and public.
+- **Push.** There is no command for it. Publishing happens from the interactive app, from
+  a keypress, behind a confirmation naming the remote — never from a script.
 - **Sync the whole problem set.** That is thousands of throttled requests; press `S` in
   the app. Individual problems are fetched on demand by `pull`, `run`, and `todo add`.

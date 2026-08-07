@@ -3,11 +3,11 @@
 A terminal client for LeetCode. Browse, search, solve, run, and submit without leaving
 the terminal — with full Premium parity and optional GitHub sync.
 
-**Status: Phase 3 complete — browse, solve, and the premium surfaces all work.**
+**Status: Phase 4 complete — browse, solve, premium, and git all work.**
 Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
 against the examples without leaving the terminal (Python, Go, C++), and submit to the
-judge. Company packs, editorials, and the premium filter are in. Git integration is next.
-See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+judge. Company packs, editorials, and the premium filter are in. An accepted solution
+commits itself; pushing is yours to press. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
@@ -98,6 +98,43 @@ they are waiting on the board next time you open it:
 ```sh
 leetui todo add two-sum group-anagrams --note "phone screen prep"
 ```
+
+### Your solutions, in git
+
+Make the workspace a repository and leetui keeps it current:
+
+```sh
+cd ~/leetcode && git init
+```
+
+From then on an **Accepted** verdict commits itself — the solution, the statement, the
+test cases, and your notes — with a subject you would have written yourself:
+
+```
+solve(0146): lru cache — go, 58ms, beats 91.2%
+```
+
+No co-author trailer and no session link: it is your work, and `git log` on a solutions
+repo is something people show other people.
+
+**Pushing is never automatic.** Press `v` for the repository view — branch, what is
+uncommitted, what the remote has not got, and the last few commits. `p` there asks once,
+naming the remote's URL, and publishes only when you answer `y`. leetui will not pick a
+remote for you, and it never runs `git init` on your behalf.
+
+Turn any of it off in `config.toml`:
+
+```toml
+[git]
+commit_on_accepted = true   # false to commit by hand
+commit_notes       = true   # false to keep notes.md out of the repo
+branch             = "main" # refuse to commit anywhere else
+remote             = ""     # empty means the branch's own upstream
+```
+
+---
+
+## Working on leetui
 
 ```sh
 go test ./...                                              # offline suite
@@ -239,7 +276,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Company packs sync one at a time** — 984 companies × 5 timeframes is ~5,000 requests; one pack is ~24
 - **Solution files carry editor scaffolding** — imports and driver types above `@leetui code=start`; only the marked region is submitted
 - **Disk layout is problem-first** — `0146-lru-cache/{solution.go, README.md, notes.md}`
-- **Git** — auto-commit on Accepted, push only on an explicit keypress
+- **Git** — auto-commit on Accepted; push only from the repository view, behind a confirmation that names the remote's URL
 - **Editing** — delegate to `$EDITOR`, in a pane beside leetui where the terminal allows it; a file watcher re-runs on save
 - **Two screens** — the list is the list; `enter` opens a problem, `esc` comes back
 - **A todo list you can script** — `m` in the app, `leetui todo add` from anywhere
@@ -255,6 +292,8 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 cmd/leetui/          entrypoint
 internal/
   config/  auth/  leetcode/  store/  syncer/  render/  editor/  workspace/
+  solve/             the seam both frontends use: prepare, run, commit
+  vcs/               git, shelled out — status, guarded commit, explicit push
   runner/            interfaces, language registry, and vendored drivers/
   tui/
     theme/           the only place hex values are allowed to appear

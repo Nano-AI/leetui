@@ -507,9 +507,43 @@ An unset locale is **not** treated as failure: macOS terminals routinely leave `
 
 ---
 
+## D-024 — Solution commits carry no trailers
+
+Settled 2026-08-06, building Phase 4.
+
+D-011 fixed the commit convention and showed a `Co-Authored-By` line with it. Implementing it made clear that line belongs to **this repository's** commits, not to the ones leetui writes into a user's workspace. Those record a person solving a LeetCode problem. leetui typed none of it and neither did any model, so there is nothing to co-author.
+
+```
+solve(0146): lru cache — go, 58ms, beats 91.2%
+```
+
+Subject, and a body only if the user wrote a note. No `Co-Authored-By`, no generated-with footer, no session link. A false attribution on someone else's repository is worse than a missing one, and `git log` on a solutions repo is something people show other people. `TestNoTrailers` fails the build if any of those strings reappears.
+
+**Figures are omitted when absent, never guessed.** A real 0.0% percentile and a missing one are the same value in the judge's payload, so zero prints nothing — claiming to beat nobody is worse than staying quiet.
+
+---
+
+## D-025 — Push lives in its own mode, behind a named destination
+
+Settled 2026-08-06.
+
+D-011 said pushing is always an explicit keypress. That is necessary but not sufficient: `p` on the board is one fat-finger away from publishing someone's solutions, and "origin" on a confirmation prompt tells nobody *which* account is about to receive them.
+
+So push is reachable **only** from the repository view (`v`), and inside it takes a second key on a confirmation that names **the remote's URL**. Two deliberate steps, and the second is pressed while looking at the destination.
+
+Three supporting rules, each from a way this can go wrong:
+
+- **leetui never picks a remote.** Configured remote, else the upstream's, else the only one — a workspace with both a personal and a work remote gets no push target and says so.
+- **`git` runs with `GIT_TERMINAL_PROMPT=0`.** leetui draws on the alternate screen; a credential prompt there is invisible and hangs the app with no way to answer. Failing with "could not authenticate — push from your own shell" is recoverable, and a hung TUI is not.
+- **A refused `p` says why.** Detached HEAD, nothing committed, no remote, and already-in-sync are four different situations with four different fixes. A key that silently does nothing reads as a broken key (the same lesson as D-020).
+
+**Committing keeps the opposite temperament.** An accepted verdict commits without asking, and stays silent when the workspace is not a repository or the files already match `HEAD` — neither is something the user did wrong, and a warning after an Accepted verdict would land as if it were.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)
-- [ ] Whether `notes.md` is committed to the GitHub repo or gitignored by default
+- [x] Whether `notes.md` is committed to the GitHub repo or gitignored by default — **committed, opt-out via `git.commit_notes`** (D-024). It is the user's own writing and the reason a solutions repo is worth reading; anyone who would rather not publish a half-finished thought turns it off.
 - [ ] Rate-limit budget: requests/sec ceiling for the company sync, empirically determined
 - [ ] Whether premium study plans get a dedicated view or fold into company packs
