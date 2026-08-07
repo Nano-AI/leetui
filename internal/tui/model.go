@@ -136,6 +136,13 @@ type Model struct {
 	toast   *toast
 	toastID int
 
+	// Command palette and settings — two views onto one registry
+	// (internal/config/settings.go), so they cannot disagree about what exists.
+	paletteOpen bool
+	palette     paletteState
+	settingsIdx int
+	helpScroll  int
+
 	// git is the repository view's state (D-011). Read on demand rather than kept
 	// current: a status refresh per keystroke would take the index lock away from
 	// whatever the user has running in the next pane.

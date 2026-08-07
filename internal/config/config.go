@@ -73,6 +73,15 @@ type UI struct {
 
 	// Mouse enables click and scroll.
 	Mouse bool `toml:"mouse"`
+
+	// ShowTags and ShowHints are off by default, because both give the approach away.
+	//
+	// "hash-table" printed beside a problem answers the question the problem is asking,
+	// and reading it is not a decision — you cannot un-see it while deciding whether to
+	// attempt the thing. The board is still SEARCHABLE by tag, which is the use that
+	// spoils nothing: you go looking for graph problems, you do not get told.
+	ShowTags  bool `toml:"show_tags"`
+	ShowHints bool `toml:"show_hints"`
 }
 
 // Sync holds problem- and company-sync behaviour.

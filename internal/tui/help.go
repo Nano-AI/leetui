@@ -35,6 +35,7 @@ func helpGroups() []helpGroup {
 			{"u", "cycle all → unsolved → solved"},
 			{"p", "cycle all → premium → free"},
 			{"0 esc", "clear every filter"},
+			{"z Z", "reveal tags / hints — hidden, they spoil the approach"},
 		}},
 		{"solve", [][2]string{
 			{"f", "create the solution file, then open it yourself"},
@@ -43,8 +44,7 @@ func helpGroups() []helpGroup {
 			{"s", "submit it to the judge"},
 			{"l", "choose the language"},
 			{"E", "choose the editor"},
-			{"", "inside tmux, e opens a pane beside leetui"},
-			{"", "saving re-runs the tests on its own"},
+			{"", "saving re-runs the tests; leetui run -w for a pane of its own"},
 		}},
 		{"premium", [][2]string{
 			{"c", "browse company lists, then a timeframe"},
@@ -54,6 +54,8 @@ func helpGroups() []helpGroup {
 		{"do", [][2]string{
 			{"S", "sync problems — press again to pause"},
 			{"v", "the repository — accepted commits itself"},
+			{":", "command line — :set default_lang go"},
+			{"V", "settings"},
 			{"", "pushing lives in there, and asks first"},
 			{"a", "sign in with session cookies"},
 			{"o", "open the problem on leetcode.com"},
@@ -99,10 +101,36 @@ func (m Model) viewHelp() string {
 		"\n " + theme.Meta.Render(m.cfg.Path()) +
 		"\n\n " + theme.Label.Render("? or esc") + theme.Body.Render("  back") + "\n"
 
-	if !fold {
-		return head + strings.Join(blocks, "") + foot
+	body := strings.Join(blocks, "")
+	if fold {
+		body = helpColumns(blocks, colWidth)
 	}
-	return head + helpColumns(blocks, colWidth) + foot
+	return head + m.windowHelp(body, foot) + foot
+}
+
+// windowHelp scrolls the bindings when they do not fit.
+//
+// Folding to two columns buys one doubling and then stops, and this screen grows every
+// time a feature does. Dropping groups to fit is the one thing it must not do — the whole
+// job of this screen is showing every binding — so what does not fit scrolls, and the
+// footer says so.
+func (m Model) windowHelp(body, foot string) string {
+	lines := strings.Split(strings.TrimRight(body, "\n"), "\n")
+
+	// Everything already spent: the heading, the footer, and a line of slack for the
+	// shell prompt that appears under the alternate screen on exit.
+	spent := 2 + strings.Count(foot, "\n") + 2
+	room := maxInt(m.height-spent, 4)
+	if len(lines) <= room {
+		return body
+	}
+
+	start := clamp(m.helpScroll, 0, maxScroll(len(lines), room-1))
+	end := minInt(start+room-1, len(lines))
+
+	shown := strings.Join(lines[start:end], "\n")
+	return shown + "\n " + theme.Meta.Render(fmt.Sprintf(
+		"%d more — j k to scroll", len(lines)-end+start))
 }
 
 func renderHelpGroup(g helpGroup, ruleWidth int) string {

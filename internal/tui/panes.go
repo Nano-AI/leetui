@@ -48,6 +48,10 @@ const (
 	// screen — a list wants width, a statement wants to be the only thing on it (D-018).
 	modeSolve
 
+	// modeSettings lists every option over the same registry the palette types into.
+	// The palette is faster once you know a name; this is how you learn there is one.
+	modeSettings
+
 	// modeGit is the workspace repository: branch, what is uncommitted, what is
 	// unpushed, and the last few commits.
 	//

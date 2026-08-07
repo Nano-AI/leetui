@@ -78,6 +78,8 @@ func (m Model) View() string {
 		return m.viewCompanies()
 	case modeGit:
 		return m.viewGit()
+	case modeSettings:
+		return m.viewSettings()
 	}
 
 	var sections []string
@@ -86,6 +88,9 @@ func (m Model) View() string {
 		sections = append(sections, m.viewSearchPanel())
 	}
 	sections = append(sections, m.viewBody())
+	if p := m.viewPalette(); p != "" {
+		sections = append(sections, p)
+	}
 	sections = append(sections, m.viewStatus())
 	sections = append(sections, m.viewHints())
 

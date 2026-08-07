@@ -34,6 +34,10 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case m.mode == modeCompany:
 		return m.handleCompanyKey(msg)
+	case m.paletteOpen:
+		return m.handlePaletteKey(msg)
+	case m.mode == modeSettings:
+		return m.handleSettingsKey(msg)
 	case m.mode == modeGit:
 		return m.handleGitKey(msg)
 	case m.mode == modeAuth:
@@ -83,7 +87,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.mode == modeHelp {
 			m.mode = modeBoard
 		} else {
-			m.mode = modeHelp
+			m.mode, m.helpScroll = modeHelp, 0
 		}
 		return m, nil
 
@@ -93,12 +97,20 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.cycleFocus(-1)
 
 	case "down":
+		if m.mode == modeHelp {
+			m.helpScroll++
+			return m, nil
+		}
 		if m.focus == paneDetail {
 			m.detailScroll = minInt(m.detailScroll+1, m.detailMaxScroll())
 			return m, nil
 		}
 		return m.moveCursor(1)
 	case "up":
+		if m.mode == modeHelp {
+			m.helpScroll = maxInt(m.helpScroll-1, 0)
+			return m, nil
+		}
 		if m.focus == paneDetail {
 			m.detailScroll = maxInt(m.detailScroll-1, 0)
 			return m, nil
@@ -165,6 +177,18 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "sync":
 		return m.startSync()
+
+	case "palette":
+		return m.openPalette()
+
+	case "settings":
+		return m.openSettings()
+
+	case "tags":
+		return m.toggleSpoiler("ui.show_tags")
+
+	case "hints":
+		return m.toggleSpoiler("ui.show_hints")
 
 	case "git":
 		return m.openGit()

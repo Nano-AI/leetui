@@ -200,13 +200,19 @@ is inside their home directory. The pane states the situation and prints the two
 
 ## Phase 5 — Polish
 
-- [ ] Settings view (all config editable in-app)
-- [ ] **`:` command palette that sets config** — `:set default_lang go`,
-      `:set workspace ~/code/leetcode`, `:sync companies`. One typed surface over the
-      same action table the keymap uses (D-013), so every action is reachable by name
-      and discoverable without memorising a key. Writes through to `config.toml`, so
-      what you set in the palette survives the session.
-- [ ] Keymap remapping UI
+- [x] **Settings view** (`V`) and the **`:` command palette** — two views onto ONE
+      registry (`internal/config/settings.go`), so they cannot disagree about what
+      exists. `:set default_lang go`, `tab` completes to the longest common prefix,
+      booleans toggle on a bare name. Both write through to `config.toml`
+- [x] **Keymap remapping** — `:set keys.run x`, over the same registry. A duplicate
+      binding is refused rather than resolved: it would silently shadow one of the two
+      actions, and which one wins depends on map order
+- [x] **Tags and hints are spoilers** — both hidden by default, `z` and `Z` reveal.
+      "hash-table" beside a problem answers the question the problem is asking, and
+      reading it is not a decision. Search by tag still works, which is the use that
+      spoils nothing
+- [x] **The help scrolls** rather than dropping bindings. Two columns bought one
+      doubling and then stopped; this screen grows every time a feature does
 - [ ] 80×24 responsive collapse
 - [ ] Opt-in inline images (Kitty / iTerm2)
 - [x] **Local JS/TS runner** (D-004 said this was the cheap one; it was). One driver and
