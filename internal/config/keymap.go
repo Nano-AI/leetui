@@ -40,6 +40,7 @@ var DefaultKeymap = map[string]string{
 	"auth":        "a",
 	"git":         "v",
 	"settings":    "V",
+	"docs":        "D",
 	"tags":        "z",
 	"hints":       "Z",
 	"help":        "?",

@@ -86,6 +86,8 @@ func (m Model) View() string {
 		return m.viewGit()
 	case modeSettings:
 		return m.viewSettings()
+	case modeDocs:
+		return m.viewDocs()
 	}
 
 	var sections []string

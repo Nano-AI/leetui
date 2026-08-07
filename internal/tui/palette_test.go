@@ -120,3 +120,38 @@ func firstLines(s string, n int) string {
 	}
 	return strings.Join(lines, "\n")
 }
+
+// TestDocsIsReachableAndListsTheSurface. `?` is a keymap: it cannot list the command
+// line, the subcommands, or the settings, because none of those are keys. Everything
+// added in the last session was reachable and none of it was findable.
+func TestDocsIsReachableAndListsTheSurface(t *testing.T) {
+	for _, how := range []struct {
+		name string
+		open func(Model) Model
+	}{
+		{"D key", func(m Model) Model { return drive(t, m, key("D")) }},
+		{":docs", func(m Model) Model {
+			m = drive(t, m, key(":"))
+			m.palette.input.SetValue("docs")
+			return drive(t, m, key("enter"))
+		}},
+	} {
+		t.Run(how.name, func(t *testing.T) {
+			m := how.open(boot(t, true, 100, 30))
+			if m.mode != modeDocs {
+				t.Fatalf("mode = %v, want modeDocs", m.mode)
+			}
+
+			out := stripANSI(m.View())
+			// The three surfaces that have no key and so cannot appear in the keymap.
+			for _, want := range []string{":set", "leetui run", "leetui doctor", "z"} {
+				if !strings.Contains(out, want) {
+					t.Errorf("the reference does not mention %q", want)
+				}
+			}
+			if m2 := drive(t, m, key("esc")); m2.mode != modeBoard {
+				t.Error("esc did not leave the reference")
+			}
+		})
+	}
+}

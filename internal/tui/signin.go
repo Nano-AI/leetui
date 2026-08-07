@@ -53,7 +53,7 @@ func (m Model) viewAuth() string {
 
 	// --- Route 2: paste ------------------------------------------------------
 	b.WriteString(" " + theme.Utility.Render(theme.UtilityText("or paste cookies")) + "\n")
-	b.WriteString(" " + theme.Label.Render(theme.Chars().Cursor + " ") + m.authInput.View() + "\n")
+	b.WriteString(" " + theme.Label.Render(theme.Chars().Cursor+" ") + m.authInput.View() + "\n")
 	for _, line := range auth.PasteSteps() {
 		b.WriteString("  " + theme.Meta.Render(truncate(line, inner-3)) + "\n")
 	}

@@ -42,16 +42,43 @@ func TestExampleBlocksFillTheirWidth(t *testing.T) {
 	}
 }
 
-// TestProseIsNotPainted is the discriminator. Inline `code` also sets a background, and
-// painting its whole line would put a bar across the middle of a paragraph.
+// TestProseIsNotPainted is the discriminator, and it shipped broken.
+//
+// The first version only checked inline code MID-LINE. A long paragraph wraps, and when
+// the wrap lands so a line BEGINS with an inline span, that line looked exactly like a
+// code block — same background, same position — so it was filled and a bar of flap ran
+// across the middle of the paragraph. Inline code carries no background now, so the
+// background means exactly one thing.
 func TestProseIsNotPainted(t *testing.T) {
-	out, err := Markdown("A paragraph mentioning `nums` inline, and nothing else.\n", 60)
-	if err != nil {
-		t.Fatalf("render: %v", err)
-	}
-	for i, line := range strings.Split(out, "\n") {
-		if _, ok := leadingBackground(line); ok {
-			t.Errorf("prose line %d was treated as a code block:\n%q", i, line)
+	for _, md := range []string{
+		"A paragraph mentioning `nums` inline, and nothing else.\n",
+
+		// Long enough to wrap several times, with spans placed so at least one lands
+		// at the start of a wrapped line. This is the Gas Station statement's shape.
+		"You have a car with an unlimited gas tank and it costs `cost[i]` of gas to " +
+			"travel from the `i^th` station to its next `(i + 1)^th` station. You begin " +
+			"the journey with an empty tank at one of the gas stations.\n",
+
+		"Return `-1` if there is no solution, otherwise return the `starting index`.\n",
+	} {
+		for _, width := range []int{40, 56, 74} {
+			out, err := Markdown(md, width)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+			for i, line := range strings.Split(out, "\n") {
+				if _, ok := leadingBackground(line); ok {
+					t.Errorf("width %d, prose line %d treated as a code block:\n%q",
+						width, i, line)
+				}
+				// And no background escape at all: Glamour pads a wrapped line with
+				// whatever style was last active, which left a dark rectangle floating
+				// at the right margin whenever a line ended in a code span.
+				if strings.Contains(line, "48;") {
+					t.Errorf("width %d, prose line %d carries a background:\n%q",
+						width, i, line)
+				}
+			}
 		}
 	}
 }

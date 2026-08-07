@@ -55,6 +55,7 @@ func helpGroups() []helpGroup {
 			{"S", "sync problems — press again to pause"},
 			{"v", "the repository — accepted commits itself"},
 			{":", "command line — :set default_lang go"},
+			{"D", "the reference: everything leetui can do"},
 			{"V", "settings"},
 			{"", "pushing lives in there, and asks first"},
 			{"a", "sign in with session cookies"},

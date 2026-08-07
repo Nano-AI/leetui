@@ -27,7 +27,7 @@ func (m Model) viewSearchPanel() string {
 
 	// No scope hint here — the field's own placeholder already names what is searched,
 	// and saying it twice is the kind of doubling this design keeps cutting.
-	return f.Render(" " + theme.Label.Render(theme.Chars().Cursor + " ") + m.search.View())
+	return f.Render(" " + theme.Label.Render(theme.Chars().Cursor+" ") + m.search.View())
 }
 
 func (m Model) matchSummary() string {

@@ -142,6 +142,7 @@ type Model struct {
 	palette     paletteState
 	settingsIdx int
 	helpScroll  int
+	docsScroll  int
 
 	// git is the repository view's state (D-011). Read on demand rather than kept
 	// current: a status refresh per keystroke would take the index lock away from

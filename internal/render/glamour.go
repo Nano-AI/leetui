@@ -77,12 +77,22 @@ var style = ansi.StyleConfig{
 	Image:     ansi.StylePrimitive{Color: p(cAmber)},
 	ImageText: ansi.StylePrimitive{Color: p(cAmber), Format: "{{.text}}"},
 
+	// Inline code is AMBER ON THE PAGE, with no background of its own.
+	//
+	// It used to carry the flap background, and that caused two visible faults once
+	// code BLOCKS gained the same background. Glamour pads a wrapped line with whatever
+	// style was last active, so a line ending in `cost[i]` got a dark rectangle floating
+	// at its right margin. Worse, a prose line that BEGAN with an inline span was
+	// indistinguishable from a block — same background, same position — so the whole
+	// line was filled and a bar of flap ran across the middle of a paragraph.
+	//
+	// Amber alone still reads as code, which is the job. The background now means
+	// exactly one thing: this line is a block.
 	Code: ansi.StyleBlock{
 		StylePrimitive: ansi.StylePrimitive{
-			Color:           p(cAmber),
-			BackgroundColor: p(cFlap),
-			Prefix:          " ",
-			Suffix:          " ",
+			Color:  p(cAmber),
+			Prefix: " ",
+			Suffix: " ",
 		},
 	},
 	// An example block is DATA, not prose — the input, the output, and the walk-through

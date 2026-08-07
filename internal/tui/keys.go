@@ -38,6 +38,8 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handlePaletteKey(msg)
 	case m.mode == modeSettings:
 		return m.handleSettingsKey(msg)
+	case m.mode == modeDocs:
+		return m.handleDocsKey(msg)
 	case m.mode == modeGit:
 		return m.handleGitKey(msg)
 	case m.mode == modeAuth:
@@ -183,6 +185,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case "settings":
 		return m.openSettings()
+
+	case "docs":
+		return m.openDocs()
 
 	case "tags":
 		return m.toggleSpoiler("ui.show_tags")

@@ -52,6 +52,11 @@ const (
 	// The palette is faster once you know a name; this is how you learn there is one.
 	modeSettings
 
+	// modeDocs is the reference: what leetui can do, including the parts that are not
+	// keys. `?` is a keymap and cannot list the command line, the subcommands, or the
+	// settings — so those were reachable and unfindable.
+	modeDocs
+
 	// modeGit is the workspace repository: branch, what is uncommitted, what is
 	// unpushed, and the last few commits.
 	//

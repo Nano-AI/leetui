@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Nano-AI/leetui/internal/config"
 )
@@ -110,12 +110,16 @@ func (m Model) runCommand(line string) (tea.Model, tea.Cmd) {
 		m = m.closePalette()
 		return m.openSettings()
 
+	case "docs":
+		m = m.closePalette()
+		return m.openDocs()
+
 	case "git":
 		m = m.closePalette()
 		return m.openGit()
 
 	default:
-		m.palette.err = fmt.Sprintf("no command %q — try set, settings, sync, git, help", verb)
+		m.palette.err = fmt.Sprintf("no command %q — try docs, set, settings, sync, git, help", verb)
 		return m, nil
 	}
 }
@@ -221,7 +225,7 @@ func describeCommand(line string) string {
 }
 
 func verbs() []string {
-	return []string{"set", "settings", "sync", "git", "help", "quit"}
+	return []string{"docs", "set", "settings", "sync", "git", "help", "quit"}
 }
 
 // longestPrefix returns the longest string every candidate with this prefix shares.
