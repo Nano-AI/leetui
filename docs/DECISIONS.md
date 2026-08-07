@@ -583,6 +583,30 @@ Both are hidden by default. `z` and `Z` reveal them, and the line still states h
 
 ---
 
+## D-028 — A debug log, off by default, redacted always
+
+Settled 2026-08-07.
+
+leetui talks to an API nobody documents. When it misbehaved the user got one error string and nothing to inspect afterwards — which is how a decode bug that failed **every submission** was found by a screenshot rather than by a trace, and explained in one line once it could be reproduced.
+
+`leetui --debug`, or `LEETUI_DEBUG=1` for a subcommand, writes to `~/.local/share/leetui/debug.log`. The environment variable exists because an editor owns the command line for `:!leetui run %` and there is nowhere to put a flag.
+
+**What it records:** the operation, path, and which session; the status and byte count of the response. Not the body — a successful sync is four thousand problems, and a log nobody can read is a log nobody reads.
+
+**Except on a decode failure, where the body IS the diagnosis.** "cannot unmarshal string into Go struct field" names the field and says nothing about what arrived. Both the GraphQL and the REST paths log up to 2 KB of it.
+
+**Appends, never truncates.** The interesting run is often the one before the one you are looking at.
+
+### The invariant
+
+D-002 says a session cookie never reaches a log, and the whole point of a debug log is that it gets pasted into bug reports. Redaction happens at the source: `Client.Debugf` receives traces with the session already reduced to `auth.Redact` form — first four characters, last four, and the length. Eight characters of an 837-character JWT, of which the first four are the header prefix every JWT shares.
+
+That is enough to tell two sessions apart in a trace and useless to anyone who obtains it. `TestDebugTraceNeverCarriesTheSession` drives a real request through the traced path and fails if the token appears — and fails if nothing was traced at all, so it cannot pass vacuously.
+
+**Nothing in the logging path may format a header itself.** That is how a session ends up in a file someone attaches to an issue.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

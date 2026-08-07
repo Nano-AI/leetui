@@ -215,6 +215,11 @@ Note the loop calls `run`, not `submit`. Submitting is the user's decision.
 
 ## Configuration
 
+`LEETUI_DEBUG=1` writes a request trace to `~/.local/share/leetui/debug.log` — what was
+sent, what came back, and the full body of anything that failed to decode. Credentials are
+reduced to `abcd…wxyz(837)` form before they reach it, so the file is safe to attach to a
+bug report. Use it when a command fails in a way its error message does not explain.
+
 `LEETUI_CONFIG_DIR` relocates the config directory, which is how you give an agent its own
 profile without touching the user's:
 

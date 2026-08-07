@@ -25,6 +25,11 @@ type app struct {
 	store  *store.Store
 	client *leetcode.Client
 	sync   *syncer.Syncer
+
+	// log is the debug trace, or a discard. Never nil, so no call site branches.
+	log *config.Logger
+	// LogPath is where it went, for the one line that tells the user.
+	LogPath string
 }
 
 // open wires the app. Callers must Close it.
@@ -59,15 +64,47 @@ func open() (*app, error) {
 		leetcode.WithCredentials(creds),
 		leetcode.WithRateLimit(cfg.Sync.RequestsPerSecond),
 	)
-	return &app{
+
+	a := &app{
 		cfg:    cfg,
 		store:  st,
 		client: client,
 		sync:   syncer.New(client, st, cfg.Sync.PageSize),
-	}, nil
+		log:    config.Discard(),
+	}
+	// The environment turns tracing on for the SUBCOMMANDS, which have no convenient
+	// place for a flag — an editor owns that command line, not the user. The TUI adds
+	// --debug on top of this.
+	if config.DebugRequested() {
+		a.enableDebug()
+	}
+	return a, nil
 }
 
-func (a *app) Close() error { return a.store.Close() }
+// enableDebug points the client's trace at a file.
+//
+// Failing to open the log is reported and then ignored: someone asking for a trace has a
+// problem already, and refusing to start over the log itself would replace their problem
+// with a worse one.
+func (a *app) enableDebug() {
+	log, path, err := config.OpenLog()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
+		return
+	}
+	a.log, a.LogPath = log, path
+
+	// Redaction is the invariant, and it lives at the other end: Client.Debugf receives
+	// traces with the session already reduced to auth.Redact form (D-002). This must
+	// never become anything that formats a header itself.
+	a.client.Debugf = log.Printf
+	log.Printf("config %s · workspace %s", a.cfg.Path(), a.cfg.Workspace)
+}
+
+func (a *app) Close() error {
+	a.log.Close()
+	return a.store.Close()
+}
 
 // problem resolves an argument to a problem, fetching its statement if it is not cached.
 //

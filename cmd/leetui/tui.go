@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -17,6 +19,7 @@ func runTUI(args []string) error {
 	fs := flag.NewFlagSet("leetui", flag.ContinueOnError)
 	noMotion := fs.Bool("no-motion", false, "settle the flip animation instantly")
 	ascii := fs.Bool("ascii", false, "draw with ASCII instead of box-drawing characters")
+	debug := fs.Bool("debug", false, "write a redacted request trace to the debug log")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -26,6 +29,15 @@ func runTUI(args []string) error {
 		return err
 	}
 	defer a.Close()
+
+	if *debug {
+		a.enableDebug()
+	}
+	// Said on stderr BEFORE the alternate screen takes over, or the one line telling the
+	// user where to look scrolls past inside a full-screen app they cannot scroll.
+	if a.LogPath != "" {
+		fmt.Fprintf(os.Stderr, "leetui: tracing to %s\n", a.LogPath)
+	}
 
 	// Motion is opt-out via flag or config. The app stays fully legible without it —
 	// motion never carries information on its own.

@@ -69,6 +69,7 @@ func docSections() []docSection {
 				{"leetui todo add <p>", "queue a problem from anywhere"},
 				{"leetui todo --json", "the queue, as JSON"},
 				{"leetui doctor", "what works here, and what to fix"},
+				{"leetui --debug", "trace requests, credentials redacted"},
 			},
 		},
 		{

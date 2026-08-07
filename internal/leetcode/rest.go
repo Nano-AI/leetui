@@ -61,6 +61,8 @@ func (c *Client) doJSON(req *http.Request, op string, out any) error {
 	if err != nil {
 		return fmt.Errorf("read %s: %w", op, err)
 	}
+	c.debugResponse(op, resp.StatusCode, raw)
+
 	if err := c.statusError(op, resp.StatusCode, raw); err != nil {
 		return err
 	}
@@ -68,6 +70,9 @@ func (c *Client) doJSON(req *http.Request, op string, out any) error {
 		return nil
 	}
 	if err := json.Unmarshal(raw, out); err != nil {
+		// This is the path the judge answers on, and the path where a field changing
+		// shape failed every submission. The body is the whole diagnosis.
+		c.debugBody(op, raw)
 		return fmt.Errorf("decode %s: %w (body starts %q)", op, err, snippet(raw))
 	}
 	return nil

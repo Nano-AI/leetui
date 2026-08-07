@@ -79,7 +79,14 @@ leetui todo --json         # stable array, for agents
 leetui run --watch         # stays open, re-runs on save — put it in its own pane
 leetui image two-sum 1     # draw a figure, on kitty / iTerm2 / WezTerm / Ghostty
 leetui doctor              # what this machine can do, and how to fix what it cannot
+
+leetui --debug             # trace requests to ~/.local/share/leetui/debug.log
+LEETUI_DEBUG=1 leetui run  # the same, for a subcommand
 ```
+
+The trace records what was sent, what came back, and the whole body of anything that
+failed to decode. Session cookies are redacted before they reach it, so it is safe to
+attach to a bug report.
 
 A problem can be a slug, a folder name, a path to either, or omitted to mean the current
 directory — so from inside nvim the buffer you are looking at is enough:

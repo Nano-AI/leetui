@@ -62,6 +62,7 @@ func (c *Client) graphql(ctx context.Context, op, query string, vars map[string]
 	if err != nil {
 		return fmt.Errorf("read %s: %w", op, err)
 	}
+	c.debugResponse(op, resp.StatusCode, raw)
 
 	if err := c.statusError(op, resp.StatusCode, raw); err != nil {
 		return err
@@ -69,6 +70,11 @@ func (c *Client) graphql(ctx context.Context, op, query string, vars map[string]
 
 	var gr gqlResponse
 	if err := json.Unmarshal(raw, &gr); err != nil {
+		// The body goes in the trace as well as the error. A decode failure is the one
+		// case where the message alone is not enough — "cannot unmarshal string into
+		// Go struct field" names the field and says nothing about what arrived, and
+		// that is exactly the bug that failed every submission for a week.
+		c.debugBody(op, raw)
 		return fmt.Errorf("decode %s: %w (body starts %q)", op, err, snippet(raw))
 	}
 	if len(gr.Errors) > 0 {
@@ -150,6 +156,33 @@ func (c *Client) debugRequest(op string, req *http.Request) {
 		authState = "session " + auth.Redact(c.creds.Session)
 	}
 	c.Debugf("-> %s %s [%s]", op, req.URL.Path, authState)
+}
+
+// debugResponse traces what came back.
+//
+// The body is NOT logged here. A successful response is thousands of problems, and a
+// debug log nobody can read is a debug log nobody reads.
+func (c *Client) debugResponse(op string, status int, body []byte) {
+	if c.Debugf == nil {
+		return
+	}
+	c.Debugf("<- %s %d (%d bytes)", op, status, len(body))
+}
+
+// debugBody records a response that could not be understood.
+//
+// Capped, and only on a failure — this is for the case where knowing what the server
+// actually sent is the whole diagnosis.
+func (c *Client) debugBody(op string, body []byte) {
+	if c.Debugf == nil {
+		return
+	}
+	const max = 2000
+	s := string(body)
+	if len(s) > max {
+		s = s[:max] + "…"
+	}
+	c.Debugf("!! %s could not be decoded; body: %s", op, s)
 }
 
 func snippet(b []byte) string {

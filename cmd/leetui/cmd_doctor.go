@@ -67,6 +67,16 @@ func runDoctor(a *app, args []string) (int, error) {
 
 	problems += reportGraphics(w)
 
+	// Where to look when something goes wrong, said before it does.
+	fmt.Fprintln(w, "\ntracing")
+	if a.LogPath != "" {
+		fmt.Fprintf(w, "  %-14s on — %s\n", "debug log", a.LogPath)
+	} else {
+		fmt.Fprintf(w, "  %-14s off — leetui --debug, or LEETUI_DEBUG=1 for a subcommand\n",
+			"debug log")
+		fmt.Fprintf(w, "  %-14s credentials are redacted; it is safe to attach to a report\n", "")
+	}
+
 	fmt.Fprintln(w)
 	if problems == 0 {
 		fmt.Fprintln(w, "Nothing to fix.")
