@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>leetui — a terminal client for LeetCode</title>
+<meta name="description" content="Browse, search, solve, run and submit LeetCode problems without leaving the terminal. Full premium parity, offline search, and your solutions in git.">
+<meta name="color-scheme" content="dark">
+
+<meta property="og:title" content="leetui — a terminal client for LeetCode">
+<meta property="og:description" content="A submission queue is a departure board. Browse, solve, run and submit without leaving the terminal.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%230F1014'/><rect x='4' y='9' width='24' height='14' rx='2' fill='%231B1D24'/><rect x='4' y='15.4' width='24' height='1.2' fill='%232A2D36'/><rect x='7' y='12' width='6' height='2.4' fill='%23E8A33D'/><rect x='15' y='12' width='10' height='2.4' fill='%23E8A33D'/><rect x='7' y='17.6' width='11' height='2.4' fill='%23E6E3DA'/></svg>">
+
+<style>
+/* ------------------------------------------------------------------
+   leetui — Departure Board, on the web.
+
+   Every value here comes from docs/DESIGN.md. Amber is the system
+   speaking, bone is content, and green belongs to the judge alone:
+   #4FB477 appears exactly once on this page, on the verdict that
+   flips. If a colour is not in this block, it does not belong.
+   ------------------------------------------------------------------ */
+
+:root {
+  --ink:   #0F1014;
+  --flap:  #1B1D24;
+  --hinge: #2A2D36;
+  --amber: #E8A33D;
+  --bone:  #E6E3DA;
+  --dim:   #6B7080;
+
+  --band:  #15171D;
+
+  --ac:  #4FB477;
+  --esy: #1CBABA;
+  --med: #FFB700;
+  --hrd: #F63737;
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono",
+          "Roboto Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --pane-gap: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
+  line-height: 1.65;
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The three treatments. One family; hierarchy is weight, case, colour,
+   indentation — in that order, same as the app. ------------------- */
+
+.flap-face {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  /* Trailing tracking would push the glyph off its own centre. */
+  margin-right: -0.32em;
+}
+
+.utility {
+  text-transform: uppercase;
+  color: var(--dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.body-text { color: var(--bone); }
+.meta { color: var(--dim); }
+
+a {
+  color: var(--amber);
+  text-decoration-color: var(--hinge);
+  text-underline-offset: 0.25em;
+}
+a:hover { text-decoration-color: var(--amber); }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 0.6rem 1rem;
+  background: var(--flap);
+  z-index: 10;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* Layout ---------------------------------------------------------- */
+
+.wrap {
+  width: min(72rem, 100% - var(--gutter) * 2);
+  margin-inline: auto;
+}
+
+.stack > * + * { margin-top: var(--pane-gap); }
+
+/* The pane. A board housing is a moulded object, not a cut sheet —
+   hence the radius. The title is notched into the top rule, which is
+   what ╭─ PROBLEMS ─╮ does in the terminal. ----------------------- */
+
+.pane {
+  border: 1px solid var(--hinge);
+  border-radius: 6px;
+  background: var(--ink);
+  position: relative;
+}
+
+/* The title sits ON the top rule and masks it with its own ink
+   background, which is what ╭─ PROBLEMS ─╮ does. Only the label is
+   masked; the rule runs the full width behind it. */
+.pane-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 1.3rem;
+  height: 0;
+  transform: translateY(-0.62rem);
+}
+
+.pane-title,
+.pane-note {
+  background: var(--ink);
+  padding-inline: 0.45rem;
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pane-body { padding: 0.35rem 1.15rem 1.35rem; }
+
+/* Rail ------------------------------------------------------------ */
+
+.rail {
+  border-bottom: 1px solid var(--hinge);
+  background: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.rail-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.85rem;
+}
+
+.wordmark {
+  color: var(--amber);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+.wordmark:hover { text-decoration: none; }
+
+.rail-right {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.sep { color: var(--hinge); }
+
+/* Hero ------------------------------------------------------------ */
+
+.hero { padding-block: clamp(2rem, 6vw, 3.5rem) 0; }
+
+.thesis {
+  font-size: clamp(1.5rem, 1.1rem + 2.1vw, 2.6rem);
+  line-height: 1.22;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  max-width: 22ch;
+  letter-spacing: -0.01em;
+}
+.thesis .said { color: var(--amber); }
+
+.lede {
+  margin: 0 0 1.75rem;
+  max-width: 58ch;
+  color: var(--bone);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+/* The install line is a terminal line, so it looks like one. */
+.command {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--hinge);
+  border-radius: 4px;
+  background: var(--flap);
+  padding: 0.6rem 0.85rem;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.command .prompt { color: var(--amber); flex: none; }
+.command code { white-space: nowrap; color: var(--bone); }
+
+.copy-btn {
+  font: inherit;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--hinge);
+  padding: 0.15rem 0 0.15rem 0.7rem;
+  margin-left: 0.15rem;
+  cursor: pointer;
+  flex: none;
+}
+.copy-btn:hover { color: var(--amber); }
+
+/* The board ------------------------------------------------------- */
+
+.boards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--pane-gap);
+}
+@media (min-width: 62rem) {
+  .boards { grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); }
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  table-layout: fixed;
+}
+
+.grid th {
+  text-align: left;
+  font-weight: 400;
+  padding: 0.15rem 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--hinge);
+}
+
+.grid td {
+  padding: 0.4rem 0.6rem;
+  border-right: 1px solid var(--hinge);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grid th { border-right: 1px solid var(--hinge); }
+.grid th:last-child, .grid td:last-child { border-right: 0; }
+
+/* Banded rows. Doing their job when never noticed — only that the row
+   you are reading stays together. */
+.grid tbody tr:nth-child(even) { background: var(--band); }
+.grid tbody tr.is-cursor { background: var(--hinge); }
+
+.col-id    { width: 5.2rem; }
+.col-dif   { width: 3.6rem; }
+.col-acc   { width: 4rem; }
+.col-state { width: 4.2rem; }
+
+.cell-id { color: var(--dim); }
+.is-cursor .cell-id { color: var(--bone); }
+
+/* The selection bar costs no width and disturbs no alignment. */
+.cursor-bar {
+  color: var(--amber);
+  margin-right: 0.3rem;
+}
+.cursor-bar[data-off] { color: transparent; }
+
+.dif { font-weight: 700; }
+.dif-esy { color: var(--esy); }
+.dif-med { color: var(--med); }
+.dif-hrd { color: var(--hrd); }
+
+.state { text-align: center; color: var(--bone); }
+.state[data-locked] { color: var(--dim); }
+
+/* Submissions + the flip ------------------------------------------ */
+
+.subs { display: grid; gap: 0.55rem; font-size: 0.78rem; }
+
+.sub-row {
+  display: grid;
+  grid-template-columns: 2.8rem 3.9rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flap {
+  display: block;
+  min-height: 1.5rem;
+  color: var(--amber);
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+.flap[data-verdict="ac"] { color: var(--ac); }
+.flap[data-verdict="shear"] { color: var(--amber); }
+
+.no-spinner {
+  margin: 1.15rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hinge);
+}
+
+/* Key hint strip -------------------------------------------------- */
+
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hinge);
+}
+.hints span { white-space: nowrap; }
+.hints kbd {
+  font: inherit;
+  color: var(--amber);
+  margin-right: 0.35rem;
+}
+
+/* Prose sections -------------------------------------------------- */
+
+.section-lede {
+  margin: 0.35rem 0 1.4rem;
+  max-width: 62ch;
+  color: var(--bone);
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem var(--pane-gap);
+  /* Otherwise the snippet stretches to the height of the column beside
+     it and ends in a pool of empty flap. */
+  align-items: start;
+}
+@media (min-width: 48rem) {
+  .two-up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.facts { margin: 0; }
+.facts div + div {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hinge);
+}
+.facts dt { color: var(--amber); margin-bottom: 0.15rem; }
+.facts dd { margin: 0; color: var(--bone); }
+
+.snippet {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  background: var(--flap);
+  border: 1px solid var(--hinge);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  scrollbar-width: thin;
+}
+.snippet .c { color: var(--dim); }
+.snippet .marker { color: var(--amber); }
+.snippet .k { color: var(--bone); font-weight: 700; }
+
+.langs { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; }
+.langs li { display: flex; gap: 0.75rem; align-items: baseline; }
+.langs .where { color: var(--dim); font-size: 0.78rem; }
+.langs .name { min-width: 6.5rem; }
+
+/* Footer ---------------------------------------------------------- */
+
+.foot {
+  border-top: 1px solid var(--hinge);
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-block: 1.5rem clamp(2rem, 5vw, 3rem);
+}
+.foot-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+/* Narrow: the app collapses panes rather than truncating mid-glyph,
+   so the board drops its least-load-bearing columns in the same order
+   the TUI does. ---------------------------------------------------- */
+@media (max-width: 40rem) {
+  .col-acc, .cell-acc { display: none; }
+}
+@media (max-width: 27rem) {
+  .col-dif, .cell-dif { display: none; }
+  .sub-row { grid-template-columns: 3.4rem minmax(0, 1fr); }
+  .sub-row .sub-lang { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="rail">
+  <div class="wrap rail-inner">
+    <a class="wordmark flap-face" href="#main">leetui</a>
+    <div class="rail-right utility">
+      <a href="https://github.com/Nano-AI/leetui">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="wrap hero">
+    <h1 class="thesis">A submission queue is <span class="said">a departure board</span>.</h1>
+    <p class="lede">
+      leetui is a terminal client for LeetCode. Browse and search 4,013 problems offline,
+      run them against the examples locally, and submit to the judge — while your editor
+      stays open in the next pane.
+    </p>
+
+    <div class="hero-actions">
+      <div class="command">
+        <span class="prompt" aria-hidden="true">$</span>
+        <code id="install-cmd">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code>
+        <button class="copy-btn" type="button" data-copy="#install-cmd">Copy</button>
+      </div>
+      <a href="https://github.com/Nano-AI/leetui">Read the source</a>
+    </div>
+  </section>
+
+  <div class="wrap boards">
+
+    <section class="pane" aria-labelledby="board-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="board-title">Problems</span>
+        <span class="pane-note utility" aria-hidden="true">&ldquo;cache&rdquo; &#9482; 5</span>
+      </div>
+      <div class="pane-body">
+        <table class="grid">
+          <thead>
+            <tr class="utility">
+              <th class="col-id" scope="col">#</th>
+              <th scope="col">Problem</th>
+              <th class="col-dif" scope="col">Dif</th>
+              <th class="col-acc" scope="col">Acc</th>
+              <th class="col-state" scope="col">State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-cursor">
+              <td class="cell-id"><span class="cursor-bar" aria-hidden="true">&#9612;</span>0146</td>
+              <td>LRU Cache</td>
+              <td class="cell-dif dif dif-med">MED</td>
+              <td class="cell-acc">43%</td>
+              <td class="state" data-flip-state>&#10003;</td>
+            </tr>
+            <tr>
+              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0460</td>
+              <td>LFU Cache</td>
+              <td class="cell-dif dif dif-hrd">HRD</td>
+              <td class="cell-acc">44%</td>
+              <td class="state" data-flip-state>&#9680;</td>
+            </tr>
+            <tr>
+              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0208</td>
+              <td>Implement Trie</td>
+              <td class="cell-dif dif dif-med">MED</td>
+              <td class="cell-acc">67%</td>
+              <td class="state" data-flip-state>&#10003;</td>
+            </tr>
+            <tr>
+              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>1650</td>
+              <td>Lowest Common Ancestor III</td>
+              <td class="cell-dif dif dif-med">MED</td>
+              <td class="cell-acc">80%</td>
+              <td class="state" data-locked data-flip-state>&#8856;</td>
+            </tr>
+            <tr>
+              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0001</td>
+              <td>Two Sum</td>
+              <td class="cell-dif dif dif-esy">ESY</td>
+              <td class="cell-acc">58%</td>
+              <td class="state" data-flip-state>&#10003;</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="hints utility">
+          <span><kbd>enter</kbd>open</span>
+          <span><kbd>/</kbd>search</span>
+          <span><kbd>r</kbd>run</span>
+          <span><kbd>s</kbd>submit</span>
+          <span><kbd>v</kbd>git</span>
+          <span><kbd>c</kbd>companies</span>
+          <span><kbd>?</kbd>keys</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" aria-labelledby="subs-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="subs-title">Submissions</span>
+      </div>
+      <div class="pane-body">
+        <div class="subs">
+          <div class="sub-row">
+            <span class="meta">0001</span>
+            <span class="meta sub-lang">python3</span>
+            <span class="flap flap-face" data-verdict="ac">accepted</span>
+          </div>
+          <div class="sub-row">
+            <span class="meta">0042</span>
+            <span class="meta sub-lang">cpp</span>
+            <span class="flap flap-face">wrong answer</span>
+          </div>
+          <div class="sub-row">
+            <span class="meta">0146</span>
+            <span class="meta sub-lang">go</span>
+            <span class="flap flap-face" id="verdict" data-verdict="" aria-live="polite">pending</span>
+          </div>
+        </div>
+
+        <p class="no-spinner meta">
+          There are no spinners. A pending submission is a flap held mid&#8209;flip —
+          that is the loading state, everywhere, and it is the only one.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="wrap stack" style="margin-top: var(--pane-gap)">
+
+    <section class="pane" aria-labelledby="solution-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="solution-title">Solution</span>
+        <span class="pane-note utility" aria-hidden="true">python3</span>
+      </div>
+      <div class="pane-body">
+        <p class="section-lede">
+          leetui is the LeetCode side of the desk. Editing happens wherever you already
+          work — nvim in the next tmux pane, a VS Code terminal — so every problem folder
+          says exactly where its file is. Saving re-runs the tests on its own.
+        </p>
+
+        <div class="two-up">
+          <pre class="snippet"><code><span class="c"># 20. Valid Parentheses · Easy</span>
+<span class="c"># https://leetcode.com/problems/valid-parentheses/</span>
+
+<span class="k">from</span> typing <span class="k">import</span> List, Optional
+
+<span class="marker"># @leetui code=start</span>
+<span class="k">class</span> Solution:
+    <span class="k">def</span> isValid(self, s: str) -&gt; bool:
+        ...
+<span class="marker"># @leetui code=end</span></code></pre>
+
+          <dl class="facts">
+            <div>
+              <dt>Only the marked region is submitted</dt>
+              <dd>Everything above it is imports and driver types LeetCode supplies
+                itself and would reject as duplicates.</dd>
+            </div>
+            <div>
+              <dt>Test cases are a plain text file</dt>
+              <dd>Seeded from the examples, hand-editable, and never overwritten once
+                you add your own.</dd>
+            </div>
+            <div>
+              <dt>A local mismatch never claims to be the judge</dt>
+              <dd>LeetCode's metadata cannot express in-place mutation or unordered
+                answers, so leetui says so and points at the judge.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" aria-labelledby="repo-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="repo-title">Repository</span>
+        <span class="pane-note utility" aria-hidden="true">main &#9482; 3 ahead</span>
+      </div>
+      <div class="pane-body">
+        <p class="section-lede">
+          Make your workspace a git repository and an accepted verdict commits itself —
+          solution, statement, test cases, notes — with a subject you would have written:
+        </p>
+
+        <pre class="snippet"><code>solve(0146): lru cache &mdash; go, 58ms, beats 91.2%</code></pre>
+
+        <div class="two-up" style="margin-top:1.4rem">
+          <dl class="facts">
+            <div>
+              <dt>No co-author trailer, no session link</dt>
+              <dd>You wrote it. A solutions repo is something people show other people.</dd>
+            </div>
+            <div>
+              <dt>Pushing is never automatic</dt>
+              <dd>It lives in one screen, behind a confirmation that names the remote's
+                URL — not &ldquo;origin&rdquo;.</dd>
+            </div>
+          </dl>
+          <dl class="facts">
+            <div>
+              <dt>Only the files it was asked about</dt>
+              <dd>Work you staged in another pane is never swept into a commit.</dd>
+            </div>
+            <div>
+              <dt>leetui never runs <code>git init</code> for you</dt>
+              <dd>A stray <code>.git</code> in a directory you did not mean to version is
+                a real annoyance. It prints the two commands instead.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" aria-labelledby="install-title">
+      <div class="pane-head">
+        <span class="pane-title utility" id="install-title">Install</span>
+      </div>
+      <div class="pane-body">
+        <div class="two-up">
+          <div>
+            <p class="section-lede">
+              One static binary, Go 1.24 or newer. Sign in from inside the app by pasting
+              your session cookies — they go to the OS keychain, never to disk, and are
+              never printed.
+            </p>
+            <div class="command">
+              <span class="prompt" aria-hidden="true">$</span>
+              <code id="install-cmd-2">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code>
+              <button class="copy-btn" type="button" data-copy="#install-cmd-2">Copy</button>
+            </div>
+          </div>
+
+          <div>
+            <p class="utility" style="margin:0 0 .7rem">Runs locally</p>
+            <ul class="langs">
+              <li><span class="name">Python</span><span class="where">runs on your machine</span></li>
+              <li><span class="name">Go</span><span class="where">runs on your machine</span></li>
+              <li><span class="name">C++</span><span class="where">runs on your machine</span></li>
+              <li><span class="name meta">Everything else</span><span class="where">edits and submits normally, runs on the judge</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner utility">
+    <span>leetui &mdash; a terminal client for LeetCode</span>
+    <span>
+      <a href="https://github.com/Nano-AI/leetui">Source</a>
+      <span class="sep" aria-hidden="true">&#9482;</span>
+      <a href="https://github.com/Nano-AI/leetui/blob/main/docs/DESIGN.md">Design system</a>
+      <span class="sep" aria-hidden="true">&#9482;</span>
+      <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">For agents</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* The flip. Six frames at 40ms, shearing through the half-block ramp
+     before settling — the same sequence internal/tui/components/flap.go
+     runs. It is the entire motion budget for this page: when the load
+     sequence finishes, nothing here moves again. */
+
+  var FRAMES = ["▔", "▀", "▚", "▄", "▁"];
+  var FRAME_MS = 40;
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* The app's Display treatment inserts a literal space between every
+     character, because a terminal cannot letterspace. The web can, and
+     .flap-face already does — inserting the spaces as well tracks the
+     text twice and shears "WRONG ANSWER" off the side of its own pane.
+     So the text stays plain here and CSS carries the treatment. */
+  function verdictText(text) {
+    return text.toUpperCase();
+  }
+
+  /* flipTo shears a cell, then settles it on `final` — the exact string
+     to land on, already formatted. The caller decides whether that is a
+     letterspaced verdict or a single glyph, so this never has to guess,
+     and nothing races the value into place behind it.
+
+     Motion is never the only channel carrying information: with motion
+     off the cell settles at once, and every value on this page is
+     already correct in the markup before any of this runs. */
+  function flipTo(el, final, verdict, done) {
+    function settle() {
+      el.textContent = final;
+      el.setAttribute("data-verdict", verdict || "");
+      if (done) { done(); }
+    }
+
+    if (reduced.matches) { settle(); return; }
+
+    var width = Math.max(final.replace(/\s/g, "").length, 1);
+    var i = 0;
+
+    el.setAttribute("data-verdict", "shear");
+    (function step() {
+      if (i === FRAMES.length) { settle(); return; }
+      el.textContent = new Array(width + 1).join(FRAMES[i]);
+      i += 1;
+      setTimeout(step, FRAME_MS);
+    })();
+  }
+
+  /* Letterspace the flaps that are already settled, so the markup stays
+     readable and the treatment lives in one place. */
+  Array.prototype.forEach.call(document.querySelectorAll(".flap"), function (el) {
+    el.textContent = verdictText(el.textContent.trim());
+  });
+
+  /* The load sequence: the state column resolves top to bottom, then one
+     submission goes PENDING -> JUDGING -> ACCEPTED and the board comes
+     to rest. That is the whole motion budget. */
+  function run() {
+    var cells = document.querySelectorAll("[data-flip-state]");
+    Array.prototype.forEach.call(cells, function (cell, n) {
+      var glyph = cell.textContent.trim();
+      if (!reduced.matches) { cell.textContent = "\u00b7"; }
+      setTimeout(function () {
+        flipTo(cell, glyph, null, null);
+      }, reduced.matches ? 0 : 260 + n * 90);
+    });
+
+    var verdict = document.getElementById("verdict");
+    if (!verdict) { return; }
+
+    setTimeout(function () {
+      flipTo(verdict, verdictText("judging"), null, function () {
+        setTimeout(function () {
+          flipTo(verdict, verdictText("accepted"), "ac");
+        }, 900);
+      });
+    }, reduced.matches ? 0 : 1200);
+  }
+
+  if (document.readyState !== "loading") { run(); }
+  else { document.addEventListener("DOMContentLoaded", run); }
+
+  /* Copy. The button says what happens, and then says what happened. */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (btn) {
+    btn.addEventListener("click", function () {
+      var target = document.querySelector(btn.getAttribute("data-copy"));
+      if (!target || !navigator.clipboard) { return; }
+      navigator.clipboard.writeText(target.textContent.trim()).then(function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 2000);
+      }, function () {
+        btn.textContent = "Press ⌘C";
+        setTimeout(function () { btn.textContent = "Copy"; }, 2000);
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

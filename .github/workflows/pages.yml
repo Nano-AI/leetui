@@ -1,0 +1,46 @@
+name: Deploy site
+
+# The landing page in site/ goes to GitHub Pages.
+#
+# Only on changes to the site itself, so a Go-only commit does not spend a
+# deploy. workflow_dispatch stays for republishing without an edit.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+# Read-only on the repo; the deploy is authorised by the Pages OIDC token
+# rather than by a checked-in secret.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One live deploy at a time. In-progress runs finish rather than being
+# cancelled — a half-published site is worse than a slightly stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # The page is a single self-contained file — no build step, nothing to
+      # install, nothing to go stale.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
