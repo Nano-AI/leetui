@@ -163,6 +163,24 @@ leetui doctor    # what this machine can and cannot do, and how to fix it
 
 ---
 
+## A demo
+
+[`docs/demo.cast`](docs/demo.cast) is an asciinema recording — search, open, reveal tags,
+settings, help:
+
+```sh
+asciinema play docs/demo.cast
+```
+
+It is generated from the real `View()`, driven through the real `Update()`, so it cannot
+drift from the product the way a hand-recorded session does:
+
+```sh
+LEETUI_CAST=1 go test ./internal/tui -run TestRecordCast
+```
+
+---
+
 ## Working on leetui
 
 ```sh

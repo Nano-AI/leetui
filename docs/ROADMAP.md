@@ -261,17 +261,24 @@ The last piece. The page is up; the install story around it is not.
       D-009's pure-Go SQLite being cashed in: every target cross-compiles from one runner
       with no C toolchain. Verified locally on all five before the workflow was written
 - [x] **`--version`**, stamped by the release build
-- [~] **A Homebrew tap** — the formula is written (`packaging/homebrew/leetui.rb`). A tap
-      is its own repository (`Nano-AI/homebrew-tap`), so creating it is a manual step;
-      after the first tag, fill the four sha256 lines from the release's `checksums.txt`
-      and push the formula there
+- [x] **A Homebrew tap, automated** — the formula lives at
+      `packaging/homebrew/leetui.rb`, and the release workflow fills its four sha256
+      lines from the checksums it just computed and pushes it to the tap. Doing that by
+      hand is four copy-pastes per release, which is four chances to ship a formula that
+      will not install. **Two manual steps remain, both one-time:** create
+      `Nano-AI/homebrew-tap`, and set a `HOMEBREW_TAP_TOKEN` secret. Without the secret
+      the step is skipped, so a release never fails on a tap that does not exist yet
 - [x] **LICENSE — MIT**, with `NOTICE` carrying leetgo's. MIT because the vendored
       drivers are MIT and the README already credited them as such, so anything more
       restrictive would have been incompatible with code already in the tree. Easily
       changed before a tag if the owner wants otherwise; nothing depends on it yet
 - [x] **Screenshot** — captured from the real `View()` into the README, so it cannot
       drift from the product. Re-take with `LEETUI_SHOTS=1 go test ./internal/tui`
-- [ ] An asciinema cast — needs a real terminal session to record
+- [x] **An asciinema cast** — `docs/demo.cast`, generated from the real `View()` through
+      the real `Update()`. No TTY was needed: the v2 format is a JSON header and one array
+      per write, and a recorder is only a program that timestamps what a process wrote.
+      Regenerate with `LEETUI_CAST=1 go test ./internal/tui -run TestRecordCast`, so it
+      cannot go stale the way a hand-recorded session does
 
 **Settled 2026-08-06: this repository's site advertises the tool.** The two are different
 projects and they belong in different repositories. A site that *publishes solutions*
