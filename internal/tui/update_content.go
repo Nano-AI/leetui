@@ -30,7 +30,8 @@ func (m Model) handleContentMsg(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, status("Could not load the editorial: "+msg.err.Error(), true)
 		}
-		return m, nil
+		// Editorials are where nearly all the figures are.
+		return m, m.fetchPaneImages()
 
 	case todoMsg:
 		if msg.err == nil {

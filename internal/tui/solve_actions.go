@@ -70,6 +70,8 @@ func (m Model) startRun() (tea.Model, tea.Cmd) {
 	if m.running {
 		return m, status("Already running.", false)
 	}
+	// And running claims it back.
+	m.queueOnTop = false
 
 	if !m.engine.Supports(lang) {
 		hint := fmt.Sprintf("%s has no local runner. Press s to submit instead.", lang.Display)
@@ -98,6 +100,9 @@ func (m Model) startSubmit() (tea.Model, tea.Cmd) {
 	}
 
 	m.enterProblem()
+	// The pane now belongs to the queue: the user asked for a verdict, and a run
+	// result from a minute ago would sit on top of it and look like nothing happened.
+	m.queueOnTop = true
 
 	flap := components.NewFlap(m.nextFlapID, theme.Display(theme.Pending.Text()), theme.Amber)
 	m.nextFlapID++

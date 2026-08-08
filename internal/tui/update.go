@@ -83,7 +83,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.detail, m.detailMD, m.detailImages = msg.detail, msg.markdown, msg.images
 		m.detailScroll = 0
-		return m, nil
+		return m, m.fetchPaneImages()
 
 	case detailFetchMsg:
 		// Stale: the cursor moved on while this was queued.
@@ -137,6 +137,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.username, m.premium = msg.status.Username, msg.status.IsPremium
 		return m, nil
+
+	case imageLoadedMsg:
+		return m.handleImageLoaded(msg)
 
 	case gitLoadedMsg:
 		m.git = msg.pane

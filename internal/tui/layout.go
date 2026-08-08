@@ -103,8 +103,10 @@ func (m Model) View() string {
 	sections = append(sections, m.viewHints())
 
 	// The toast goes on last, over a finished frame, so it can never disturb the layout
-	// underneath it.
-	return m.withToast(lipgloss.JoinVertical(lipgloss.Left, sections...))
+	// underneath it. Figures go after even that, for the same reason and one more: they
+	// are placed by locating their marker in the COMPOSED output, so everything that
+	// could still move a marker has to have happened already.
+	return m.withImages(m.withToast(lipgloss.JoinVertical(lipgloss.Left, sections...)))
 }
 
 // viewBody draws the screen for the current mode.
@@ -162,9 +164,12 @@ func (m Model) detailSize() (w, h int) {
 // which is the one thing leetui must say out loud when the editing happens somewhere else
 // entirely (see workbench.go).
 //
-// Below it, a fresh local run displaces the submission queue: the run is what the user
-// just asked for and is looking at; the queue is history. A result belonging to another
-// problem is not shown at all — see hasResult.
+// Below it, whichever of the two the user asked for MOST RECENTLY.
+//
+// The rule used to be "a local run always wins", which is right until you submit: the
+// run result stayed on screen, the submission landed in a queue nobody could see, and
+// pressing s looked like it had done nothing at all. Now `r` claims the pane and `s`
+// claims it back, so the answer on screen is always the question just asked.
 func (m Model) viewSidePane(w, h int) string {
 	bench := m.viewWorkbench(w)
 	rest := h - workbenchHeight
@@ -172,14 +177,14 @@ func (m Model) viewSidePane(w, h int) string {
 	// Too short to carry both: the path matters more than the history, but a pane with
 	// nothing under it is worse than no strip at all.
 	if rest < 3 {
-		if m.hasResult() {
+		if m.showRun() {
 			return m.viewResult(w, h)
 		}
 		return m.viewQueue(w, h)
 	}
 
 	body := m.viewQueue(w, rest)
-	if m.hasResult() {
+	if m.showRun() {
 		body = m.viewResult(w, rest)
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, bench, body)

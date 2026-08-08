@@ -74,3 +74,32 @@ func TestLocalRunJudgesTheCases(t *testing.T) {
 		})
 	}
 }
+
+// TestSubmitShowsTheQueueOverAStaleRun is the reported bug: after running locally,
+// pressing submit appeared to do nothing. The side pane preferred any existing run
+// result unconditionally, so the verdict landed in a queue that was never drawn.
+func TestSubmitShowsTheQueueOverAStaleRun(t *testing.T) {
+	m := boot(t, true, 120, 34)
+	m = drive(t, m, key("enter"))
+
+	// A local run has happened and its result is on screen.
+	m.runSlug = m.rows[m.cursor].Slug
+	m.runResult = &runner.Result{Cases: []runner.CaseResult{
+		{Judged: true, Passed: true, Actual: "3"},
+	}}
+	if !m.showRun() {
+		t.Fatal("a fresh run result should own the pane")
+	}
+
+	// Submitting claims the pane, even though the run result is still there.
+	m.queueOnTop = true
+	if m.showRun() {
+		t.Error("the run result still covers the pane after submitting")
+	}
+
+	// And running claims it back.
+	m.queueOnTop = false
+	if !m.showRun() {
+		t.Error("running did not take the pane back")
+	}
+}

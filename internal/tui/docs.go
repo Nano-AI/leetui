@@ -53,6 +53,7 @@ func docSections() []docSection {
 				{"d", "the official editorial"},
 				{"o", "open it on leetcode.com"},
 				{"1-9", "open figure N in your browser"},
+				{":set ui.inline_images true", "draw figures in the pane"},
 				{"", "search by tag still works"},
 			},
 		},

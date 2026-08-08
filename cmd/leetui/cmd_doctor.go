@@ -105,8 +105,9 @@ func reportGraphics(w io.Writer) int {
 	fmt.Fprintf(w, "  %-14s %s\n", "protocol", g.Protocol)
 
 	if !g.Blocked {
-		fmt.Fprintf(w, "  %-14s ok — leetui image <problem> [n]\n", "images")
-		fmt.Fprintf(w, "  %-14s inside the app, 1-9 opens a figure in your browser\n", "")
+		fmt.Fprintf(w, "  %-14s ok\n", "images")
+		fmt.Fprintf(w, "  %-14s draw them in the app:  :set ui.inline_images true\n", "")
+		fmt.Fprintf(w, "  %-14s or one at a time:      leetui image <problem> [n]\n", "")
 		return 0
 	}
 

@@ -92,6 +92,11 @@ var settings = []Setting{
 		Set: setBool(func(c *Config, v bool) { c.UI.ShowHints = v }),
 	},
 	{
+		Key: "ui.inline_images", Help: "draw figures in the pane, not just a marker", Kind: KindBool,
+		Get: func(c *Config) string { return boolStr(c.UI.InlineImages) },
+		Set: setBool(func(c *Config, v bool) { c.UI.InlineImages = v }),
+	},
+	{
 		Key: "ui.ascii", Help: "draw with ASCII instead of box-drawing characters", Kind: KindBool,
 		Get: func(c *Config) string { return boolStr(c.UI.ASCII) },
 		Set: setBool(func(c *Config, v bool) { c.UI.ASCII = v }),

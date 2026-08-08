@@ -107,6 +107,11 @@ type Model struct {
 	// slug/lang, so a save can be told apart from a first sighting.
 	watched map[string]time.Time
 
+	// queueOnTop makes the side pane show submissions rather than the local run.
+	// Set by submitting and cleared by running, so the pane shows whichever the user
+	// asked for last rather than letting a stale run result hide a live verdict.
+	queueOnTop bool
+
 	// Submission queue.
 	queue      []queueItem
 	nextFlapID int
@@ -143,6 +148,13 @@ type Model struct {
 	settingsIdx int
 	helpScroll  int
 	docsScroll  int
+
+	// Inline figures (D-007, finally wired). graphics is decided once at startup;
+	// images caches what has been fetched and uploaded, keyed by URL so a figure
+	// shared between the statement and the editorial is transmitted once.
+	graphics    config.Graphics
+	images      map[string]*imageState
+	nextImageID int
 
 	// git is the repository view's state (D-011). Read on demand rather than kept
 	// current: a status refresh per keystroke would take the index lock away from
@@ -228,6 +240,8 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 
 	return Model{
 		engine:        runner.NewLocal(),
+		graphics:      detectGraphics(),
+		images:        map[string]*imageState{},
 		lang:          lang,
 		cfg:           cfg,
 		store:         st,

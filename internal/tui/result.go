@@ -25,6 +25,12 @@ import (
 //
 // A result from another problem is worse than none — it invites reading the wrong
 // failure — so it is shown only when the slugs agree.
+// showRun reports whether the side pane belongs to the local run rather than the queue.
+//
+// A result has to EXIST and be the more recent of the two. Existence alone was the old
+// rule, and it meant a submission could never be seen once anything had been run.
+func (m Model) showRun() bool { return m.hasResult() && !m.queueOnTop }
+
 func (m Model) hasResult() bool {
 	return m.runResult != nil && m.runSlug != "" &&
 		m.cursor < len(m.rows) && m.rows[m.cursor].Slug == m.runSlug

@@ -149,3 +149,52 @@ func splitEscapes(seq string) []string {
 	}
 	return out
 }
+
+// Transmit once, place many.
+//
+// Drawing an image in a pane means re-placing it on EVERY frame — the TUI repaints the
+// whole screen on any keypress, and a placement is not part of that text, so it would
+// otherwise vanish or, worse, stay behind while the text under it scrolls away.
+//
+// Sending the pixels each time is out of the question: a statement figure is a few
+// hundred kilobytes and there can be a dozen of them. Kitty separates the two steps —
+// transmit once with an id, then place by that id as often as you like, which costs
+// about forty bytes.
+
+// KittyTransmit sends an image's pixels and stores them under id, without drawing.
+//
+// q=2 suppresses kitty's acknowledgement. Without it the terminal replies on stdin and
+// Bubbletea reads the reply as though the user had typed it.
+func KittyTransmit(id int, png []byte) string {
+	payload := base64.StdEncoding.EncodeToString(png)
+
+	var b strings.Builder
+	for i := 0; i < len(payload); i += KittyChunk {
+		end := min(i+KittyChunk, len(payload))
+		more := 1
+		if end == len(payload) {
+			more = 0
+		}
+		if i == 0 {
+			// a=t: transmit and stop. f=100: the payload is a PNG.
+			fmt.Fprintf(&b, "\x1b_Ga=t,f=100,i=%d,q=2,m=%d;%s\x1b\\", id, more, payload[i:end])
+			continue
+		}
+		fmt.Fprintf(&b, "\x1b_Gm=%d;%s\x1b\\", more, payload[i:end])
+	}
+	return b.String()
+}
+
+// KittyPlace draws an already-transmitted image at the cursor, in a cols x rows box.
+//
+// C=1 leaves the cursor where it was. Without it the terminal advances past the image
+// and the next thing written lands in the wrong place, which tears the frame.
+func KittyPlace(id, cols, rows int) string {
+	return fmt.Sprintf("\x1b_Ga=p,i=%d,c=%d,r=%d,C=1,q=2\x1b\\", id, cols, rows)
+}
+
+// KittyClear removes every placement, leaving the transmitted pixels in place.
+//
+// Run at the top of each frame. a=d,d=A deletes placements only, so the next frame
+// re-places from memory rather than re-uploading.
+func KittyClear() string { return "\x1b_Ga=d,d=A,q=2\x1b\\" }
