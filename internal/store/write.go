@@ -109,20 +109,49 @@ func (s *Store) SetDetail(ctx context.Context, p *leetcode.Problem) error {
 	}
 	defer tx.Rollback()
 
+	// INSERT-or-update, not UPDATE.
+	//
+	// A plain UPDATE silently matches nothing when the problem has never been through a
+	// list sync, and the snippet insert below then fails its foreign key with
+	// "FOREIGN KEY constraint failed" — a message that names neither the problem nor
+	// the real cause. That is exactly what `leetui todo add <slug>` does on a fresh
+	// database, which is the first thing docs/AGENTS.md tells an agent to run.
+	//
+	// The row is seeded from what the detail query itself returns, so a problem reached
+	// this way is a complete row rather than a stub the board would render blank.
 	_, err = tx.ExecContext(ctx, `
-		UPDATE problems SET
-			question_id       = ?,
-			content           = ?,
-			meta_data         = ?,
-			sample_testcase   = ?,
-			example_testcases = ?,
-			hints             = ?,
-			detail_synced_at  = ?
-		WHERE slug = ?`,
+		INSERT INTO problems (
+			slug, frontend_id, numeric_id, title, difficulty, ac_rate, paid_only,
+			status, has_solution, has_video, synced_at,
+			question_id, content, meta_data, sample_testcase, example_testcases,
+			hints, detail_synced_at
+		) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+		ON CONFLICT(slug) DO UPDATE SET
+			question_id       = excluded.question_id,
+			content           = excluded.content,
+			meta_data         = excluded.meta_data,
+			sample_testcase   = excluded.sample_testcase,
+			example_testcases = excluded.example_testcases,
+			hints             = excluded.hints,
+			detail_synced_at  = excluded.detail_synced_at,
+			-- Only fill these in when the existing row has nothing. A list sync knows
+			-- the user's own status and acceptance rate; the detail query does not
+			-- always, and overwriting a real value with a blank would lose it.
+			title             = CASE WHEN problems.title = '' THEN excluded.title ELSE problems.title END,
+			frontend_id       = CASE WHEN problems.frontend_id = '' THEN excluded.frontend_id ELSE problems.frontend_id END,
+			numeric_id        = CASE WHEN problems.numeric_id = 0 THEN excluded.numeric_id ELSE problems.numeric_id END,
+			difficulty        = CASE WHEN problems.difficulty = '' THEN excluded.difficulty ELSE problems.difficulty END,
+			paid_only         = CASE WHEN problems.synced_at = 0 THEN excluded.paid_only ELSE problems.paid_only END`,
+		// The detail query does not return acceptance rate, the user's status, or
+		// whether a solution exists — those come from the list sync. Zeroes here are
+		// only ever written into a row that did not exist, and the CASE clauses above
+		// stop them landing on one that did.
+		p.Slug, p.FrontendID, p.NumericID(), p.Title, string(p.Difficulty), 0.0,
+		p.PaidOnly, "", false, false, 0,
 		p.QuestionID, p.Content, p.MetaData, p.SampleTestCase, p.ExampleTestcases,
-		strings.Join(p.Hints, "\n\n"), time.Now().Unix(), p.Slug)
+		strings.Join(p.Hints, "\n\n"), time.Now().Unix())
 	if err != nil {
-		return fmt.Errorf("update detail %s: %w", p.Slug, err)
+		return fmt.Errorf("store detail %s: %w", p.Slug, err)
 	}
 
 	for _, sn := range p.Snippets {

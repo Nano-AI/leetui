@@ -131,3 +131,72 @@ func TestMigrateIsIdempotent(t *testing.T) {
 		t.Errorf("count after reopen = %d, %v; want 3", n, err)
 	}
 }
+
+// TestDetailOnAFreshDatabase is the bug a real reset found: `leetui todo add <slug>` on
+// a database that has never been synced failed with
+//
+//	FOREIGN KEY constraint failed
+//
+// which names neither the problem nor the cause. SetDetail used a plain UPDATE, which
+// silently matched nothing when the problem row did not exist, and the snippet insert
+// then had nothing to point at.
+//
+// This is the first thing docs/AGENTS.md tells an agent to run.
+func TestDetailOnAFreshDatabase(t *testing.T) {
+	st := testStore(t) // no UpsertSummaries — nothing has ever been synced
+
+	err := st.SetDetail(context.Background(), &leetcode.Problem{
+		Slug:       "two-sum",
+		FrontendID: "1",
+		QuestionID: "1",
+		Title:      "Two Sum",
+		Difficulty: leetcode.Easy,
+		Content:    "<p>Given an array…</p>",
+		MetaData:   `{"name":"twoSum","params":[],"return":{"type":"integer"}}`,
+		Snippets:   []leetcode.CodeSnippet{{LangSlug: "cpp", Lang: "C++", Code: "class Solution {};"}},
+	})
+	if err != nil {
+		t.Fatalf("SetDetail on an empty database: %v", err)
+	}
+
+	got, err := st.Get(context.Background(), "two-sum")
+	if err != nil || got == nil {
+		t.Fatalf("problem was not stored: %v", err)
+	}
+	// A complete row, not a stub the board would render blank.
+	if got.Title != "Two Sum" || got.NumericID != 1 || got.Difficulty != "Easy" {
+		t.Errorf("row is incomplete: %+v", got)
+	}
+	if got.Snippets["cpp"] == "" {
+		t.Error("the snippet was not stored")
+	}
+}
+
+// A later list sync must not be overwritten by a detail fetch, and vice versa: the two
+// know different things about the same problem.
+func TestDetailDoesNotClobberListData(t *testing.T) {
+	ctx := context.Background()
+	st := testStore(t)
+
+	if err := st.UpsertSummaries(ctx, []leetcode.ProblemSummary{{
+		FrontendID: "1", Slug: "two-sum", Title: "Two Sum",
+		Difficulty: leetcode.Easy, AcRate: 57.9, Status: leetcode.StatusAccepted,
+	}}); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := st.SetDetail(ctx, &leetcode.Problem{
+		Slug: "two-sum", QuestionID: "1", Title: "Two Sum",
+		Content: "<p>body</p>",
+	}); err != nil {
+		t.Fatalf("SetDetail: %v", err)
+	}
+
+	got, _ := st.Get(ctx, "two-sum")
+	if got.AcRate != 57.9 {
+		t.Errorf("acceptance rate was clobbered: %v", got.AcRate)
+	}
+	if got.Status != "ac" {
+		t.Errorf("the user's own status was clobbered: %q", got.Status)
+	}
+}
