@@ -43,7 +43,11 @@
   --hinge: #2A2D36;   /* the seam — every rule and border; also the cursor row */
   --amber: #E8A33D;   /* the system's voice */
   --bone:  #E6E3DA;   /* content */
-  --dim:   #6B7080;   /* secondary */
+  /* Secondary text. The app's token is #6B7080; on the web that is only
+     3.4-3.85:1 on ink/flap, under the 4.5:1 AA floor for body text, so the
+     site lifts it to a legible grey in the same hue. Hairlines and the
+     decorative separators stay on --hinge. */
+  --dim:   #949AAC;   /* secondary */
   --seam:  #08090C;   /* the dark line across a flap's middle */
   --ac:    #4FB477;   /* the judge. spent once. */
 
@@ -233,6 +237,10 @@ kbd {
 .picker-list [role="tab"]:focus-visible { outline-offset: 0; }
 .panel .say { margin-top: .8rem; font-size: .88rem; }
 .js .panel[hidden] { display: none; }
+/* Without JS the tab buttons are inert, so a panel hidden in the markup
+   would be unreachable. Reveal them all — a correct stacked page. The
+   .js rule above re-hides the inactive ones the moment the script runs. */
+html:not(.js) .panel[hidden] { display: block; }
 @media (max-width: 40rem) {
   /* minmax(0,1fr), not 1fr: 1fr is minmax(auto,1fr), and the auto min takes
      the nowrap curl line's min-content (~660px) and blows the track past the
