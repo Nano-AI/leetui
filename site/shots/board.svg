@@ -1,0 +1,551 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1363.2 750.0" width="1363.2" height="750.0" font-family="ui-monospace,'SF Mono',SFMono-Regular,'JetBrains Mono','Cascadia Mono',Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14.0" shape-rendering="crispEdges" role="img">
+<rect width="1363.2" height="750.0" rx="0" fill="#0F1014"/>
+<g shape-rendering="crispEdges">
+<rect x="26.40" y="120.00" width="1310.40" height="17.00" fill="#2a2c36"/>
+<rect x="26.40" y="137.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="171.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="205.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="239.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="273.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="307.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="341.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="375.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="409.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="443.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="477.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="511.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="545.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="579.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="613.00" width="1310.40" height="17.00" fill="#15171d"/>
+<rect x="26.40" y="647.00" width="1310.40" height="17.00" fill="#15171d"/>
+</g>
+<g shape-rendering="geometricPrecision">
+<text x="18.00" y="28.92" fill="#2a2c36" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="18.00" y="45.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="45.92" fill="#e8a33c" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">L E E T U I</text>
+<text x="1059.60" y="45.92" fill="#6b7080" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">⏱ --:--:--</text>
+<text x="1143.60" y="45.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="1168.80" y="45.92" fill="#e8a33c" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">◆ premium</text>
+<text x="1244.40" y="45.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="1269.60" y="45.92" fill="#6b7080" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Nano-AI</text>
+<text x="1336.80" y="45.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="62.92" fill="#2a2c36" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="18.00" y="79.92" fill="#e8a33c" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭─ PROBLEMS ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 500 ─╮</text>
+<text x="18.00" y="96.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="96.92" fill="#6b7080" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">#</text>
+<text x="85.20" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="110.40" y="96.92" fill="#6b7080" textLength="33.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">TODO</text>
+<text x="144.00" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="169.20" y="96.92" fill="#6b7080" textLength="33.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">MARK</text>
+<text x="202.80" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="96.92" fill="#6b7080" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">PROBLEM</text>
+<text x="992.40" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="96.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">DIF</text>
+<text x="1042.80" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="96.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">ACC</text>
+<text x="1101.60" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1126.80" y="96.92" fill="#6b7080" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">STATE</text>
+<text x="1168.80" y="96.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1194.00" y="96.92" fill="#6b7080" textLength="67.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">ASKED BY</text>
+<text x="1336.80" y="96.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="113.92" fill="#e8a33c" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">├────────┼──────┼──────┼─────────────────────────────────────────────────────────────────────────────────────────────┼─────┼──────┼───────┼──────────────────┤</text>
+<text x="18.00" y="130.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="130.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">▌ 0003</text>
+<text x="85.20" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="130.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="130.92" fill="#e6e3da" textLength="386.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Longest Substring Without Repeating Characters</text>
+<text x="992.40" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="130.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="130.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">40%</text>
+<text x="1101.60" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="130.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="130.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="130.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="147.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="147.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0004</text>
+<text x="85.20" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="147.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="147.92" fill="#e8a33c" textLength="226.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Median of Two Sorted Arrays</text>
+<text x="992.40" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="147.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="147.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">47%</text>
+<text x="1101.60" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="147.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="147.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="147.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="164.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="164.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0023</text>
+<text x="85.20" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="164.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="164.92" fill="#e8a33c" textLength="168.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Merge k Sorted Lists</text>
+<text x="992.40" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="164.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="164.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">60%</text>
+<text x="1101.60" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="164.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="164.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="164.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="181.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="181.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0034</text>
+<text x="85.20" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="181.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="181.92" fill="#e8a33c" textLength="462.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Find First and Last Position of Element in Sorted Array</text>
+<text x="992.40" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="181.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="181.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">49%</text>
+<text x="1101.60" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="181.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="181.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="181.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="198.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="198.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0050</text>
+<text x="85.20" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="198.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="198.92" fill="#e8a33c" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Pow(x, n)</text>
+<text x="992.40" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="198.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="198.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">39%</text>
+<text x="1101.60" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="198.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="198.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="198.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="215.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="215.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0053</text>
+<text x="85.20" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="215.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="215.92" fill="#e8a33c" textLength="134.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Maximum Subarray</text>
+<text x="992.40" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="215.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="215.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">54%</text>
+<text x="1101.60" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="215.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="215.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="215.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="232.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="232.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0056</text>
+<text x="85.20" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="232.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="232.92" fill="#e8a33c" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Merge Intervals</text>
+<text x="992.40" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="232.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="232.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">52%</text>
+<text x="1101.60" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="232.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="232.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="232.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="249.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="249.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0057</text>
+<text x="85.20" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="249.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="249.92" fill="#e8a33c" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Insert Interval</text>
+<text x="992.40" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="249.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="249.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">46%</text>
+<text x="1101.60" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="249.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="249.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="249.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="266.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="266.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0076</text>
+<text x="85.20" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="266.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="266.92" fill="#e8a33c" textLength="201.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Minimum Window Substring</text>
+<text x="992.40" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="266.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="266.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">48%</text>
+<text x="1101.60" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="266.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="266.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="266.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="283.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="283.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0127</text>
+<text x="85.20" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="283.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="283.92" fill="#e8a33c" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Word Ladder</text>
+<text x="992.40" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="283.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="283.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">46%</text>
+<text x="1101.60" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="283.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="283.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="283.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="300.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0134</text>
+<text x="85.20" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="118.80" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">●</text>
+<text x="144.00" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="300.92" fill="#e8a33c" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Gas Station</text>
+<text x="992.40" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="300.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="300.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">48%</text>
+<text x="1101.60" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="300.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="300.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="317.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0136</text>
+<text x="85.20" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="317.92" fill="#e8a33c" textLength="109.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Single Number</text>
+<text x="992.40" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="317.92" fill="#1cbaba" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">ESY</text>
+<text x="1042.80" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="317.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">78%</text>
+<text x="1101.60" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">◐</text>
+<text x="1168.80" y="317.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="334.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="334.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0146</text>
+<text x="85.20" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="334.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="334.92" fill="#e8a33c" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">LRU Cache</text>
+<text x="992.40" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="334.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="334.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">48%</text>
+<text x="1101.60" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="334.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="334.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="334.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="351.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="351.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0210</text>
+<text x="85.20" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="351.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="351.92" fill="#e8a33c" textLength="151.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Course Schedule II</text>
+<text x="992.40" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="351.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="351.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">56%</text>
+<text x="1101.60" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="351.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="351.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="351.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="368.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="368.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0215</text>
+<text x="85.20" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="368.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="368.92" fill="#e8a33c" textLength="260.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Kth Largest Element in an Array</text>
+<text x="992.40" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="368.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="368.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">69%</text>
+<text x="1101.60" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="368.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="368.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="368.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="385.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="385.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0238</text>
+<text x="85.20" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="385.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="385.92" fill="#e8a33c" textLength="235.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Product of Array Except Self</text>
+<text x="992.40" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="385.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="385.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">69%</text>
+<text x="1101.60" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="385.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="385.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="385.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="402.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0274</text>
+<text x="85.20" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="402.92" fill="#e8a33c" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">H-Index</text>
+<text x="992.40" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="402.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="402.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">42%</text>
+<text x="1101.60" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">◐</text>
+<text x="1168.80" y="402.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="419.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="419.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0295</text>
+<text x="85.20" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="419.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="419.92" fill="#e8a33c" textLength="235.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Find Median from Data Stream</text>
+<text x="992.40" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="419.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="419.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">55%</text>
+<text x="1101.60" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="419.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="419.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="419.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="436.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="436.92" fill="#e8a33c" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0322</text>
+<text x="85.20" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="177.60" y="436.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">+</text>
+<text x="202.80" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="436.92" fill="#e8a33c" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Coin Change</text>
+<text x="992.40" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="436.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="436.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">49%</text>
+<text x="1101.60" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="436.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="436.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="436.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="453.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="453.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0002</text>
+<text x="85.20" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="453.92" fill="#e6e3da" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Add Two Numbers</text>
+<text x="992.40" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="453.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="453.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">49%</text>
+<text x="1101.60" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="453.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="453.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="453.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="470.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="470.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0005</text>
+<text x="85.20" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="470.92" fill="#e6e3da" textLength="243.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Longest Palindromic Substring</text>
+<text x="992.40" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="470.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="470.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">38%</text>
+<text x="1101.60" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="470.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="470.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="470.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="487.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="487.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0006</text>
+<text x="85.20" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="487.92" fill="#e6e3da" textLength="142.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Zigzag Conversion</text>
+<text x="992.40" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="487.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="487.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">55%</text>
+<text x="1101.60" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1168.80" y="487.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="487.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="504.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="504.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0007</text>
+<text x="85.20" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="504.92" fill="#e6e3da" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Reverse Integer</text>
+<text x="992.40" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="504.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="504.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">32%</text>
+<text x="1101.60" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="504.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="504.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="504.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="521.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="521.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0008</text>
+<text x="85.20" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="521.92" fill="#e6e3da" textLength="201.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">String to Integer (atoi)</text>
+<text x="992.40" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="521.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="521.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">22%</text>
+<text x="1101.60" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="521.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="521.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="521.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="538.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="538.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0010</text>
+<text x="85.20" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="538.92" fill="#e6e3da" textLength="226.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Regular Expression Matching</text>
+<text x="992.40" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="538.92" fill="#f63737" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">HRD</text>
+<text x="1042.80" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="538.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">32%</text>
+<text x="1101.60" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1168.80" y="538.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="538.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="555.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="555.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0011</text>
+<text x="85.20" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="555.92" fill="#e6e3da" textLength="210.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Container With Most Water</text>
+<text x="992.40" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="555.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="555.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">61%</text>
+<text x="1101.60" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="555.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="555.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="555.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="572.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="572.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0015</text>
+<text x="85.20" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="572.92" fill="#e6e3da" textLength="33.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">3Sum</text>
+<text x="992.40" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="572.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="572.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">40%</text>
+<text x="1101.60" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="572.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="572.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="572.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="589.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="589.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0016</text>
+<text x="85.20" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="589.92" fill="#e6e3da" textLength="100.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">3Sum Closest</text>
+<text x="992.40" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="589.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="589.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">49%</text>
+<text x="1101.60" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1168.80" y="589.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="589.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="606.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="606.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0017</text>
+<text x="85.20" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="606.92" fill="#e6e3da" textLength="310.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Letter Combinations of a Phone Number</text>
+<text x="992.40" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="606.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="606.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">67%</text>
+<text x="1101.60" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="606.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="606.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="606.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="623.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="623.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0018</text>
+<text x="85.20" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="623.92" fill="#e6e3da" textLength="33.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">4Sum</text>
+<text x="992.40" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="623.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="623.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">41%</text>
+<text x="1101.60" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1168.80" y="623.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="623.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="640.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="640.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0019</text>
+<text x="85.20" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="640.92" fill="#e6e3da" textLength="268.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Remove Nth Node From End of List</text>
+<text x="992.40" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="640.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="640.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">52%</text>
+<text x="1101.60" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="640.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="640.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="640.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="657.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="657.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0022</text>
+<text x="85.20" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="657.92" fill="#e6e3da" textLength="168.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Generate Parentheses</text>
+<text x="992.40" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="657.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="657.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">79%</text>
+<text x="1101.60" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1143.60" y="657.92" fill="#e6e3da" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">✓</text>
+<text x="1168.80" y="657.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="657.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="674.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="674.92" fill="#6b7080" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  0024</text>
+<text x="85.20" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="144.00" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="202.80" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="228.00" y="674.92" fill="#e6e3da" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Swap Nodes in Pairs</text>
+<text x="992.40" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1017.60" y="674.92" fill="#ffb700" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">MED</text>
+<text x="1042.80" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1068.00" y="674.92" fill="#6b7080" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">70%</text>
+<text x="1101.60" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1168.80" y="674.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> │ </text>
+<text x="1336.80" y="674.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="691.92" fill="#e8a33c" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰────────┴──────┴──────┴─────────────────────────────────────────────────────────────────────────────────────────────┴─────┴──────┴───────┴──────────────────╯</text>
+<text x="18.00" y="725.92" fill="#6b7080" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> enter open</text>
+<text x="110.40" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="135.60" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">m mark</text>
+<text x="186.00" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="211.20" y="725.92" fill="#E6E3DA" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">M my list</text>
+<text x="286.80" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="312.00" y="725.92" fill="#E6E3DA" textLength="67.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">/ search</text>
+<text x="379.20" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="404.40" y="725.92" fill="#E6E3DA" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">P plans</text>
+<text x="463.20" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="488.40" y="725.92" fill="#E6E3DA" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">c companies</text>
+<text x="580.80" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="606.00" y="725.92" fill="#E6E3DA" textLength="134.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">1·2·3 difficulty</text>
+<text x="740.40" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="765.60" y="725.92" fill="#E6E3DA" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">u unsolved</text>
+<text x="849.60" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="874.80" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">S sync</text>
+<text x="925.20" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="950.40" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">? keys</text>
+<text x="1000.80" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="1026.00" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">q quit</text>
+</g></svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 573.6 172.0" width="573.6" height="172.0" font-family="ui-monospace,'SF Mono',SFMono-Regular,'JetBrains Mono','Cascadia Mono',Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14.0" shape-rendering="crispEdges" role="img">
+<rect width="573.6" height="172.0" rx="0" fill="#0F1014"/>
+<g shape-rendering="crispEdges">
+</g>
+<g shape-rendering="geometricPrecision">
+<text x="18.00" y="28.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">case 1  ok     true</text>
+<text x="18.00" y="45.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">case 2  ok     true</text>
+<text x="18.00" y="62.92" fill="#E6E3DA" textLength="168.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">case 3  ok     false</text>
+<text x="18.00" y="79.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">case 4  ok     true</text>
+<text x="18.00" y="96.92" fill="#E6E3DA" textLength="168.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">case 5  ok     false</text>
+<text x="18.00" y="130.92" fill="#E6E3DA" textLength="537.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">All 5 cases passed. Submit with: leetui submit valid-parentheses</text>
+<text x="18.00" y="147.92" fill="#E6E3DA" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">$</text>
+</g></svg>

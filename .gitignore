@@ -19,3 +19,7 @@
 *.swp
 .idea/
 .vscode/
+
+# Python bytecode cache (site/tools/)
+__pycache__/
+*.pyc

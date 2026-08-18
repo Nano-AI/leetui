@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 666.0 512.0" width="666.0" height="512.0" font-family="ui-monospace,'SF Mono',SFMono-Regular,'JetBrains Mono','Cascadia Mono',Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14.0" shape-rendering="crispEdges" role="img">
+<rect width="666.0" height="512.0" rx="0" fill="#0F1014"/>
+<g shape-rendering="crispEdges">
+</g>
+<g shape-rendering="geometricPrecision">
+<text x="18.00" y="28.92" fill="#E6E3DA" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">$ leetui doctor</text>
+<text x="18.00" y="45.92" fill="#E6E3DA" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">workspace</text>
+<text x="18.00" y="62.92" fill="#E6E3DA" textLength="352.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  path           /Users/you/leetcode</text>
+<text x="18.00" y="96.92" fill="#E6E3DA" textLength="109.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">local runners</text>
+<text x="18.00" y="113.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  C++            ok</text>
+<text x="18.00" y="130.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  Go             ok</text>
+<text x="18.00" y="147.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  JavaScript     ok</text>
+<text x="18.00" y="164.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  Python3        ok</text>
+<text x="18.00" y="181.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  TypeScript     ok</text>
+<text x="18.00" y="215.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">editor</text>
+<text x="18.00" y="232.92" fill="#E6E3DA" textLength="193.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  editor         Neovim</text>
+<text x="18.00" y="249.92" fill="#E6E3DA" textLength="436.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  splitter       tmux — e opens a pane beside leetui</text>
+<text x="18.00" y="283.92" fill="#E6E3DA" textLength="109.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">inline images</text>
+<text x="18.00" y="300.92" fill="#E6E3DA" textLength="184.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  terminal       kitty</text>
+<text x="18.00" y="317.92" fill="#E6E3DA" textLength="184.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  protocol       kitty</text>
+<text x="18.00" y="334.92" fill="#E6E3DA" textLength="159.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  images         ok</text>
+<text x="18.00" y="351.92" fill="#E6E3DA" textLength="554.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">                 draw them in the app:  :set ui.inline_images true</text>
+<text x="18.00" y="368.92" fill="#E6E3DA" textLength="554.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">                 or one at a time:      leetui image &lt;problem&gt; [n]</text>
+<text x="18.00" y="402.92" fill="#E6E3DA" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">tracing</text>
+<text x="18.00" y="419.92" fill="#E6E3DA" textLength="613.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">  debug log      off — leetui --debug, or LEETUI_DEBUG=1 for a subcommand</text>
+<text x="18.00" y="436.92" fill="#E6E3DA" textLength="630.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">                 credentials are redacted; it is safe to attach to a report</text>
+<text x="18.00" y="470.92" fill="#E6E3DA" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Nothing to fix.</text>
+<text x="18.00" y="487.92" fill="#E6E3DA" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">$</text>
+</g></svg>

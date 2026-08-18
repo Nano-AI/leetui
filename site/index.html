@@ -4,519 +4,352 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>leetui — a terminal client for LeetCode</title>
-<meta name="description" content="Browse, search, solve, run and submit LeetCode problems without leaving the terminal. Full premium parity, offline search, and your solutions in git.">
+<meta name="description" content="Solve LeetCode without leaving the terminal. All 4,013 problems live on your own disk, so search answers while you type.">
 <meta name="color-scheme" content="dark">
-
+<meta name="theme-color" content="#0F1014">
 <meta property="og:title" content="leetui — a terminal client for LeetCode">
-<meta property="og:description" content="A submission queue is a departure board. Browse, solve, run and submit without leaving the terminal.">
+<meta property="og:description" content="Solve LeetCode without leaving the terminal. All 4,013 problems live on your own disk, so search answers while you type.">
 <meta property="og:type" content="website">
-
+<meta property="og:image" content="https://nano-ai.github.io/leetui/shots/board.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://nano-ai.github.io/leetui/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='5' fill='%230F1014'/><rect x='4' y='9' width='24' height='14' rx='2' fill='%231B1D24'/><rect x='4' y='15.4' width='24' height='1.2' fill='%232A2D36'/><rect x='7' y='12' width='6' height='2.4' fill='%23E8A33D'/><rect x='15' y='12' width='10' height='2.4' fill='%23E8A33D'/><rect x='7' y='17.6' width='11' height='2.4' fill='%23E6E3DA'/></svg>">
 
 <style>
-/* ------------------------------------------------------------------
-   leetui — Departure Board, on the web.
+/* ==================================================================
+   leetui — the page is a leetui screen.
 
-   Every value here comes from docs/DESIGN.md. Amber is the system
-   speaking, bone is content, and green belongs to the judge alone:
-   #4FB477 appears exactly once on this page, on the verdict that
-   flips. If a colour is not in this block, it does not belong.
-   ------------------------------------------------------------------ */
+   Not a page about the program with screenshots in windows: a page
+   drawn with the program's own parts. Every structural element here
+   is one leetui already has, in the same tokens (docs/DESIGN.md,
+   internal/tui/theme/tokens.go):
+
+     the rail        the sticky header — L E E T U I, version, platforms
+     a frame         every section — title in the border, meta on the right,
+                     amber when it has focus, hinge when it does not
+     the picker      the install methods — cursor row, ▌, ↑↓ / j k / enter
+     the hint bar    the nav — and the keys on it work
+     the flap        the headline is a departure-board row that rolls in;
+                     the counters and the verdict use the same fixture
+
+   One typeface, because a terminal has one. Hierarchy comes from what
+   the app uses: case, colour, weight, and the flap.
+   ================================================================== */
 
 :root {
-  --ink:   #0F1014;
-  --flap:  #1B1D24;
-  --hinge: #2A2D36;
-  --amber: #E8A33D;
-  --bone:  #E6E3DA;
-  --dim:   #6B7080;
-
-  --band:  #15171D;
-
-  --ac:  #4FB477;
-  --esy: #1CBABA;
-  --med: #FFB700;
-  --hrd: #F63737;
+  --ink:   #0F1014;   /* page base — the board's shadow box */
+  --flap:  #1B1D24;   /* flap face — panels, inputs, rows */
+  --band:  #15171D;   /* every other row, one step off ink */
+  --hinge: #2A2D36;   /* the seam — every rule and border; also the cursor row */
+  --amber: #E8A33D;   /* the system's voice */
+  --bone:  #E6E3DA;   /* content */
+  --dim:   #6B7080;   /* secondary */
+  --seam:  #08090C;   /* the dark line across a flap's middle */
+  --ac:    #4FB477;   /* the judge. spent once. */
 
   --mono: ui-monospace, "SF Mono", SFMono-Regular, "Cascadia Mono",
-          "Roboto Mono", Menlo, Consolas, "Liberation Mono", monospace;
+          "JetBrains Mono", Menlo, Consolas, monospace;
 
-  --gutter: clamp(1rem, 4vw, 2.5rem);
-  --pane-gap: clamp(1.5rem, 4vw, 2.75rem);
+  --gutter:  clamp(1rem, 3.5vw, 2.5rem);
+  --measure: 76rem;
+  --gap:     clamp(1.4rem, 2.8vw, 2.1rem);   /* between frames */
+  --rail-h:  3rem;
+  --bar-h:   2.75rem;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-
-html { -webkit-text-size-adjust: 100%; }
-
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* A frame's title hangs half a line above its border, and the rail is
+     sticky; land anchors clear of both. */
+  scroll-padding-top: calc(var(--rail-h) + 1.4rem);
+}
 body {
   margin: 0;
   background: var(--ink);
   color: var(--bone);
   font-family: var(--mono);
-  font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
-  line-height: 1.65;
+  font-size: .94rem;
+  line-height: 1.6;
   font-variant-ligatures: none;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* The three treatments. One family; hierarchy is weight, case, colour,
-   indentation — in that order, same as the app. ------------------- */
-
-.flap-face {
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.32em;
-  /* Trailing tracking would push the glyph off its own centre. */
-  margin-right: -0.32em;
-}
-
-.utility {
-  text-transform: uppercase;
-  color: var(--dim);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-}
-
-.body-text { color: var(--bone); }
-.meta { color: var(--dim); }
-
-a {
-  color: var(--amber);
-  text-decoration-color: var(--hinge);
-  text-underline-offset: 0.25em;
-}
+a { color: var(--amber); text-decoration-color: color-mix(in srgb, var(--amber) 35%, transparent); text-underline-offset: .22em; }
 a:hover { text-decoration-color: var(--amber); }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 2px; }
+code { font-family: inherit; color: var(--bone); }
+p { margin: 0; }
+.say { color: var(--dim); max-width: 62ch; }
+.say code, code.i { color: var(--bone); }
 
-:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 3px;
-  border-radius: 2px;
+.skip { position: absolute; left: -9999px; top: 0; padding: .6rem 1rem; background: var(--flap); z-index: 40; }
+.skip:focus { left: .5rem; top: .5rem; }
+
+kbd {
+  font-family: inherit; font-size: .84em;
+  background: var(--flap); border: 1px solid var(--hinge);
+  border-bottom-width: 2px; border-radius: 3px;
+  padding: .02em .38em; color: var(--amber);
 }
 
-.skip {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  padding: 0.6rem 1rem;
-  background: var(--flap);
-  z-index: 10;
-}
-.skip:focus { left: 0.5rem; top: 0.5rem; }
+.wrap { width: min(var(--measure), 100% - var(--gutter) * 2); margin-inline: auto; }
 
-/* Layout ---------------------------------------------------------- */
-
-.wrap {
-  width: min(72rem, 100% - var(--gutter) * 2);
-  margin-inline: auto;
-}
-
-.stack > * + * { margin-top: var(--pane-gap); }
-
-/* The pane. A board housing is a moulded object, not a cut sheet —
-   hence the radius. The title is notched into the top rule, which is
-   what ╭─ PROBLEMS ─╮ does in the terminal. ----------------------- */
-
-.pane {
-  border: 1px solid var(--hinge);
-  border-radius: 6px;
-  background: var(--ink);
-  position: relative;
-}
-
-/* The frame's top rule, exactly as the terminal draws it:
-   ╭─ PROBLEMS ──────────────────── "cache" ┊ 5 ─╮
-
-   Title hard left, note hard right, and the rule running between them.
-   Each label masks the border with its own ink background.
-
-   A zero-height flex line with align-items:center already sits the
-   children ON the border — an extra translateY lifts the whole header
-   clear of the pane, which is what it was doing. */
-.pane-head {
-  display: flex;
-  align-items: center;
-  height: 0;
-  padding: 0 1.15rem;
-}
-
-.pane-title,
-.pane-note {
-  background: var(--ink);
-  padding-inline: 0.5rem;
-  flex: none;
-  max-width: 45%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* The note rides the right end of the rule, never beside the title. */
-.pane-note { margin-left: auto; }
-
-.pane-body { padding: 0.35rem 1.15rem 1.35rem; }
-
-/* Rail ------------------------------------------------------------ */
+/* ---- The rail --------------------------------------------------- */
 
 .rail {
-  border-bottom: 1px solid var(--hinge);
+  position: sticky; top: 0; z-index: 30;
+  height: var(--rail-h);
   background: var(--ink);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
-.rail-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: 0.85rem;
-}
-
-.wordmark {
-  color: var(--amber);
-  font-size: 0.95rem;
-  text-decoration: none;
-}
-.wordmark:hover { text-decoration: none; }
-
-.rail-right {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-width: 0;
-}
-
-.sep { color: var(--hinge); }
-
-/* Hero ------------------------------------------------------------ */
-
-.hero { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(2rem, 5vw, 3rem); }
-
-/* The panels are different heights, so without a floor the board below jumps
-   every time you switch method. Reserving the tallest keeps the page still —
-   a control that moves the thing under it reads as a glitch. */
-.hero .tab-panel { min-height: 8.5rem; }
-@media (max-width: 40rem) { .hero .tab-panel { min-height: 11rem; } }
-
-.thesis {
-  font-size: clamp(1.5rem, 1.1rem + 2.1vw, 2.6rem);
-  line-height: 1.22;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  max-width: 22ch;
-  letter-spacing: -0.01em;
-}
-.thesis .said { color: var(--amber); }
-
-.lede {
-  margin: 0 0 1.75rem;
-  max-width: 58ch;
-  color: var(--bone);
-}
-
-/* The install line is a terminal line, so it looks like one.
-   Only the command scrolls. The button is pinned outside that region —
-   inside it, a narrow screen scrolls Copy out of reach and the control
-   is simply gone. */
-.command {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  border: 1px solid var(--hinge);
-  border-radius: 4px;
-  background: var(--flap);
-  padding: 0.6rem 0.85rem;
-  max-width: 100%;
-}
-.command-line {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-.command .prompt { color: var(--amber); flex: none; }
-.command code { white-space: nowrap; color: var(--bone); }
-
-.copy-btn {
-  font: inherit;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--dim);
-  background: none;
-  border: 0;
-  border-left: 1px solid var(--hinge);
-  padding: 0.15rem 0 0.15rem 0.7rem;
-  margin-left: 0.15rem;
-  cursor: pointer;
-  flex: none;
-}
-.copy-btn:hover { color: var(--amber); }
-
-/* The board ------------------------------------------------------- */
-
-.boards {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--pane-gap);
-}
-@media (min-width: 62rem) {
-  .boards { grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); }
-}
-
-.grid {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-  table-layout: fixed;
-}
-
-.grid th {
-  text-align: left;
-  font-weight: 400;
-  padding: 0.15rem 0.6rem 0.5rem;
   border-bottom: 1px solid var(--hinge);
 }
-
-.grid td {
-  padding: 0.4rem 0.6rem;
-  border-right: 1px solid var(--hinge);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.rail-in { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.wordmark {
+  color: var(--amber); text-decoration: none;
+  font-weight: 700; font-size: .84rem;
+  text-transform: uppercase; letter-spacing: .44em;   /* L E E T U I */
 }
-.grid th { border-right: 1px solid var(--hinge); }
-.grid th:last-child, .grid td:last-child { border-right: 0; }
+.rail-meta { display: flex; align-items: center; font-size: .76rem; color: var(--dim); white-space: nowrap; }
+.rail-meta a { color: var(--dim); text-decoration: none; }
+.rail-meta a:hover { color: var(--bone); }
+.sep { color: var(--hinge); padding-inline: .7em; }
+@media (max-width: 40rem) { .rail-meta .narrow-hide { display: none; } }
 
-/* Banded rows. Doing their job when never noticed — only that the row
-   you are reading stays together. */
-.grid tbody tr:nth-child(even) { background: var(--band); }
-.grid tbody tr.is-cursor { background: var(--hinge); }
+/* ---- A frame ---------------------------------------------------------
+   components.Frame, in CSS: a hairline box with its title cut into the
+   top border and a note on the right. Focused frames go amber, the way
+   the app's do; here focus follows the reader — the frame crossing the
+   middle of the viewport is the one with focus. ------------------------ */
 
-.col-id    { width: 5.2rem; }
-.col-dif   { width: 3.6rem; }
-.col-acc   { width: 4rem; }
-.col-state { width: 4.2rem; }
-
-.cell-id { color: var(--dim); }
-.is-cursor .cell-id { color: var(--bone); }
-
-/* The selection bar costs no width and disturbs no alignment. */
-.cursor-bar {
-  color: var(--amber);
-  margin-right: 0.3rem;
+.frame {
+  position: relative;
+  border: 1px solid var(--hinge);
+  border-radius: 5px;
+  padding: 1.15rem 1.15rem 1.2rem;
+  margin-top: var(--gap);
+  transition: border-color .25s ease;
 }
-.cursor-bar[data-off] { color: transparent; }
-
-.dif { font-weight: 700; }
-.dif-esy { color: var(--esy); }
-.dif-med { color: var(--med); }
-.dif-hrd { color: var(--hrd); }
-
-.state { text-align: center; color: var(--bone); }
-.state[data-locked] { color: var(--dim); }
-
-/* Submissions + the flip ------------------------------------------ */
-
-.subs { display: grid; gap: 0.55rem; font-size: 0.78rem; }
-
-.sub-row {
-  display: grid;
-  grid-template-columns: 2.8rem 3.9rem minmax(0, 1fr);
-  align-items: center;
-  gap: 0.5rem;
+.frame-head {
+  position: absolute; top: -.6em; left: .9rem; right: .9rem;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  line-height: 1.2; pointer-events: none;
 }
+.frame-title, .frame-meta {
+  margin: 0; background: var(--ink); padding-inline: .5em;
+  font-weight: 400; font-size: .72rem; text-transform: uppercase; letter-spacing: .14em;
+  pointer-events: auto; white-space: nowrap;
+}
+.frame-title { color: var(--bone); transition: color .25s ease; }
+.frame-title kbd { margin-right: .35em; font-size: 1em; padding: 0 .4em; letter-spacing: 0; vertical-align: 0; }
+.frame-meta { color: var(--dim); overflow: hidden; text-overflow: ellipsis; }
+.frame.is-focus { border-color: var(--amber); }
+.frame.is-focus .frame-title { color: var(--amber); }
+@media (max-width: 40rem) { .frame-meta { display: none; } }
+
+.frame-lede { margin-bottom: 1rem; }
+.frame-btn { all: unset; cursor: pointer; color: var(--amber); }
+.frame-btn::before { content: "┊ "; color: var(--hinge); }
+.frame-btn:hover { text-decoration: underline; text-underline-offset: .22em; }
+
+/* A capture inside a frame. The SVG is the screen and nothing else;
+   what is inside came out of site/tools/capture.sh. */
+.shot { margin: 0; overflow-x: auto; scrollbar-width: thin; max-width: var(--nat, 100%); }
+.shot img { display: block; width: 100%; height: auto; }
+/* On a narrow screen a 158-column board scaled to fit is a grey smear.
+   Below this width the capture holds a legible size and pans instead,
+   which is what the terminal itself would do. */
+@media (max-width: 46rem) { .shot img { width: auto; min-width: 34rem; max-width: none; } }
+
+/* ---- The headline: a departure-board row ---------------------------
+   The one place the page spends its boldness. Two rows of flap cells
+   that roll in on load, then hold. Under 45rem the cells give way to
+   the same words set plain, and with no script the plain words are all
+   there ever was. ----------------------------------------------------- */
+
+.hero { padding-top: clamp(1.6rem, 4vw, 2.9rem); }
+.board { margin: 0; font-weight: 700; color: var(--bone); font-size: clamp(1.45rem, 3.55vw, 3.2rem); line-height: 1; }
+.board-row { display: flex; gap: 2px; }
+.board-row + .board-row { margin-top: .16em; }
+.board-plain { display: block; font-size: clamp(1.5rem, 5.6vw, 2.3rem); line-height: 1.15; text-transform: uppercase; letter-spacing: .02em; max-width: 24ch; }
+.js .board-plain { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 45rem) {
+  /* .board .board-row (0,2,0) has to outweigh .flaps (0,1,0), which sets
+     inline-flex later in the sheet; a bare .board-row would lose on source
+     order and the rows would never hide. */
+  .board .board-row { display: none; }
+  .js .board-plain { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+}
+.lede { margin-top: 1.1rem; font-size: 1rem; }
+
+/* ---- The flap ------------------------------------------------------
+   In the terminal a flip is five half-block glyphs shearing past each
+   other, because that is every frame a character cell has
+   (internal/tui/components/flap.go). A browser has the other 355
+   degrees, so here the leaf actually falls. Every value is already
+   correct in the markup before a frame runs, so reduced motion loses an
+   animation and no information. -------------------------------------- */
 
 .flap {
-  display: block;
-  min-height: 1.5rem;
-  color: var(--amber);
-  overflow: hidden;
-  text-overflow: clip;
-  white-space: nowrap;
+  --fw: .72em; --fh: 1.12em;
+  position: relative; display: inline-block;
+  width: var(--fw); height: var(--fh);
+  perspective: 300px; background: var(--flap);
+  border-radius: 2px; vertical-align: -.16em;
 }
-.flap[data-verdict="ac"] { color: var(--ac); }
-.flap[data-verdict="shear"] { color: var(--amber); }
+.flap .half, .flap .leaf { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; background: var(--flap); }
+.flap .top, .flap .leaf-t { top: 0; border-radius: 2px 2px 0 0; }
+.flap .bot, .flap .leaf-b { bottom: 0; border-radius: 0 0 2px 2px; }
+.flap i { position: absolute; left: 0; right: 0; height: var(--fh); line-height: var(--fh); text-align: center; font-style: normal; font-weight: inherit; color: inherit; }
+.flap .top i, .flap .leaf-t i { top: 0; }
+.flap .bot i, .flap .leaf-b i { bottom: 0; }
+.flap::after { content: ""; position: absolute; left: 0; right: 0; bottom: 50%; height: 1px; background: var(--seam); z-index: 8; }
+.flap .leaf { z-index: 6; backface-visibility: hidden; }
+.flap .leaf-t { transform-origin: 50% 100%; animation: leaf-fall .11s cubic-bezier(.5,0,.85,.5) forwards; }
+.flap .leaf-b { transform-origin: 50% 0%; transform: rotateX(90deg); animation: leaf-rise .11s .11s cubic-bezier(.2,.6,.4,1) forwards; }
+.flap .leaf::before { content: ""; position: absolute; inset: 0; background: #000; z-index: 2; }
+.flap .leaf-t::before { opacity: 0; animation: shade-in .11s linear forwards; }
+.flap .leaf-b::before { opacity: .6; animation: shade-out .11s .11s linear forwards; }
+@keyframes leaf-fall { to { transform: rotateX(-90deg); } }
+@keyframes leaf-rise { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
+@keyframes shade-in  { to { opacity: .55; } }
+@keyframes shade-out { to { opacity: 0; } }
+.flaps { display: inline-flex; gap: 2px; }
 
-.no-spinner {
-  margin: 1.15rem 0 0;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hinge);
+/* ---- The picker: install methods ---------------------------------
+   viewPicker, in CSS. A list with a cursor row on the left, what the
+   row means on the right. Arrows and j k move it; enter copies. ------ */
+
+.picker { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr); gap: 0 1.4rem; }
+.picker-list { display: flex; flex-direction: column; gap: 2px; border-right: 1px solid var(--hinge); padding-right: .8rem; }
+.picker-list [role="tab"] {
+  all: unset; cursor: pointer; display: flex; align-items: center; gap: .55rem;
+  padding: .28rem .6rem .28rem .5rem; border-radius: 3px;
+  font: inherit; color: var(--bone);
 }
-
-/* Key hint strip -------------------------------------------------- */
-
-.hints {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.9rem;
-  margin-top: 1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hinge);
-}
-.hints span { white-space: nowrap; }
-.hints kbd {
-  font: inherit;
-  color: var(--amber);
-  margin-right: 0.35rem;
-}
-
-/* Prose sections -------------------------------------------------- */
-
-.section-lede {
-  margin: 0.35rem 0 1.4rem;
-  max-width: 62ch;
-  color: var(--bone);
-}
-
-.two-up {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1.5rem var(--pane-gap);
-  /* Otherwise the snippet stretches to the height of the column beside
-     it and ends in a pool of empty flap. */
-  align-items: start;
-}
-@media (min-width: 48rem) {
-  .two-up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-.facts { margin: 0; }
-.facts div + div {
-  margin-top: 0.9rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hinge);
-}
-.facts dt { color: var(--amber); margin-bottom: 0.15rem; }
-.facts dd { margin: 0; color: var(--bone); }
-
-.snippet {
-  margin: 0;
-  padding: 0.9rem 1rem;
-  background: var(--flap);
-  border: 1px solid var(--hinge);
-  border-radius: 4px;
-  overflow-x: auto;
-  font-size: 0.78rem;
-  line-height: 1.7;
-  scrollbar-width: thin;
-}
-.snippet .c { color: var(--dim); }
-.snippet .marker { color: var(--amber); }
-.snippet .k { color: var(--bone); font-weight: 700; }
-/* Amber, not red: an alert is the system speaking, and red is the
-   judge's alone. Same rule the app follows in its status line. */
-.snippet .warn { color: var(--amber); }
-
-.snippet .prompt { color: var(--amber); }
-.snippet .str { color: var(--dim); }
-
-/* Exit codes. A figure and what it means — the figure is the label, so
-   it gets the system's voice and the meaning gets content. */
-.codes { margin: 0; }
-.codes div {
-  display: grid;
-  grid-template-columns: 1.6rem minmax(0, 1fr);
-  gap: 0.6rem;
-  align-items: baseline;
-}
-.codes div + div { margin-top: 0.4rem; }
-.codes dt { color: var(--amber); font-weight: 700; }
-.codes dd { margin: 0; font-size: 0.8rem; }
-
-/* Install methods, as a segmented control.
-   A visitor needs ONE of these, and stacking all three makes them read all
-   three. Three methods is a real choice set, so a control that encodes the
-   choice is structure rather than decoration.
-
-   Quiet on purpose: the split-flap is the page's one bold thing. Active is
-   the system's voice — amber, with the rule under it — and that is all. */
-.tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--hinge);
-  margin-bottom: 1.15rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.tab {
-  font: inherit;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--dim);
-  background: none;
-  border: 0;
-  /* The active rule sits ON the container's border, so switching tabs moves
-     a mark rather than nudging the layout. */
-  border-bottom: 1px solid transparent;
-  margin-bottom: -1px;
-  padding: 0.5rem 0.9rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.tab:hover { color: var(--bone); }
-.tab[aria-selected="true"] {
-  color: var(--amber);
-  border-bottom-color: var(--amber);
-}
-
-/* Without JavaScript every panel stays visible and the control never appears,
-   which is the current page — the enhancement can only ever add. */
-.tabs { display: none; }
-.js .tabs { display: flex; }
-.js .tab-panel[hidden] { display: none; }
-
-/* A file label, the way the terminal titles a pane. */
-.filename { margin: 0 0 0.45rem; }
-
-/* One line under an artifact. If it needs two, the artifact is not
-   showing enough on its own. */
-.caption {
-  margin: 0.7rem 0 0;
-  max-width: 62ch;
-  font-size: 0.8rem;
-}
-
-.langs { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; }
-.langs li { display: flex; gap: 0.75rem; align-items: baseline; }
-.langs .where { color: var(--dim); font-size: 0.78rem; }
-.langs .name { min-width: 6.5rem; }
-
-/* Footer ---------------------------------------------------------- */
-
-.foot {
-  border-top: 1px solid var(--hinge);
-  margin-top: clamp(3rem, 8vw, 5rem);
-  padding-block: 1.5rem clamp(2rem, 5vw, 3rem);
-}
-.foot-inner {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-}
-
-/* Narrow: the app collapses panes rather than truncating mid-glyph,
-   so the board drops its least-load-bearing columns in the same order
-   the TUI does. ---------------------------------------------------- */
+.picker-list [role="tab"]::before { content: "▌"; color: transparent; }
+.picker-list [role="tab"]:hover { background: var(--band); }
+.picker-list [role="tab"][aria-selected="true"] { background: var(--hinge); font-weight: 700; }
+.picker-list [role="tab"][aria-selected="true"]::before { color: var(--amber); }
+.picker-list [role="tab"]:focus-visible { outline-offset: 0; }
+.panel .say { margin-top: .8rem; font-size: .88rem; }
+.js .panel[hidden] { display: none; }
 @media (max-width: 40rem) {
-  .col-acc, .cell-acc { display: none; }
+  /* minmax(0,1fr), not 1fr: 1fr is minmax(auto,1fr), and the auto min takes
+     the nowrap curl line's min-content (~660px) and blows the track past the
+     viewport. The zero min lets .cmd-line's own overflow:auto do the scrolling. */
+  .picker { grid-template-columns: minmax(0, 1fr); }
+  .picker-list { flex-direction: row; flex-wrap: wrap; border-right: 0; border-bottom: 1px solid var(--hinge); padding: 0 0 .7rem; margin-bottom: 1rem; }
 }
-@media (max-width: 22rem) {
-  .col-dif, .cell-dif { display: none; }
-  .sub-row { grid-template-columns: 3.4rem minmax(0, 1fr); }
-  .sub-row .sub-lang { display: none; }
+
+.cmd { display: flex; border: 1px solid var(--hinge); border-radius: 4px; background: var(--flap); overflow: hidden; }
+/* A curl line is longer than any column it will sit in, and a command
+   broken across lines is a command someone copies wrong. So it scrolls,
+   and the far edge fades to say so. */
+.cmd-line {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: .6rem;
+  padding: .8rem 1rem; overflow-x: auto; white-space: nowrap;
+  font-size: .86rem; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent);
+}
+.cmd-line::-webkit-scrollbar { height: 0; }
+.cmd-line .sigil { color: var(--amber); flex: none; }
+.copy {
+  all: unset; cursor: pointer; flex: none;
+  border-left: 1px solid var(--hinge); color: var(--dim);
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .14em;
+  padding-inline: 1rem;
+}
+.copy:hover, .copy:focus-visible { color: var(--amber); }
+
+/* ---- The session ------------------------------------------------- */
+
+.frame-demo { padding: .55rem; }
+.term-view { overflow-x: auto; scrollbar-width: thin; }
+.term-view img { display: block; width: 100%; height: auto; }
+@media (max-width: 46rem) { .term-view img { width: auto; min-width: 34rem; max-width: none; } }
+/* The screen is real text, sized so exactly 120 columns fill the frame
+   whatever monospace font the reader has. */
+.screen {
+  margin: 0; padding: .55rem .8rem;
+  line-height: 1.2; white-space: pre; font-variant-ligatures: none;
+  color: var(--bone); background: var(--ink);
+  width: max-content; min-width: 100%;
+}
+.screen div { height: 1.2em; }
+.screen i { font-style: normal; }
+/* record.py wraps any glyph outside ASCII and the box-drawing block in .g.
+   The mono font may not carry it (⏱ ⟳), a fallback face renders it wider
+   than a cell, and one wide glyph shoves the rest of the line off the
+   grid. Pin it to one column; a wide glyph overflows into the spaces
+   beside it rather than moving them. */
+.screen .g { display: inline-block; width: 1ch; text-align: center; vertical-align: top; }
+.cap { margin-top: .7rem; font-size: .8rem; color: var(--dim); }
+
+/* ---- Counters ---------------------------------------------------- */
+
+.counts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .8rem 0; }
+.counts li { display: flex; align-items: baseline; gap: .7rem; }
+.counts li + li::before { content: "┊"; color: var(--hinge); margin-inline: 1.5rem; }
+.count-n { color: var(--amber); font-weight: 700; font-size: 1.45rem; line-height: 1; }
+.count-n .flap { --fw: .74em; --fh: 1.16em; }
+.count-l { color: var(--dim); }
+@media (max-width: 40rem) { .counts li + li::before { display: none; } .counts { flex-direction: column; } }
+
+/* ---- Two things side by side inside a frame ----------------------- */
+
+.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+@media (max-width: 46rem) { .split { grid-template-columns: 1fr; } }
+
+/* ---- The queue row: the verdict --------------------------------- */
+
+.queue { border: 1px solid var(--hinge); border-radius: 4px; background: var(--flap); padding: .95rem 1.05rem; }
+.queue-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.queue-row .m { font-size: .84rem; color: var(--dim); }
+.verdict { font-weight: 700; font-size: .95rem; letter-spacing: .06em; color: var(--amber); }
+.verdict[data-state="ac"] { color: var(--ac); }
+.verdict .flap { background: #23262f; }
+.queue .say { margin-top: .75rem; font-size: .86rem; }
+
+/* ---- Doc links ---------------------------------------------------- */
+
+.links { margin-top: var(--gap); display: flex; flex-wrap: wrap; gap: .4rem 0; color: var(--dim); font-size: .76rem; }
+.links a { color: var(--dim); text-decoration: none; }
+.links a:hover { color: var(--amber); }
+.links a + a::before { content: "┊"; color: var(--hinge); margin-inline: .9rem; }
+
+/* ---- The hint bar ------------------------------------------------
+   The app's bottom row, doing what it does there: naming the keys. It
+   is the site's nav, it sticks to the bottom on a wide screen, and the
+   keys on it are live. On a narrow screen it is a row of links. ------ */
+
+main { padding-bottom: calc(var(--gap) * 1.2); }
+.bar {
+  position: sticky; bottom: 0; z-index: 30;
+  height: var(--bar-h);
+  background: var(--ink); border-top: 1px solid var(--hinge);
+}
+.bar-in { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.bar-keys { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; font-size: .78rem; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
+.bar-keys::-webkit-scrollbar { height: 0; }
+.bar-keys li + li::before { content: "┊"; color: var(--hinge); margin-inline: .9rem; }
+.bar-keys a { color: var(--dim); text-decoration: none; }
+.bar-keys a:hover, .bar-keys a.is-on { color: var(--bone); }
+.bar-keys b { font-weight: 400; color: var(--bone); margin-right: .45em; }
+.bar-keys a.is-on b { color: var(--amber); }
+.bar-keys .quiet { color: var(--dim); }
+.bar-keys .quiet b { color: var(--dim); }
+.bar-status { font-size: .78rem; color: var(--amber); white-space: nowrap; }
+@media (max-width: 45rem), (hover: none) and (pointer: coarse) {
+  .bar { position: static; height: auto; padding-block: .8rem; }
+  .bar-keys { flex-wrap: wrap; white-space: normal; gap: .5rem 0; }
+  .bar-keys b, .bar-keys .quiet, .bar-status { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .flap .leaf { display: none; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
 </style>
 </head>
@@ -525,513 +358,596 @@ a:hover { text-decoration-color: var(--amber); }
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="rail">
-  <div class="wrap rail-inner">
-    <a class="wordmark flap-face" href="#main">leetui</a>
-    <div class="rail-right utility">
-      <a href="https://github.com/Nano-AI/leetui">GitHub</a>
-    </div>
+  <div class="wrap rail-in">
+    <a class="wordmark" href="#main">leetui</a>
+    <p class="rail-meta">
+      <span>v0.1.0</span>
+      <span class="sep" aria-hidden="true">┊</span>
+      <span class="narrow-hide">macOS · Linux · Windows</span>
+      <span class="sep narrow-hide" aria-hidden="true">┊</span>
+      <a href="https://github.com/Nano-AI/leetui">github</a>
+    </p>
   </div>
 </header>
 
-<main id="main">
+<main id="main" class="wrap">
 
-  <section class="wrap hero">
-    <h1 class="thesis">A submission queue is <span class="said">a departure board</span>.</h1>
-    <p class="lede">
-      A terminal client for LeetCode. 4,013 problems, searchable offline.
-    </p>
-
-    <div class="tabs" role="tablist" aria-label="Install method">
-      <button class="tab" type="button" role="tab" id="tab-script"
-              aria-controls="panel-script" aria-selected="true">Script</button>
-      <button class="tab" type="button" role="tab" id="tab-brew"
-              aria-controls="panel-brew" aria-selected="false" tabindex="-1">Homebrew</button>
-      <button class="tab" type="button" role="tab" id="tab-go"
-              aria-controls="panel-go" aria-selected="false" tabindex="-1">Go</button>
-      <button class="tab" type="button" role="tab" id="tab-binary"
-              aria-controls="panel-binary" aria-selected="false" tabindex="-1">Binary</button>
-    </div>
-
-    <div class="tab-panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script">
-      <div class="command">
-        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-script">curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh</code></span>
-        <button class="copy-btn" type="button" data-copy="#install-cmd-script">Copy</button>
-      </div>
-      <p class="caption meta">
-        Picks the binary for your machine, checks it against the release&rsquo;s own
-        checksums, and puts it somewhere on your PATH.
-        <a href="https://github.com/Nano-AI/leetui/blob/main/install.sh">Read it first</a>
-        &mdash; that goes for every install script, including this one.
-      </p>
-    </div>
-
-    <div class="tab-panel" id="panel-brew" role="tabpanel" aria-labelledby="tab-brew" hidden>
-      <div class="command">
-        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-brew">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
-        <button class="copy-btn" type="button" data-copy="#install-cmd-brew">Copy</button>
-      </div>
-      <p class="caption meta">
-        <code>brew trust</code> is Homebrew&rsquo;s gate on third-party taps.
-      </p>
-    </div>
-
-    <div class="tab-panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" hidden>
-      <div class="command">
-        <span class="command-line"><span class="prompt" aria-hidden="true">$</span><code id="install-cmd-go">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
-        <button class="copy-btn" type="button" data-copy="#install-cmd-go">Copy</button>
-      </div>
-      <p class="caption meta">
-        Go 1.24+. Puts the binary in <code>~/go/bin</code>, which is often not on your
-        PATH &mdash; add it if <code>leetui</code> is not found.
-      </p>
-    </div>
-
-    <div class="tab-panel" id="panel-binary" role="tabpanel" aria-labelledby="tab-binary" hidden>
-      <p class="caption meta" style="margin-top:0">
-        macOS (Apple silicon and Intel), Linux (x86-64 and arm64), and Windows, from
-        <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static
-        file, nothing to install alongside it.
-      </p>
-    </div>
-
-    <p class="caption meta" style="margin-top:1.4rem">
-      <a href="https://github.com/Nano-AI/leetui">Read the source</a>
-    </p>
+  <section class="hero" aria-labelledby="h1">
+    <h1 class="board" id="h1">
+      <span class="board-plain">Solve LeetCode without leaving the terminal.</span>
+      <span class="board-row flaps" data-flap="SOLVE LEETCODE" data-spin data-alpha="letters" data-onload aria-hidden="true"></span>
+      <span class="board-row flaps" data-flap="WITHOUT LEAVING THE TERMINAL" data-spin data-alpha="letters" data-onload aria-hidden="true"></span>
+    </h1>
+    <p class="say lede">All 4,013 problems live on your own disk, so the board answers while you type.</p>
   </section>
 
-  <div class="wrap boards">
-
-    <section class="pane" aria-labelledby="board-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="board-title">Problems</span>
-        <span class="pane-note utility" aria-hidden="true">&ldquo;cache&rdquo; &#9482; 5</span>
+  <section class="frame" id="install" aria-labelledby="t-install">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-install"><kbd>i</kbd>Install</h2>
+      <span class="frame-meta">↑↓ move · enter copy</span>
+    </div>
+    <div class="picker">
+      <div class="picker-list" role="tablist" aria-label="Install method" aria-orientation="vertical">
+        <button type="button" role="tab" id="tab-script" aria-controls="panel-script" aria-selected="true">script</button>
+        <button type="button" role="tab" id="tab-brew"   aria-controls="panel-brew"   aria-selected="false" tabindex="-1">homebrew</button>
+        <button type="button" role="tab" id="tab-go"     aria-controls="panel-go"     aria-selected="false" tabindex="-1">go</button>
+        <button type="button" role="tab" id="tab-binary" aria-controls="panel-binary" aria-selected="false" tabindex="-1">binary</button>
       </div>
-      <div class="pane-body">
-        <table class="grid">
-          <thead>
-            <tr class="utility">
-              <th class="col-id" scope="col">#</th>
-              <th scope="col">Problem</th>
-              <th class="col-dif" scope="col">Dif</th>
-              <th class="col-acc" scope="col">Acc</th>
-              <th class="col-state" scope="col">State</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="is-cursor">
-              <td class="cell-id"><span class="cursor-bar" aria-hidden="true">&#9612;</span>0146</td>
-              <td>LRU Cache</td>
-              <td class="cell-dif dif dif-med">MED</td>
-              <td class="cell-acc">43%</td>
-              <td class="state" data-flip-state>&#10003;</td>
-            </tr>
-            <tr>
-              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0460</td>
-              <td>LFU Cache</td>
-              <td class="cell-dif dif dif-hrd">HRD</td>
-              <td class="cell-acc">44%</td>
-              <td class="state" data-flip-state>&#9680;</td>
-            </tr>
-            <tr>
-              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0208</td>
-              <td>Implement Trie</td>
-              <td class="cell-dif dif dif-med">MED</td>
-              <td class="cell-acc">67%</td>
-              <td class="state" data-flip-state>&#10003;</td>
-            </tr>
-            <tr>
-              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>1650</td>
-              <td>Lowest Common Ancestor III</td>
-              <td class="cell-dif dif dif-med">MED</td>
-              <td class="cell-acc">80%</td>
-              <td class="state" data-locked data-flip-state>&#8856;</td>
-            </tr>
-            <tr>
-              <td class="cell-id"><span class="cursor-bar" data-off aria-hidden="true">&#9612;</span>0001</td>
-              <td>Two Sum</td>
-              <td class="cell-dif dif dif-esy">ESY</td>
-              <td class="cell-acc">58%</td>
-              <td class="state" data-flip-state>&#10003;</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="hints utility">
-          <span><kbd>enter</kbd>open</span>
-          <span><kbd>/</kbd>search</span>
-          <span><kbd>r</kbd>run</span>
-          <span><kbd>s</kbd>submit</span>
-          <span><kbd>v</kbd>git</span>
-          <span><kbd>c</kbd>companies</span>
-          <span><kbd>?</kbd>keys</span>
+      <div class="picker-body">
+        <div class="panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script">
+          <div class="cmd">
+            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-script">curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh</code></span>
+            <button class="copy" type="button" data-copy="#cmd-script">Copy</button>
+          </div>
+          <p class="say"><a href="https://github.com/Nano-AI/leetui/blob/main/install.sh">Read it first</a>. That goes for every install script.</p>
+        </div>
+        <div class="panel" id="panel-brew" role="tabpanel" aria-labelledby="tab-brew" hidden>
+          <div class="cmd">
+            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-brew">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
+            <button class="copy" type="button" data-copy="#cmd-brew">Copy</button>
+          </div>
+          <p class="say"><code>brew trust</code> is Homebrew's gate on third party taps.</p>
+        </div>
+        <div class="panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" hidden>
+          <div class="cmd">
+            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-go">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+            <button class="copy" type="button" data-copy="#cmd-go">Copy</button>
+          </div>
+          <p class="say">Go 1.24 or newer. The binary lands in <code>~/go/bin</code>.</p>
+        </div>
+        <div class="panel" id="panel-binary" role="tabpanel" aria-labelledby="tab-binary" hidden>
+          <p class="say" style="margin-top:0">
+            macOS, Linux and Windows builds are on
+            <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static file.
+          </p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="pane" aria-labelledby="subs-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="subs-title">Submissions</span>
-      </div>
-      <div class="pane-body">
-        <div class="subs">
-          <div class="sub-row">
-            <span class="meta sub-id">0001</span>
-            <span class="meta sub-lang">python3</span>
-            <span class="flap flap-face" data-verdict="ac">accepted</span>
-          </div>
-          <div class="sub-row">
-            <span class="meta sub-id">0042</span>
-            <span class="meta sub-lang">cpp</span>
-            <span class="flap flap-face">wrong answer</span>
-          </div>
-          <div class="sub-row">
-            <span class="meta sub-id">0146</span>
-            <span class="meta sub-lang">go</span>
-            <span class="flap flap-face">pending</span>
-          </div>
+  <!-- The session. The board loads as a still; the player swaps in a
+       recorded session over it once site/shots/demo.json arrives, so a
+       page with no JavaScript still opens on a real screenshot. -->
+  <section class="frame frame-demo" id="demo" aria-labelledby="t-session">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-session">Session</h2>
+      <span class="frame-meta">recorded off the program<button class="frame-btn" type="button" id="demo-toggle" hidden>pause</button></span>
+    </div>
+    <div class="term-view"><img src="shots/board.svg" width="1363" height="776" fetchpriority="high"
+         alt="The leetui board: a dense table of LeetCode problems with columns for number, todo, mark, title, difficulty, acceptance rate, state and the company that asked it."></div>
+  </section>
+  <p class="cap">Every frame is the program, not a mockup.</p>
+
+  <section class="frame" id="local" aria-labelledby="t-local">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-local">Local</h2>
+      <span class="frame-meta">after one sync</span>
+    </div>
+    <ul class="counts">
+      <li><span class="count-n flaps" data-flap="4013" data-spin></span><span class="count-l">problems</span></li>
+      <li><span class="count-n flaps" data-flap="989"  data-spin></span><span class="count-l">company lists</span></li>
+      <li><span class="count-n flaps" data-flap="17"   data-spin></span><span class="count-l">study plans</span></li>
+      <li><span class="count-n flaps" data-flap="0"    data-spin></span><span class="count-l">network calls to search</span></li>
+    </ul>
+  </section>
+
+  <section class="frame" id="find" aria-labelledby="t-find">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-find"><kbd>/</kbd>Find</h2>
+      <span class="frame-meta">local index</span>
+    </div>
+    <p class="say frame-lede">Titles, tags and full statements, searched on the local index — no network call, so it answers while you type.</p>
+    <figure class="shot" style="--nat:1363px">
+      <img src="shots/search.svg" loading="lazy" width="1363" height="410"
+           alt="Searching for tree: a search field above the board and 378 matching problems below it, with the query highlighted in each title.">
+    </figure>
+  </section>
+
+  <section class="frame" id="solve" aria-labelledby="t-solve">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-solve"><kbd>e</kbd>Solve</h2>
+      <span class="frame-meta">e your editor · r runs the examples here</span>
+    </div>
+    <p class="say frame-lede">Statement on the left; your file and every past verdict on the right. <kbd>e</kbd> opens your editor, <kbd>r</kbd> runs the examples without leaving.</p>
+    <figure class="shot" style="--nat:1363px">
+      <img src="shots/detail.svg" loading="lazy" width="1363" height="776"
+           alt="A problem open in leetui: the statement with examples and constraints on the left, and the solution file path, language and submission history on the right.">
+    </figure>
+  </section>
+
+  <section class="frame" id="submit" aria-labelledby="t-submit">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-submit"><kbd>s</kbd>Submit</h2>
+      <span class="frame-meta">no spinners</span>
+    </div>
+    <p class="say frame-lede">There are no spinners in leetui. A pending verdict is a flap held mid flip.</p>
+    <div class="split">
+      <figure class="shot" style="--nat:574px">
+        <img src="shots/run.svg" loading="lazy" width="574" height="172"
+             alt="Terminal output of leetui run: five test cases, each marked ok, ending with All 5 cases passed.">
+      </figure>
+      <div class="queue">
+        <div class="queue-row">
+          <span class="m">0020</span>
+          <span class="m">python3</span>
+          <span class="verdict flaps" id="verdict" data-flap="PENDING" data-width="8"></span>
         </div>
-
-        <p class="no-spinner meta">No spinners. Pending is a flap held mid-flip.</p>
+        <p class="say">Accepted commits itself. Pushing asks first.</p>
       </div>
-    </section>
+    </div>
+  </section>
 
-  </div>
+  <section class="frame" id="keys" aria-labelledby="t-keys">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-keys"><kbd>?</kbd>Keys</h2>
+      <span class="frame-meta">all remappable</span>
+    </div>
+    <p class="say frame-lede">Every binding on one screen, behind <kbd>?</kbd>.</p>
+    <figure class="shot" style="--nat:1069px">
+      <img src="shots/keys.svg" loading="lazy" width="1069" height="665"
+           alt="The keys screen: two columns of bindings grouped under Move, List, Find, Solve, Worth redoing, Lists, Premium and Do.">
+    </figure>
+  </section>
 
-  <div class="wrap stack" style="margin-top: var(--pane-gap)">
+  <section class="frame" id="doctor" aria-labelledby="t-doctor">
+    <div class="frame-head">
+      <h2 class="frame-title" id="t-doctor">Doctor</h2>
+      <span class="frame-meta">what this machine is missing</span>
+    </div>
+    <div class="split">
+      <p class="say">
+        Session cookies go to the OS keychain, never to disk.
+        <code class="i">leetui doctor</code> reports what this machine is missing before you sync.
+      </p>
+      <figure class="shot" style="--nat:666px">
+        <img src="shots/doctor.svg" loading="lazy" width="666" height="512"
+             alt="Output of leetui doctor: the workspace path, five local runners all reporting ok, the detected editor and terminal, and inline image support.">
+      </figure>
+    </div>
+  </section>
 
-    <section class="pane" aria-labelledby="solution-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="solution-title">Solution</span>
-        <span class="pane-note utility" aria-hidden="true">0020-valid-parentheses</span>
-      </div>
-      <div class="pane-body">
-        <div class="two-up">
-          <div>
-            <p class="filename utility">solution.py</p>
-            <pre class="snippet"><code><span class="c"># 20. Valid Parentheses &middot; Easy</span>
-<span class="c"># https://leetcode.com/problems/valid-parentheses/</span>
+  <nav class="links" aria-label="Project">
+    <a href="https://github.com/Nano-AI/leetui">Source</a>
+    <a href="https://github.com/Nano-AI/leetui/blob/main/docs/DESIGN.md">Design</a>
+    <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">Agents</a>
+    <a href="https://github.com/Nano-AI/leetui/blob/main/site/tools/capture.sh">How these were shot</a>
+  </nav>
 
-<span class="k">from</span> typing <span class="k">import</span> List, Optional
-
-<span class="marker"># @leetui code=start</span>
-<span class="k">class</span> Solution:
-    <span class="k">def</span> isValid(self, s: str) -&gt; bool:
-        ...
-<span class="marker"># @leetui code=end</span></code></pre>
-            <p class="caption meta">Only the marked region is submitted.</p>
-          </div>
-
-          <div>
-            <p class="filename utility">testcases.txt</p>
-            <pre class="snippet"><code>"()[]{}"
-output:
-true
-
-"(]"
-output:
-false</code></pre>
-            <p class="caption meta">Yours to edit. Never overwritten.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pane" aria-labelledby="repo-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="repo-title">Repository</span>
-        <span class="pane-note utility" aria-hidden="true">press v</span>
-      </div>
-      <div class="pane-body">
-        <pre class="snippet"><code><span class="k">main</span>  <span class="c">&middot;</span>  <span class="warn">2 commits not on origin/main</span>
-<span class="c">clean &mdash; everything is committed</span>
-
-<span class="k">1a2b3c4</span>  solve(0146): lru cache &mdash; go, 58ms, beats 91.2%   <span class="c">3 minutes ago</span>
-<span class="k">9f8e7d6</span>  solve(0001): two sum &mdash; python3, 41ms            <span class="c">2 hours ago</span>
-
-<span class="marker">p</span> push   <span class="marker">R</span> refresh   <span class="marker">esc</span> back</code></pre>
-        <p class="caption meta">
-          Accepted commits itself. Push asks first, and names the remote&rsquo;s URL.
-        </p>
-      </div>
-    </section>
-
-    <section class="pane" aria-labelledby="cli-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="cli-title">Command line</span>
-        <span class="pane-note utility" aria-hidden="true">leetui help</span>
-      </div>
-      <div class="pane-body">
-        <pre class="snippet"><code><span class="prompt">$</span> leetui todo add two-sum lru-cache <span class="k">--note</span> <span class="str">"phone screen prep"</span>
-<span class="c">added 2 problems</span>
-
-<span class="prompt">$</span> leetui todo <span class="k">--json</span> | jq -r <span class="str">'.[] | select(.status != "ac") | .slug'</span>
-<span class="c">two-sum
-lru-cache</span>
-
-<span class="prompt">$</span> leetui run two-sum
-<span class="c">case 1  ok     [0,1]
-case 2  ok     [1,2]
-
-All 2 cases passed. Submit with: leetui submit two-sum</span></code></pre>
-
-        <div class="two-up" style="margin-top:1.2rem">
-          <div>
-            <p class="filename utility">Exit codes are the API</p>
-            <dl class="codes">
-              <div><dt>0</dt><dd>it worked &mdash; and for <code>run</code>, every case passed</dd></div>
-              <div><dt>1</dt><dd>it ran and the answer was wrong</dd></div>
-              <div><dt>2</dt><dd>it could not run: unknown problem, missing toolchain, not signed in</dd></div>
-            </dl>
-          </div>
-          <div>
-            <p class="filename utility">Written for agents</p>
-            <p class="caption meta" style="margin-top:0">
-              The todo list is a queue anything can write to, so a script can stack up
-              problems from a job description and they are waiting on the board next time
-              you open it. Every operation is idempotent &mdash; adding twice is not an
-              error, so nothing has to check before it acts.
-            </p>
-            <p class="caption meta">
-              <code>submit</code> is the one command with outside effects, and it says so.
-              There is no push command at all.
-              <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">docs/AGENTS.md</a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pane" aria-labelledby="install-title">
-      <div class="pane-head">
-        <span class="pane-title utility" id="install-title">Requirements</span>
-      </div>
-      <div class="pane-body">
-        <p class="caption meta" style="margin-top:0">
-          One static binary; nothing to install alongside it. Python, Go, C++, JavaScript
-          and TypeScript run on your machine if you have them &mdash; everything else runs
-          on the judge, which needs nothing local at all. Session cookies go to the OS
-          keychain, never to disk.
-        </p>
-        <p class="caption meta">
-          <code>leetui doctor</code> reports what this machine has, what is missing, and
-          the command that fixes each one.
-        </p>
-      </div>
-    </section>
-
-  </div>
 </main>
 
-<footer class="foot">
-  <div class="wrap foot-inner utility">
-    <span>leetui &mdash; a terminal client for LeetCode</span>
-    <span>
-      <a href="https://github.com/Nano-AI/leetui">Source</a>
-      <span class="sep" aria-hidden="true">&#9482;</span>
-      <a href="https://github.com/Nano-AI/leetui/blob/main/docs/DESIGN.md">Design system</a>
-      <span class="sep" aria-hidden="true">&#9482;</span>
-      <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">For agents</a>
-    </span>
+<nav class="bar" aria-label="Keys">
+  <div class="wrap bar-in">
+    <ul class="bar-keys">
+      <li><a href="#install" data-key="i"><b>i</b>install</a></li>
+      <li><a href="#find"    data-key="/"><b>/</b>find</a></li>
+      <li><a href="#solve"   data-key="e"><b>e</b>solve</a></li>
+      <li><a href="#submit"  data-key="s"><b>s</b>submit</a></li>
+      <li><a href="#keys"    data-key="?"><b>?</b>keys</a></li>
+      <li><a href="https://github.com/Nano-AI/leetui" data-key="o"><b>o</b>github</a></li>
+      <li class="quiet"><b>j·k</b>scroll</li>
+      <li class="quiet"><b>g·G</b>ends</li>
+    </ul>
+    <span class="bar-status" id="status" role="status" aria-live="polite"></span>
   </div>
-</footer>
+</nav>
 
 <script>
 (function () {
   "use strict";
 
-  /* The flip. Six frames at 40ms, shearing through the half-block ramp
-     before settling — the same sequence internal/tui/components/flap.go
-     runs. It is the entire motion budget for this page: when the load
-     sequence finishes, nothing here moves again. */
-
-  var FRAMES = ["▔", "▀", "▚", "▄", "▁"];
-  var FRAME_MS = 40;
-
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  document.documentElement.classList.add("js");
 
-  /* The app's Display treatment inserts a literal space between every
-     character, because a terminal cannot letterspace. The web can, and
-     .flap-face already does — inserting the spaces as well tracks the
-     text twice and shears "WRONG ANSWER" off the side of its own pane.
-     So the text stays plain here and CSS carries the treatment. */
-  function verdictText(text) {
-    return text.toUpperCase();
+  var status = document.getElementById("status");
+  var statusTimer = null;
+  function say(text) {
+    if (!status) { return; }
+    status.textContent = text;
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(function () { status.textContent = ""; }, 2200);
   }
 
-  /* flipTo shears a cell, then settles it on `final` — the exact string
-     to land on, already formatted. The caller decides whether that is a
-     letterspaced verdict or a single glyph, so this never has to guess,
-     and nothing races the value into place behind it.
+  /* ---------------------------------------------------------------
+     The flap.
 
-     Motion is never the only channel carrying information: with motion
-     off the cell settles at once, and every value on this page is
-     already correct in the markup before any of this runs. */
-  function flipTo(el, final, verdict, done) {
-    function settle() {
-      el.textContent = final;
-      el.setAttribute("data-verdict", verdict || "");
-      if (done) { done(); }
-    }
+     A cell is two static halves showing the settled character. A
+     change hangs two leaves over them: the old character's top half
+     falling away, and the new character's bottom half swinging up
+     behind it. The static top takes the new character at once (it is
+     under the falling leaf) and the static bottom takes it as the
+     rising leaf lands. The leaves are CSS animations, so this only
+     hangs them up and takes them down.
+     --------------------------------------------------------------- */
 
-    if (reduced.matches) { settle(); return; }
+  var FALL_MS = 110;   /* in step with @keyframes leaf-fall */
+  var LAND_MS = 220;
 
-    var width = Math.max(final.replace(/\s/g, "").length, 1);
-    var i = 0;
+  function cell(ch) {
+    var el = document.createElement("span");
+    el.className = "flap";
+    el.dataset.ch = ch;
+    el.innerHTML = '<span class="half top"><i></i></span><span class="half bot"><i></i></span>';
+    el.querySelector(".top i").textContent = ch;
+    el.querySelector(".bot i").textContent = ch;
+    return el;
+  }
 
-    el.setAttribute("data-verdict", "shear");
-    (function step() {
-      if (i === FRAMES.length) { settle(); return; }
-      el.textContent = new Array(width + 1).join(FRAMES[i]);
+  function set(el, ch) {
+    var was = el.dataset.ch;
+    if (was === ch) { return; }
+    el.dataset.ch = ch;
+
+    var top = el.querySelector(".top i");
+    var bot = el.querySelector(".bot i");
+    if (reduced.matches) { top.textContent = ch; bot.textContent = ch; return; }
+
+    var fall = document.createElement("span");
+    fall.className = "leaf leaf-t";
+    fall.innerHTML = "<i></i>";
+    fall.querySelector("i").textContent = was;
+
+    var rise = document.createElement("span");
+    rise.className = "leaf leaf-b";
+    rise.innerHTML = "<i></i>";
+    rise.querySelector("i").textContent = ch;
+
+    el.appendChild(fall);
+    el.appendChild(rise);
+    top.textContent = ch;
+
+    setTimeout(function () { bot.textContent = ch; }, FALL_MS);
+    setTimeout(function () { fall.remove(); rise.remove(); }, LAND_MS + 40);
+  }
+
+  /* A board resets by running every drum past the reader before it
+     stops, which is the only reason the fixture is memorable. */
+  function roll(el, target, alphabet, stepMs) {
+    var i = 0, turns = 2 + Math.floor(Math.random() * 2);
+    (function tick() {
+      if (reduced.matches || i >= turns) { set(el, target); return; }
+      set(el, alphabet.charAt(Math.floor(Math.random() * alphabet.length)));
       i += 1;
-      setTimeout(step, FRAME_MS);
+      setTimeout(tick, stepMs);
     })();
   }
 
-  /* Letterspace the flaps that are already settled, so the markup stays
-     readable and the treatment lives in one place. */
-  Array.prototype.forEach.call(document.querySelectorAll(".flap"), function (el) {
-    el.textContent = verdictText(el.textContent.trim());
+  var DIGITS = "0123456789";
+  var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  function build(holder) {
+    var text = holder.dataset.flap;
+    var width = parseInt(holder.dataset.width || text.length, 10);
+    var padded = text;
+    while (padded.length < width) { padded += " "; }
+    holder.textContent = "";
+    if (!holder.hasAttribute("aria-hidden")) { holder.setAttribute("aria-label", text); }
+    var cells = [];
+    for (var i = 0; i < padded.length; i++) {
+      /* Built showing the settled text. A cell that starts blank and
+         waits for a script is a cell that stays blank when the script
+         does not run, or when the reader scrolls past faster than an
+         observer reports. Blanking is the opening move of the rows that
+         roll, and they ask for it with data-spin. */
+      var c = cell(holder.hasAttribute("data-spin") && !reduced.matches ? " " : padded.charAt(i));
+      holder.appendChild(c);
+      cells.push(c);
+    }
+    holder.__cells = cells;
+    return holder;
+  }
+
+  function land(holder, text, alphabet, stagger) {
+    var cells = holder.__cells;
+    var padded = text;
+    while (padded.length < cells.length) { padded += " "; }
+    cells.forEach(function (c, i) {
+      setTimeout(function () { roll(c, padded.charAt(i), alphabet, 65); }, i * stagger);
+    });
+    if (!holder.hasAttribute("aria-hidden")) { holder.setAttribute("aria-label", text.trim()); }
+  }
+
+  function onScreen(el, cb, threshold) {
+    if (!("IntersectionObserver" in window)) { cb(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { io.unobserve(e.target); cb(); }
+      });
+    }, { threshold: threshold == null ? .4 : threshold });
+    io.observe(el);
+  }
+
+  /* Rows that roll: the headline on load, left to right, the way a
+     board resets when the hour turns; the counters when they arrive on
+     screen. */
+  [].slice.call(document.querySelectorAll("[data-spin]")).forEach(function (holder, n) {
+    build(holder);
+    var letters = holder.dataset.alpha === "letters";
+    var fire = function () { land(holder, holder.dataset.flap, letters ? LETTERS : DIGITS, letters ? 26 : 55); };
+    if (holder.hasAttribute("data-onload")) {
+      setTimeout(fire, reduced.matches ? 0 : 220 + n * 140);
+    } else {
+      onScreen(holder, function () { setTimeout(fire, reduced.matches ? 0 : 120); }, .6);
+    }
   });
 
-  /* The queue rolls.
-     A real departure board is never finished — the roster shifts up, the
-     new arrival sits pending, and the flaps chatter down the column. So
-     this loops rather than settling once, which is closer to the fixture
-     the app is imitating than a single flip was.
-
-     Still one animation, still only in this pane. And it stops dead for
-     anyone who asked for less motion: the markup already reads correctly
-     without a single frame running. */
-
-  var QUEUE = [
-    { id: "0001", lang: "python3", verdict: "accepted",     tone: "ac" },
-    { id: "0042", lang: "cpp",     verdict: "wrong answer", tone: "" },
-    { id: "0146", lang: "go",      verdict: "accepted",     tone: "ac" },
-    { id: "0208", lang: "python3", verdict: "accepted",     tone: "ac" },
-    { id: "0460", lang: "go",      verdict: "wrong answer", tone: "" },
-    { id: "1650", lang: "go",      verdict: "accepted",     tone: "ac" },
-  ];
-
-  var ROW_STAGGER = 130;   /* flaps chatter down the column, never in unison */
-  var JUDGE_HOLD  = 850;   /* how long the newest sits pending */
-  var CYCLE_REST  = 4200;  /* long enough to read the board before it moves */
-
-  function rollQueue(rows, offset) {
-    rows.forEach(function (row, n) {
-      var next = QUEUE[(offset + n) % QUEUE.length];
+  /* The verdict waits until it is on screen, sits pending long enough
+     to read, then lands. This is the page's one green. */
+  var verdict = document.getElementById("verdict");
+  if (verdict) {
+    build(verdict);
+    onScreen(verdict, function () {
       setTimeout(function () {
-        row.id.textContent = next.id;
-        row.lang.textContent = next.lang;
-
-        /* The newest submission is the one being judged, so it lands on
-           PENDING and resolves a beat later. The rows above it are
-           history and settle straight onto their verdict. */
-        if (n === rows.length - 1) {
-          flipTo(row.flap, verdictText("pending"), "", function () {
-            setTimeout(function () {
-              flipTo(row.flap, verdictText(next.verdict), next.tone);
-            }, JUDGE_HOLD);
-          });
-          return;
-        }
-        flipTo(row.flap, verdictText(next.verdict), next.tone);
-      }, n * ROW_STAGGER);
+        verdict.dataset.state = "ac";
+        land(verdict, "ACCEPTED", LETTERS, 55);
+      }, reduced.matches ? 0 : 900);
     });
   }
 
-  /* The load sequence: the state column resolves top to bottom, then the
-     submissions queue starts rolling and keeps rolling. */
-  function run() {
-    var cells = document.querySelectorAll("[data-flip-state]");
-    Array.prototype.forEach.call(cells, function (cell, n) {
-      var glyph = cell.textContent.trim();
-      if (!reduced.matches) { cell.textContent = "\u00b7"; }
-      setTimeout(function () {
-        flipTo(cell, glyph, null, null);
-      }, reduced.matches ? 0 : 260 + n * 90);
-    });
-
-    var rows = Array.prototype.map.call(
-      document.querySelectorAll(".sub-row"),
-      function (el) {
-        return {
-          id: el.querySelector(".sub-id"),
-          lang: el.querySelector(".sub-lang"),
-          flap: el.querySelector(".flap")
-        };
-      }
-    ).filter(function (r) { return r.id && r.lang && r.flap; });
-
-    if (!rows.length || reduced.matches) { return; }
-
-    var offset = 0;
-    var cycleMs = rows.length * ROW_STAGGER + JUDGE_HOLD + CYCLE_REST;
-
-    setTimeout(function tick() {
-      rollQueue(rows, offset);
-      offset = (offset + 1) % QUEUE.length;
-      setTimeout(tick, cycleMs);
-    }, 1200);
+  /* ---------------------------------------------------------------
+     The picker: install methods. Without JavaScript every panel is
+     visible and stacked, which is a correct page.
+     --------------------------------------------------------------- */
+  function copyText(text, onDone) {
+    if (!navigator.clipboard) { onDone(false); return; }
+    navigator.clipboard.writeText(text.trim()).then(function () { onDone(true); }, function () { onDone(false); });
   }
-
-  if (document.readyState !== "loading") { run(); }
-  else { document.addEventListener("DOMContentLoaded", run); }
-
-  /* Install methods.
-     Progressive enhancement: the class below is what reveals the control and
-     hides the inactive panels, so a page with no JavaScript shows all three
-     stacked — which is exactly what it showed before this existed. The
-     enhancement can only ever add. */
-  document.documentElement.classList.add("js");
-
   var tablist = document.querySelector('[role="tablist"]');
   if (tablist) {
-    var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+    var tabs = [].slice.call(tablist.querySelectorAll('[role="tab"]'));
 
-    function select(tab, focus) {
+    var select = function (tab, focus) {
       tabs.forEach(function (t) {
         var on = t === tab;
         t.setAttribute("aria-selected", on ? "true" : "false");
-        // Roving tabindex: the group is ONE tab stop, and arrows move within
-        // it. Leaving every tab focusable makes a keyboard user walk through
-        // all three to reach the command they wanted.
+        /* Roving tabindex: the group is one tab stop and arrows move
+           inside it, so a keyboard user does not walk through four
+           buttons to reach the command they wanted. */
         t.tabIndex = on ? 0 : -1;
         document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
       });
       if (focus) { tab.focus(); }
-    }
+    };
 
     tabs.forEach(function (tab, i) {
       tab.addEventListener("click", function () { select(tab, false); });
       tab.addEventListener("keydown", function (e) {
-        var step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-        if (step) {
-          e.preventDefault();
-          select(tabs[(i + step + tabs.length) % tabs.length], true);
-          return;
-        }
+        var stepBy = (e.key === "ArrowDown" || e.key === "j") ? 1 : (e.key === "ArrowUp" || e.key === "k") ? -1 : 0;
+        if (stepBy) { e.preventDefault(); e.stopPropagation(); select(tabs[(i + stepBy + tabs.length) % tabs.length], true); return; }
         if (e.key === "Home") { e.preventDefault(); select(tabs[0], true); }
         if (e.key === "End") { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+        /* enter copies, as the frame's note promises. */
+        if (e.key === "Enter") {
+          var panel = document.getElementById(tab.getAttribute("aria-controls"));
+          var code = panel && panel.querySelector("code[id]");
+          if (!code) { return; }
+          e.preventDefault();
+          copyText(code.textContent, function (ok) { say(ok ? "copied" : "select it and press ⌘C"); });
+        }
       });
     });
 
-    // The script is the default because it needs nothing installed first. Windows
-    // has neither a POSIX shell nor Homebrew by default, so the honest answer
-    // there is the binary.
+    /* The script is the default because it needs nothing installed
+       first. Windows has neither a POSIX shell nor Homebrew, so the
+       honest answer there is the binary. */
     var win = navigator.platform && navigator.platform.indexOf("Win") === 0;
     select(win ? document.getElementById("tab-binary") : tabs[0], false);
   }
 
-  /* Copy. The button says what happens, and then says what happened. */
-  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (btn) {
+  /* ---------------------------------------------------------------
+     Focus follows the reader. The frame crossing the middle of the
+     viewport is the one with focus: amber border, amber title, and
+     its key lit on the bar. The app's own rule, applied to scrolling.
+     --------------------------------------------------------------- */
+  var frames = [].slice.call(document.querySelectorAll(".frame[id]"));
+  var barLinks = [].slice.call(document.querySelectorAll(".bar-keys a[href^='#']"));
+  if ("IntersectionObserver" in window && frames.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        en.target.classList.toggle("is-focus", en.isIntersecting);
+        barLinks.forEach(function (a) {
+          if (a.getAttribute("href") === "#" + en.target.id) { a.classList.toggle("is-on", en.isIntersecting); }
+        });
+      });
+    }, { rootMargin: "-49% 0px -50% 0px", threshold: 0 });
+    frames.forEach(function (f) { spy.observe(f); });
+  } else {
+    /* No observer: the session is the one that matters. */
+    var d0 = document.getElementById("demo"); if (d0) { d0.classList.add("is-focus"); }
+  }
+
+  /* ---------------------------------------------------------------
+     The keys on the bar are live. Only bare keys, only when nothing
+     that takes typing has focus, and the picker keeps j k for itself.
+     --------------------------------------------------------------- */
+  var JUMPS = { "i": "#install", "/": "#find", "e": "#solve", "s": "#submit", "?": "#keys" };
+  function jump(sel) {
+    var el = document.querySelector(sel);
+    if (!el) { return; }
+    el.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "start" });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) { return; }
+    var t = e.target, tag = t && t.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || (t && t.isContentEditable)) { return; }
+    var k = e.key;
+    if (JUMPS[k]) { e.preventDefault(); jump(JUMPS[k]); return; }
+    if (k === "o") { window.open("https://github.com/Nano-AI/leetui", "_blank", "noopener"); return; }
+    if (k === "j" || k === "k") {
+      e.preventDefault();
+      window.scrollBy({ top: (k === "j" ? 1 : -1) * Math.round(window.innerHeight * .12), behavior: reduced.matches ? "auto" : "smooth" });
+      return;
+    }
+    if (k === "g") { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduced.matches ? "auto" : "smooth" }); return; }
+    if (k === "G") { e.preventDefault(); window.scrollTo({ top: document.documentElement.scrollHeight, behavior: reduced.matches ? "auto" : "smooth" }); return; }
+  });
+
+  /* ---------------------------------------------------------------
+     The session.
+
+     site/shots/demo.json is a style palette plus one frame per snapshot,
+     each carrying only the lines that changed. Playing it back is: keep
+     an array of 34 lines, patch the ones a frame names, write them out,
+     wait the frame's own delay, repeat.
+
+     It only starts once the frame is on screen and stops again when it
+     leaves, so a page left open in a background tab is not repainting a
+     terminal nobody is looking at. With motion reduced it paints the
+     opening frame and never runs.
+     --------------------------------------------------------------- */
+
+  var demo = document.getElementById("demo");
+  if (demo) {
+    fetch("shots/demo.json").then(function (r) {
+      if (!r.ok) { throw new Error(r.status); }
+      return r.json();
+    }).then(function (cast) {
+      var view = demo.querySelector(".term-view");
+      var toggle = document.getElementById("demo-toggle");
+
+      var sheet = document.createElement("style");
+      sheet.textContent = cast.styles.map(function (css, i) {
+        return ".screen .p" + i + "{" + css + "}";
+      }).join("");
+      document.head.appendChild(sheet);
+
+      var screen = document.createElement("pre");
+      screen.className = "screen";
+      /* The reader is watching a recording, not operating a terminal.
+         Announcing 34 lines of repaint on every frame would make this
+         unusable with a screen reader, and the still it replaces already
+         carries the description. */
+      screen.setAttribute("aria-hidden", "true");
+      var lines = [];
+      for (var i = 0; i < cast.rows; i++) {
+        var d = document.createElement("div");
+        screen.appendChild(d);
+        lines.push(d);
+      }
+
+      /* Size the type so exactly cast.cols columns fill the frame. Every
+         monospace font has its own advance, so this measures rather than
+         assuming one. */
+      var ruler = document.createElement("span");
+      ruler.className = "screen";
+      /* min-width:0 matters: .screen carries min-width:100%, and a ruler
+         that inherits it measures the viewport, not the text. */
+      ruler.style.cssText = "position:absolute;visibility:hidden;padding:0;white-space:pre;min-width:0;width:max-content";
+      ruler.textContent = new Array(cast.cols + 1).join("0");
+      function fit() {
+        var box = view.clientWidth - 26;          /* the .screen padding */
+        if (box <= 0) { return; }
+        ruler.style.fontSize = "16px";
+        demo.appendChild(ruler);
+        var at16 = ruler.getBoundingClientRect().width;
+        demo.removeChild(ruler);
+        /* Below this the grid stops being text and starts being noise, so
+           on a phone the type holds and the frame pans instead, the same
+           way the stills do. */
+        if (at16 > 0) { screen.style.fontSize = Math.max(9.5, 16 * box / at16) + "px"; }
+      }
+
+      var frame = 0, timer = null, running = false;
+
+      function paint(f) {
+        for (var k in f.l) {
+          if (Object.prototype.hasOwnProperty.call(f.l, k)) { lines[k].innerHTML = f.l[k]; }
+        }
+      }
+
+      function step() {
+        paint(cast.frames[frame]);
+        var wait = cast.frames[frame].d;
+        frame = (frame + 1) % cast.frames.length;
+        /* Back at the top: clear, so a loop does not inherit lines the
+           first frame happens not to repaint. */
+        if (frame === 0) {
+          lines.forEach(function (l) { l.innerHTML = ""; });
+          wait += 700;
+        }
+        timer = setTimeout(step, wait);
+      }
+
+      function play() {
+        if (running) { return; }
+        running = true;
+        step();
+      }
+      function stop() {
+        running = false;
+        clearTimeout(timer);
+      }
+
+      view.textContent = "";
+      view.appendChild(screen);
+      fit();
+      paint(cast.frames[0]);
+
+      if (reduced.matches) { return; }
+
+      window.addEventListener("resize", fit);
+
+      /* Three things can stop it: the reader pressed pause, the frame
+         scrolled off screen, or the tab went to the background. They are
+         tracked separately so leaving and coming back does not undo a
+         pause the reader asked for. */
+      /* visible starts true so the default is "play". A tab that was in
+         the background at load can swallow the observer's first record,
+         and starting from false would leave the session frozen with no
+         second chance until the reader happened to scroll. */
+      var paused = false, visible = true;
+      function sync() {
+        if (!paused && visible && !document.hidden) { play(); } else { stop(); }
+      }
+
+      toggle.hidden = false;
+      toggle.addEventListener("click", function () {
+        paused = !paused;
+        toggle.textContent = paused ? "play" : "pause";
+        sync();
+      });
+
+      document.addEventListener("visibilitychange", sync);
+
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { visible = e.isIntersecting; });
+          sync();
+        }, { threshold: .15 }).observe(demo);
+      }
+      sync();
+    }).catch(function () {
+      /* The still that is already in the markup stays. */
+    });
+  }
+
+  /* Copy. The button says what happens, then says what happened. */
+  [].forEach.call(document.querySelectorAll("[data-copy]"), function (btn) {
     btn.addEventListener("click", function () {
       var target = document.querySelector(btn.getAttribute("data-copy"));
-      if (!target || !navigator.clipboard) { return; }
-      navigator.clipboard.writeText(target.textContent.trim()).then(function () {
-        btn.textContent = "Copied";
-        setTimeout(function () { btn.textContent = "Copy"; }, 2000);
-      }, function () {
-        btn.textContent = "Press ⌘C";
+      if (!target) { return; }
+      copyText(target.textContent, function (ok) {
+        btn.textContent = ok ? "Copied" : "Press ⌘C";
+        say(ok ? "copied" : "");
         setTimeout(function () { btn.textContent = "Copy"; }, 2000);
       });
     });

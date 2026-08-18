@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1363.2 750.0" width="1363.2" height="750.0" font-family="ui-monospace,'SF Mono',SFMono-Regular,'JetBrains Mono','Cascadia Mono',Menlo,Consolas,'DejaVu Sans Mono',monospace" font-size="14.0" shape-rendering="crispEdges" role="img">
+<rect width="1363.2" height="750.0" rx="0" fill="#0F1014"/>
+<g shape-rendering="crispEdges">
+</g>
+<g shape-rendering="geometricPrecision">
+<text x="18.00" y="28.92" fill="#2a2c36" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</text>
+<text x="18.00" y="45.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="45.92" fill="#e8a33c" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">L E E T U I</text>
+<text x="1059.60" y="45.92" fill="#6b7080" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">⏱ --:--:--</text>
+<text x="1143.60" y="45.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="1168.80" y="45.92" fill="#e8a33c" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">◆ premium</text>
+<text x="1244.40" y="45.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="1269.60" y="45.92" fill="#6b7080" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Nano-AI</text>
+<text x="1336.80" y="45.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="62.92" fill="#2a2c36" textLength="1327.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="18.00" y="79.92" fill="#e8a33c" textLength="789.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭─ PROBLEM ────────────────────────────────────────────────────────────────  44.7% ACCEPTED ─╮</text>
+<text x="807.60" y="79.92" fill="#2a2c36" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭─</text>
+<text x="824.40" y="79.92" fill="#6b7080" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> SOLUTION </text>
+<text x="908.40" y="79.92" fill="#2a2c36" textLength="344.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">─────────────────────────────────────────</text>
+<text x="1252.80" y="79.92" fill="#6b7080" textLength="75.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> PYTHON3 </text>
+<text x="1328.40" y="79.92" fill="#2a2c36" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">─╮</text>
+<text x="18.00" y="96.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="96.92" fill="#e6e3da" textLength="176.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">20. Valid Parentheses</text>
+<text x="228.00" y="96.92" fill="#1cbaba" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">ESY</text>
+<text x="799.20" y="96.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="96.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="824.40" y="96.92" fill="#e6e3da" textLength="378.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">~/leetcode/0020-valid-parentheses/solution.py</text>
+<text x="1336.80" y="96.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="113.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="113.92" fill="#6b7080" textLength="210.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">3 tags hidden · z to show</text>
+<text x="799.20" y="113.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="113.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="824.40" y="113.92" fill="#e8a33c" textLength="67.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">watching</text>
+<text x="891.60" y="113.92" fill="#6b7080" textLength="210.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> · saves re-run the tests</text>
+<text x="1336.80" y="113.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="130.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="130.92" fill="#2a2c36" textLength="756.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌</text>
+<text x="799.20" y="130.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="130.92" fill="#2a2c36" textLength="537.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰──────────────────────────────────────────────────────────────╯</text>
+<text x="18.00" y="147.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="147.92" fill="#e6e3da" textLength="126.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Given a string </text>
+<text x="160.80" y="147.92" fill="#e8a33c" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> s </text>
+<text x="186.00" y="147.92" fill="#e6e3da" textLength="268.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> containing just the characters </text>
+<text x="454.80" y="147.92" fill="#e8a33c" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> &#x27;(&#x27; </text>
+<text x="496.80" y="147.92" fill="#e6e3da" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">, </text>
+<text x="513.60" y="147.92" fill="#e8a33c" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> &#x27;)&#x27; </text>
+<text x="555.60" y="147.92" fill="#e6e3da" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">, </text>
+<text x="572.40" y="147.92" fill="#e8a33c" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> &#x27;{&#x27; </text>
+<text x="614.40" y="147.92" fill="#e6e3da" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">, </text>
+<text x="631.20" y="147.92" fill="#e8a33c" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> &#x27;}&#x27; </text>
+<text x="673.20" y="147.92" fill="#e6e3da" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">, </text>
+<text x="690.00" y="147.92" fill="#e8a33c" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> &#x27;[&#x27; </text>
+<text x="732.00" y="147.92" fill="#e6e3da" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> and   </text>
+<text x="799.20" y="147.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="147.92" fill="#2a2c36" textLength="16.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╭─</text>
+<text x="824.40" y="147.92" fill="#6b7080" textLength="109.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> SUBMISSIONS </text>
+<text x="933.60" y="147.92" fill="#2a2c36" textLength="411.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">────────────────────────────────────────────────╮</text>
+<text x="18.00" y="164.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="164.92" fill="#e8a33c" textLength="33.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">&#x27;]&#x27; </text>
+<text x="68.40" y="164.92" fill="#e6e3da" textLength="722.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">, determine if the input string is valid.                                             </text>
+<text x="799.20" y="164.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="164.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="824.40" y="164.92" fill="#6b7080" textLength="184.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">Nothing submitted yet.</text>
+<text x="1336.80" y="164.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="181.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="181.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="181.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="181.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="198.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="198.92" fill="#e6e3da" textLength="756.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">An input string is valid if:                                                              </text>
+<text x="799.20" y="198.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="198.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="198.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="215.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="215.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="215.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="215.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="232.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="232.92" fill="#e6e3da" textLength="756.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">1. Open brackets must be closed by the same type of brackets.                             </text>
+<text x="799.20" y="232.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="232.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="232.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="249.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="249.92" fill="#e6e3da" textLength="756.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">2. Open brackets must be closed in the correct order.                                     </text>
+<text x="799.20" y="249.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="249.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="249.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="266.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="266.92" fill="#e6e3da" textLength="756.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">3. Every close bracket has a corresponding open bracket of the same type.                 </text>
+<text x="799.20" y="266.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="266.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="266.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="283.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="283.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="283.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="283.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="300.92" fill="#e6e3da" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Example 1:</text>
+<text x="799.20" y="300.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="300.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="300.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="317.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="317.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="317.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="334.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="334.92" fill="#e6e3da" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Input:</text>
+<text x="85.20" y="334.92" fill="#e6e3da" textLength="705.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> s = &quot;()&quot;                                                                           </text>
+<text x="799.20" y="334.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="334.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="334.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="351.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="351.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="351.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="351.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="368.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="368.92" fill="#e6e3da" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Output:</text>
+<text x="93.60" y="368.92" fill="#e6e3da" textLength="697.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> true                                                                              </text>
+<text x="799.20" y="368.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="368.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="368.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="385.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="385.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="385.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="385.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="402.92" fill="#e6e3da" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Example 2:</text>
+<text x="799.20" y="402.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="402.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="402.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="419.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="419.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="419.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="419.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="436.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="436.92" fill="#e6e3da" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Input:</text>
+<text x="85.20" y="436.92" fill="#e6e3da" textLength="705.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> s = &quot;()[]{}&quot;                                                                       </text>
+<text x="799.20" y="436.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="436.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="436.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="453.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="453.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="453.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="453.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="470.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="470.92" fill="#e6e3da" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Output:</text>
+<text x="93.60" y="470.92" fill="#e6e3da" textLength="697.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> true                                                                              </text>
+<text x="799.20" y="470.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="470.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="470.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="487.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="487.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="487.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="487.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="504.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="504.92" fill="#e6e3da" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Example 3:</text>
+<text x="799.20" y="504.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="504.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="504.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="521.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="521.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="521.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="521.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="538.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="538.92" fill="#e6e3da" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Input:</text>
+<text x="85.20" y="538.92" fill="#e6e3da" textLength="705.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> s = &quot;(]&quot;                                                                           </text>
+<text x="799.20" y="538.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="538.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="538.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="555.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="555.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="555.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="555.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="572.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="572.92" fill="#e6e3da" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Output:</text>
+<text x="93.60" y="572.92" fill="#e6e3da" textLength="697.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> false                                                                             </text>
+<text x="799.20" y="572.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="572.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="572.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="589.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="589.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="589.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="589.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="606.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="606.92" fill="#e6e3da" textLength="84.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Example 4:</text>
+<text x="799.20" y="606.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="606.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="606.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="623.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="623.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="623.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="623.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="640.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="640.92" fill="#e6e3da" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Input:</text>
+<text x="85.20" y="640.92" fill="#e6e3da" textLength="705.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> s = &quot;([])&quot;                                                                         </text>
+<text x="799.20" y="640.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="640.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="640.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="657.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="799.20" y="657.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="657.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="657.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="674.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="34.80" y="674.92" fill="#e6e3da" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre" font-weight="700">Output:</text>
+<text x="93.60" y="674.92" fill="#e6e3da" textLength="697.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> true                                                                              </text>
+<text x="799.20" y="674.92" fill="#e8a33c" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="807.60" y="674.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="1336.80" y="674.92" fill="#2a2c36" textLength="8.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">│</text>
+<text x="18.00" y="691.92" fill="#e8a33c" textLength="789.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰────────────────────────────────────────────────────────────────────────────────────────────╯</text>
+<text x="807.60" y="691.92" fill="#2a2c36" textLength="537.60" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">╰──────────────────────────────────────────────────────────────╯</text>
+<text x="18.00" y="725.92" fill="#6b7080" textLength="58.80" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> f file</text>
+<text x="76.80" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="102.00" y="725.92" fill="#E6E3DA" textLength="42.00" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">r run</text>
+<text x="144.00" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="169.20" y="725.92" fill="#E6E3DA" textLength="67.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">s submit</text>
+<text x="236.40" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="261.60" y="725.92" fill="#E6E3DA" textLength="92.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">d editorial</text>
+<text x="354.00" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="379.20" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">e edit</text>
+<text x="429.60" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="454.80" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">l lang</text>
+<text x="505.20" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="530.40" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">o open</text>
+<text x="580.80" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="606.00" y="725.92" fill="#E6E3DA" textLength="67.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">esc back</text>
+<text x="673.20" y="725.92" fill="#2a2c36" textLength="25.20" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre"> ┊ </text>
+<text x="698.40" y="725.92" fill="#E6E3DA" textLength="50.40" lengthAdjust="spacing" xml:space="preserve" style="white-space:pre">? keys</text>
+</g></svg>
