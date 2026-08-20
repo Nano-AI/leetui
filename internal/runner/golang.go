@@ -80,13 +80,13 @@ func (l *Local) generateGo(p Problem, meta Meta, dir string) error {
 		fmt.Fprintf(&args, "a%d", i)
 	}
 
-	rule := RuleFor(p.Slug)
+	mutates := AnswerArg(p.Slug, meta)
 	var call string
 	switch {
-	case rule.MutatesArg >= 0:
-		if rule.MutatesArg >= len(meta.Params) {
+	case mutates >= 0:
+		if mutates >= len(meta.Params) {
 			return fmt.Errorf("override for %s names argument %d but there are %d",
-				p.Slug, rule.MutatesArg, len(meta.Params))
+				p.Slug, mutates, len(meta.Params))
 		}
 		// In-place problems answer through a mutated argument, in one of two shapes. A
 		// solution that reports a length answers with that many elements; a void one has
@@ -95,11 +95,13 @@ func (l *Local) generateGo(p Problem, meta Meta, dir string) error {
 		// a compile error for exactly the problems this branch exists for.
 		if meta.Return.Type == "void" {
 			call = fmt.Sprintf("\t%s(%s)\n\tfmt.Println(serialize(a%d))\n",
-				meta.Name, args.String(), rule.MutatesArg)
+				meta.Name, args.String(), mutates)
 		} else {
 			call = fmt.Sprintf("\tn := %s(%s)\n\tfmt.Println(serialize(prefix(a%d, n)))\n",
-				meta.Name, args.String(), rule.MutatesArg)
+				meta.Name, args.String(), mutates)
 		}
+	// Void, and AnswerArg declined to name an argument — a `manual` problem, or one
+	// with nothing to mutate. There is no answer to print, so say so rather than guess.
 	case meta.Return.Type == "void":
 		call = fmt.Sprintf("\t%s(%s)\n\tfmt.Println(\"null\")\n", meta.Name, args.String())
 	default:

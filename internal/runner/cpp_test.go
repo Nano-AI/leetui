@@ -276,6 +276,16 @@ func TestCppInPlaceCallShape(t *testing.T) {
 			want:    []string{"auto n = sol.removeDuplicates(a0);", "leetui::prefix(a0, (int)n)"},
 			notWant: nil,
 		},
+		{
+			// Not in the override table. It used to print "null", which no test case can
+			// ever match; a void solution can only be answering through its argument.
+			name: "an uncurated void problem answers with its argument",
+			slug: "recover-binary-search-tree",
+			meta: `{"name":"recoverTree","params":[{"name":"root","type":"TreeNode"}],
+				"return":{"type":"void"}}`,
+			want:    []string{"sol.recoverTree(a0);", "leetui::dump(a0)"},
+			notWant: []string{`"null"`, "leetui::prefix"},
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
