@@ -10,6 +10,22 @@ import (
 const twoSumMeta = `{"name":"twoSum","params":[{"name":"nums","type":"integer[]"},
 	{"name":"target","type":"integer"}],"return":{"type":"integer[]","size":2}}`
 
+// moveZeroesMeta is the shape the override table alone cannot describe: the answer is a
+// mutated argument AND the function returns nothing, so there is no length to trim to.
+const moveZeroesMeta = `{"name":"moveZeroes","params":[{"name":"nums","type":"integer[]"}],
+	"return":{"type":"void"}}`
+
+// mergeSortedMeta is the void in-place case that a prefix trim would silently corrupt:
+// the answer is the whole of nums1, and one of the other arguments is a plausible length.
+const mergeSortedMeta = `{"name":"merge","params":[{"name":"nums1","type":"integer[]"},
+	{"name":"m","type":"integer"},{"name":"nums2","type":"integer[]"},
+	{"name":"n","type":"integer"}],"return":{"type":"void"}}`
+
+// removeDuplicatesMeta is the in-place shape that does report a length, kept beside the
+// void ones so a change to either branch has to look at both.
+const removeDuplicatesMeta = `{"name":"removeDuplicates",
+	"params":[{"name":"nums","type":"integer[]"}],"return":{"type":"integer"}}`
+
 func python3(t *testing.T) *Local {
 	t.Helper()
 	l := NewLocal()

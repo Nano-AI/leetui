@@ -199,3 +199,106 @@ public:
 		t.Errorf("the compile error does not mention the return:\n%s", res.CompileErr)
 	}
 }
+
+// TestCppInPlaceVoidReturn guards a compile error, not a wrong answer. A void in-place
+// solution used to generate `auto n = sol.moveZeroes(a0);` — a variable of type void —
+// because the generator asked whether the answer was a mutated argument and never
+// whether there was a return value to trim by. Nine of the twelve in-place overrides
+// return void; the three that do not were the whole of the coverage.
+func TestCppInPlaceVoidReturn(t *testing.T) {
+	l, lang := cppLang(t)
+
+	dir := genCpp(t, l, lang, "move-zeroes", moveZeroesMeta, `
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int k = 0;
+        for (int n : nums) if (n != 0) nums[k++] = n;
+        while (k < (int)nums.size()) nums[k++] = 0;
+    }
+};
+`)
+	res := runCppCase(t, l, lang, dir, "move-zeroes", []TestCase{
+		{Input: "[0,1,0,3,12]", Expected: "[1,3,12,0,0]"},
+		{Input: "[0]", Expected: "[0]"},
+	})
+	if !res.Passed() {
+		t.Errorf("void in-place: actual=%q err=%v", res.Cases[0].Actual, res.Cases[0].Err)
+	}
+}
+
+// TestCppVoidAnswerIsNotTrimmed pins the case a prefix trim would quietly corrupt. merge
+// takes m and n alongside the arrays, so a generator that reached for "the length the
+// solution reported" has two wrong numbers within easy reach; the whole of nums1 is the
+// answer.
+func TestCppVoidAnswerIsNotTrimmed(t *testing.T) {
+	l, lang := cppLang(t)
+
+	dir := genCpp(t, l, lang, "merge-sorted-array", mergeSortedMeta, `
+class Solution {
+public:
+    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+        int i = m - 1, j = n - 1, k = m + n - 1;
+        while (j >= 0) nums1[k--] = (i >= 0 && nums1[i] > nums2[j]) ? nums1[i--] : nums2[j--];
+    }
+};
+`)
+	res := runCppCase(t, l, lang, dir, "merge-sorted-array", []TestCase{
+		{Input: "[1,2,3,0,0,0]\n3\n[2,5,6]\n3", Expected: "[1,2,2,3,5,6]"},
+	})
+	if !res.Passed() {
+		t.Errorf("merge: actual=%q err=%v", res.Cases[0].Actual, res.Cases[0].Err)
+	}
+}
+
+// TestCppInPlaceCallShape pins both generated call shapes without a compiler. cppLang
+// skips when c++ is absent, so on such a machine TestCppInPlaceVoidReturn is a green
+// skip and the regression walks straight back in. Generate never shells out, so this
+// test always runs.
+func TestCppInPlaceCallShape(t *testing.T) {
+	lang, _ := Lookup("cpp")
+	cases := []struct {
+		name, slug, meta string
+		want, notWant    []string
+	}{
+		{
+			name: "void answers with the whole argument",
+			slug: "move-zeroes",
+			meta: moveZeroesMeta,
+			want: []string{"sol.moveZeroes(a0);", "leetui::dump(a0)"},
+			// Both halves of the old shape: the void variable and the trim it fed.
+			notWant: []string{"auto n = sol.moveZeroes", "leetui::prefix"},
+		},
+		{
+			name:    "a reported length still trims",
+			slug:    "remove-duplicates-from-sorted-array",
+			meta:    removeDuplicatesMeta,
+			want:    []string{"auto n = sol.removeDuplicates(a0);", "leetui::prefix(a0, (int)n)"},
+			notWant: nil,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			if err := NewLocal().Generate(context.Background(),
+				Problem{Slug: tc.slug, MetaData: tc.meta}, lang, dir); err != nil {
+				t.Fatalf("generate: %v", err)
+			}
+			body, err := os.ReadFile(filepath.Join(dir, cppMainFile))
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := string(body)
+			for _, w := range tc.want {
+				if !strings.Contains(got, w) {
+					t.Errorf("generated main is missing %q:\n%s", w, got)
+				}
+			}
+			for _, n := range tc.notWant {
+				if strings.Contains(got, n) {
+					t.Errorf("generated main still contains %q:\n%s", n, got)
+				}
+			}
+		})
+	}
+}

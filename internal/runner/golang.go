@@ -88,10 +88,18 @@ func (l *Local) generateGo(p Problem, meta Meta, dir string) error {
 			return fmt.Errorf("override for %s names argument %d but there are %d",
 				p.Slug, rule.MutatesArg, len(meta.Params))
 		}
-		// In-place problems answer through a mutated argument; the return value is
-		// usually the length of the meaningful prefix.
-		call = fmt.Sprintf("\tn := %s(%s)\n\t_ = n\n\tfmt.Println(serialize(prefix(a%d, n)))\n",
-			meta.Name, args.String(), rule.MutatesArg)
+		// In-place problems answer through a mutated argument, in one of two shapes. A
+		// solution that reports a length answers with that many elements; a void one has
+		// no length to report and the whole argument is the answer. Writing
+		// `n := moveZeroes(a0)` against a void function is "(no value) used as value" —
+		// a compile error for exactly the problems this branch exists for.
+		if meta.Return.Type == "void" {
+			call = fmt.Sprintf("\t%s(%s)\n\tfmt.Println(serialize(a%d))\n",
+				meta.Name, args.String(), rule.MutatesArg)
+		} else {
+			call = fmt.Sprintf("\tn := %s(%s)\n\tfmt.Println(serialize(prefix(a%d, n)))\n",
+				meta.Name, args.String(), rule.MutatesArg)
+		}
 	case meta.Return.Type == "void":
 		call = fmt.Sprintf("\t%s(%s)\n\tfmt.Println(\"null\")\n", meta.Name, args.String())
 	default:
