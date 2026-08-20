@@ -1,0 +1,153 @@
+name: CI
+
+# Every push and every pull request. release.yml runs the suite again before a tag
+# becomes a download; this is the copy that runs while the code is still being written,
+# when a failure is cheap to act on.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Supersede in-progress runs for the same ref. Unlike the Pages deploy, nothing here is
+# published, so cancelling a stale run costs nothing and frees a runner.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      # Both jobs report even when one fails; which platform broke is the useful part.
+      fail-fast: false
+      matrix:
+        # The two platforms release.yml ships binaries for. Windows is built but has no
+        # local runner support, so there is nothing platform-specific to prove there.
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    # The TUI suite alone runs about a minute. Fifteen is generous and still bounds a
+    # hang, which matters for a package that drives a terminal.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # Node is the one toolchain whose VERSION is load-bearing rather than its mere
+      # presence. solution.ts is handed straight to node with no transpiler and no
+      # tsconfig, which only works because node strips TypeScript's types itself.
+      # TestTypeScriptNeedsNoTranspiler fails without that, which is what it is for.
+      #
+      # Pinned deliberately above the boundary rather than on it. ROADMAP.md says v23;
+      # the feature was backported to 22.18; node 22.17 demonstrably still needs
+      # --experimental-strip-types. Pinning the exact floor would make a red build
+      # ambiguous between a real regression and an off-by-one guess, so CI tests a
+      # version nobody disputes. Add a 22.18 matrix cell if the floor itself is ever
+      # worth defending.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # THIS STEP IS THE POINT. Every local-runner test calls t.Skip() when its compiler
+      # is absent, so a runner image without c++ produces a GREEN build that ran none of
+      # them. That is not hypothetical: the void-return codegen bug (D-031) shipped
+      # because the only in-place tests that existed did not cover it, and a silent skip
+      # would have hidden the fix's tests just as well. Fail loudly instead.
+      - name: Toolchains must be present, not merely hoped for
+        shell: bash
+        run: |
+          missing=0
+          for bin in c++ python3 node git; do
+            if command -v "$bin" >/dev/null 2>&1; then
+              printf '  ok      %-8s %s\n' "$bin" "$(command -v "$bin")"
+            else
+              printf '  MISSING %-8s\n' "$bin"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo
+            echo "A missing toolchain does not fail these tests, it SKIPS them."
+            echo "Install it on the runner or drop the language, but do not ship green."
+            exit 1
+          fi
+
+      # gofmt is not in `go vet`, and an unformatted file that sits on main becomes a
+      # standing failure that masks the next real one.
+      - name: gofmt
+        shell: bash
+        run: |
+          unformatted=$(gofmt -l internal cmd)
+          if [ -n "$unformatted" ]; then
+            echo "not gofmt'd:"
+            echo "$unformatted"
+            echo
+            gofmt -d internal cmd
+            exit 1
+          fi
+
+      - run: go vet ./...
+
+      # No credentials, and none needed. The tests that would talk to LeetCode gate
+      # themselves behind LEETUI_LIVE, which is unset here, so the suite is offline and
+      # cannot flake on the API or spend rate limit the sync budget (D-008) is measured
+      # against.
+      - name: go test
+        run: go test ./...
+
+      # Proof the skip-gates did not quietly swallow the local runners. `go test` reports
+      # a skip and a pass identically at the package level, so ask the verbose log
+      # directly: if the compiled-language tests skipped, the toolchain check above
+      # passed and something subtler is wrong.
+      - name: The local runners actually ran
+        # Report the skip analysis even when the step before this one failed, and note
+        # that `|| true` below is load-bearing: this shell runs with -e, so capturing a
+        # failing `go test` into a variable would abort the step before it printed
+        # anything at all. A diagnostic that vanishes exactly when it is needed is worse
+        # than no diagnostic.
+        if: always()
+        shell: bash
+        run: |
+          log=$(go test ./internal/runner/ -v \
+            -run 'TestCpp|TestGo|TestPython|TestJavaScript|TestTypeScript' 2>&1) || true
+
+          skipped=$(printf '%s\n' "$log" | grep -c '^ *--- SKIP' || true)
+          passed=$(printf '%s\n' "$log" | grep -c '^ *--- PASS' || true)
+          echo "local runner tests: $passed passed, $skipped skipped"
+
+          if [ "$skipped" -ne 0 ]; then
+            echo
+            printf '%s\n' "$log" | grep '^ *--- SKIP' || true
+            echo
+            echo "A local-runner test skipped, so it proved nothing. Every one of them"
+            echo "calls t.Skip() when its compiler is absent, which is how a green build"
+            echo "can test none of them."
+            exit 1
+          fi
+          if [ "$passed" -eq 0 ]; then
+            echo "No local-runner test ran at all. The -run filter probably no longer matches."
+            exit 1
+          fi
+
+  # Separate job, not a matrix cell: a data race is a different kind of news from a
+  # failing assertion, and -race roughly triples the TUI suite. Linux only — the race
+  # detector finds the same races on either platform and one run is enough.
+  race:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      # The syncer runs concurrent workers against a rate limiter and the store; that is
+      # where a race would live if one existed.
+      - run: go test -race ./...
