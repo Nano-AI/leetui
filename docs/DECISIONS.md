@@ -645,6 +645,22 @@ Each escape is now wrapped individually. `TestPassthroughWrapsEachChunk` builds 
 
 ---
 
+## D-031 — A void return names the mutated argument by itself
+
+Settled 2026-08-19, after `move-zeroes` would not compile.
+
+**Decision.** Where the override table is silent, a non-design, non-`manual` solution that returns `void` is taken to answer through its **first argument**. `AnswerArg` in `internal/runner/overrides.go` makes the call, and all four generators go through it.
+
+**Why.** A function that returns nothing has no other channel. The alternative — what the code did before — was to print `"null"`, which no test case can ever match, so every uncurated void problem failed with output the user could not learn anything from. Inferring the argument turns a guaranteed dead end into a very likely pass, and where the guess is wrong the user at least sees their own data.
+
+The override table (D-003) stays the first authority in both directions. A curated argument wins, and so does a curated **opt-out**: `squares-of-a-sorted-array` and `remove-nth-node-from-end-of-list` sit in the table at `-1` on purpose, and inference does not second-guess them.
+
+**Cost.** It is a guess made on the user's behalf, and one family gets it wrong. `delete-node-in-a-linked-list` is handed the node to delete and judged on a list head it never gives us; printing from that node prints the tail. LeetCode marks that family `manual`, which `metaData` has always carried and nothing read until now, so it is excluded — but the flag is LeetCode's, not ours, and a problem it forgets to mark will be guessed at.
+
+**Mitigation.** `HasOverride` still returns false for an inferred problem, so a mismatch is phrased "check on the judge" rather than a wrong answer, exactly as D-003 requires. A guess never speaks with a curated rule's confidence. Where a guess is found to be wrong, the fix is a table entry, which is the mechanism that already exists.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)

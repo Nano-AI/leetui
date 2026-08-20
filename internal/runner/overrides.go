@@ -84,6 +84,34 @@ func RuleFor(slug string) Rule {
 	return DefaultRule()
 }
 
+// AnswerArg reports which argument holds the answer, or -1 when the return value does.
+//
+// The override table is the first authority. Where it is silent, a void return is itself
+// evidence: a function that returns nothing and is not a design class has no channel to
+// answer through except a mutated argument, and the first argument is that argument in
+// every case LeetCode has shipped. Printing "null" instead — which is what a void problem
+// with no entry used to do — is a guaranteed mismatch with nothing in it for the user.
+//
+// Two exclusions. Design problems answer through an operation sequence. Problems marked
+// `manual` have a judge driver LeetCode wrote by hand, and its output need not be any
+// argument we hold: delete-node-in-a-linked-list is handed the node to delete and judged
+// on a list head it never gives us. Guessing there is still no worse than "null", but the
+// table is the place to say so deliberately.
+//
+// A mismatch on an inferred rule is still reported as "check on the judge" (D-003):
+// HasOverride stays false, so a guess never speaks with a curated rule's confidence.
+func AnswerArg(slug string, meta Meta) int {
+	// A curated -1 is a decision, not a silence — squares-of-a-sorted-array and
+	// remove-nth-node-from-end-of-list are in the table precisely to opt out.
+	if HasOverride(slug) {
+		return RuleFor(slug).MutatesArg
+	}
+	if meta.Return.Type == "void" && !meta.IsDesign() && !meta.Manual && len(meta.Params) > 0 {
+		return 0
+	}
+	return -1
+}
+
 // HasOverride reports whether a problem has a curated rule.
 //
 // The UI uses this to phrase a failure honestly: without an override, a mismatch might

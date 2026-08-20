@@ -102,8 +102,8 @@ func jsInvocation(p Problem, meta Meta) (string, error) {
 
 	// The answer for an in-place problem is a mutated argument, not the return value.
 	mutates := "null"
-	if rule := RuleFor(p.Slug); rule.MutatesArg >= 0 {
-		mutates = fmt.Sprint(rule.MutatesArg)
+	if arg := AnswerArg(p.Slug, meta); arg >= 0 {
+		mutates = fmt.Sprint(arg)
 	}
 	return fmt.Sprintf("__leetui.run(%s, %s, %s, %q);\n",
 		meta.Name, string(types), mutates, meta.Return.Type), nil

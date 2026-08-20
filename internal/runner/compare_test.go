@@ -133,3 +133,87 @@ func TestParseMeta(t *testing.T) {
 		}
 	}
 }
+
+func TestAnswerArg(t *testing.T) {
+	meta := func(t *testing.T, raw string) Meta {
+		t.Helper()
+		m, err := ParseMeta(raw)
+		if err != nil {
+			t.Fatalf("parse meta: %v", err)
+		}
+		return m
+	}
+	voidOneArg := `{"name":"moveZeroes","params":[{"name":"nums","type":"integer[]"}],
+		"return":{"type":"void"}}`
+
+	cases := []struct {
+		name, slug, meta string
+		want             int
+	}{
+		{
+			name: "a curated argument wins over anything inferred",
+			slug: "merge-sorted-array", meta: voidOneArg, want: 0,
+		},
+		{
+			// squares-of-a-sorted-array is in the table at -1 on purpose. A curated
+			// silence is a decision and must not be second-guessed.
+			name: "a curated opt-out is respected",
+			slug: "squares-of-a-sorted-array", meta: voidOneArg, want: -1,
+		},
+		{
+			name: "an uncurated void problem answers through its first argument",
+			slug: "no-such-problem", meta: voidOneArg, want: 0,
+		},
+		{
+			name: "an uncurated problem that returns something does not",
+			slug: "no-such-problem", meta: twoSumMeta, want: -1,
+		},
+		{
+			// LeetCode writes these judge drivers by hand and prints something we may
+			// not hold — delete-node-in-a-linked-list gets the node, not the head.
+			name: "a manual problem is left alone",
+			slug: "no-such-problem",
+			meta: `{"name":"deleteNode","params":[{"name":"node","type":"ListNode"}],
+				"return":{"type":"void"},"manual":true}`,
+			want: -1,
+		},
+		{
+			name: "a design problem answers through its operations",
+			slug: "no-such-problem",
+			meta: `{"classname":"LRUCache","constructor":{"params":[]},
+				"methods":[{"name":"get","params":[],"return":{"type":"integer"}}],
+				"return":{"type":"void"}}`,
+			want: -1,
+		},
+		{
+			name: "a void problem with no arguments has nothing to mutate",
+			slug: "no-such-problem",
+			meta: `{"name":"noop","params":[],"return":{"type":"void"}}`,
+			want: -1,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := AnswerArg(tc.slug, meta(t, tc.meta)); got != tc.want {
+				t.Errorf("AnswerArg(%q) = %d, want %d", tc.slug, got, tc.want)
+			}
+		})
+	}
+
+	// Inference must not borrow a curated rule's authority: the UI phrases an uncurated
+	// mismatch as "check on the judge" rather than a wrong answer (D-003).
+	if HasOverride("no-such-problem") {
+		t.Error("an inferred problem reported itself as curated")
+	}
+}
+
+// TestInPlaceOverridesNameTheFirstArgument guards the shape both compiled generators
+// assume. They index the mutated argument directly, so an entry naming a later one would
+// generate a harness that answers with the wrong variable.
+func TestInPlaceOverridesNameTheFirstArgument(t *testing.T) {
+	for slug, rule := range overrides {
+		if rule.MutatesArg > 0 {
+			t.Errorf("%s names argument %d; the generators assume 0", slug, rule.MutatesArg)
+		}
+	}
+}

@@ -88,18 +88,33 @@ func (l *Local) generateCpp(p Problem, meta Meta, dir string) error {
 		fmt.Fprintf(&args, "a%d", i)
 	}
 
-	rule := RuleFor(p.Slug)
+	mutates := AnswerArg(p.Slug, meta)
 	var call string
 	switch {
-	case rule.MutatesArg >= 0:
-		if rule.MutatesArg >= len(meta.Params) {
+	case mutates >= 0:
+		if mutates >= len(meta.Params) {
 			return fmt.Errorf("override for %s names argument %d but there are %d",
-				p.Slug, rule.MutatesArg, len(meta.Params))
+				p.Slug, mutates, len(meta.Params))
 		}
-		call = fmt.Sprintf(
-			"    auto n = sol.%s(%s);\n"+
-				"    std::cout << leetui::dump(leetui::prefix(a%d, (int)n)) << std::endl;\n",
-			meta.Name, args.String(), rule.MutatesArg)
+		// An in-place problem answers through a mutated argument, but in two shapes.
+		// One reports the length of the meaningful prefix and the answer is the first n
+		// elements. The other returns nothing, and the whole argument is the answer:
+		// there is no length to trim to, and asking for one writes `auto n = sol.f(a0)`,
+		// which declares a variable of type void. That compile error hit exactly the
+		// problems this branch exists for — nine of the twelve in-place overrides.
+		if meta.Return.Type == "void" {
+			call = fmt.Sprintf(
+				"    sol.%s(%s);\n"+
+					"    std::cout << leetui::dump(a%d) << std::endl;\n",
+				meta.Name, args.String(), mutates)
+		} else {
+			call = fmt.Sprintf(
+				"    auto n = sol.%s(%s);\n"+
+					"    std::cout << leetui::dump(leetui::prefix(a%d, (int)n)) << std::endl;\n",
+				meta.Name, args.String(), mutates)
+		}
+	// Void, and AnswerArg declined to name an argument — a `manual` problem, or one
+	// with nothing to mutate. There is no answer to print, so say so rather than guess.
 	case meta.Return.Type == "void":
 		call = fmt.Sprintf("    sol.%s(%s);\n    std::cout << \"null\" << std::endl;\n",
 			meta.Name, args.String())

@@ -96,7 +96,8 @@ Not yet done in this phase:
 Go, or C++. Every other language edits and submits normally and runs on the judge.
 
 Local execution verified against: two-sum, longest-common-prefix, reverse-linked-list,
-maximum-depth-of-binary-tree, remove-duplicates (in-place), and LRU Cache (design).
+maximum-depth-of-binary-tree, remove-duplicates (in-place), move-zeroes and
+merge-sorted-array (in-place, void), and LRU Cache (design).
 
 Carried forward:
 - Rust has a language entry but no driver, and `rustc` is not installed here

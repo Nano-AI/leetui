@@ -55,12 +55,12 @@ type Judgement struct {
 	TotalTestcases int `json:"total_testcases"`
 
 	// Set when something went wrong, in rough order of how much the user needs it.
-	CompileError     string   `json:"compile_error"`
-	FullCompileError string   `json:"full_compile_error"`
-	RuntimeError     string   `json:"runtime_error"`
-	LastTestcase     string   `json:"last_testcase"`
-	ExpectedOutput   string   `json:"expected_output"`
-	CodeOutput       Lines    `json:"code_output"`
+	CompileError     string `json:"compile_error"`
+	FullCompileError string `json:"full_compile_error"`
+	RuntimeError     string `json:"runtime_error"`
+	LastTestcase     string `json:"last_testcase"`
+	ExpectedOutput   string `json:"expected_output"`
+	CodeOutput       Lines  `json:"code_output"`
 
 	SubmissionID json.Number `json:"submission_id"`
 }
