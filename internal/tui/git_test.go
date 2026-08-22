@@ -60,8 +60,21 @@ func gitWorkspace(t *testing.T, commit bool) Model {
 	return m
 }
 
+// openGitPane presses v and waits for the repository read to land.
+//
+// Every assertion in this file is about something git said, and loadGit shells out
+// several times over — open, status, log, remote — before it answers. drive would give
+// that whole sequence a single cmdDeadline and then drop the result, leaving a pane that
+// reads as an empty repository rather than an unread one. loadGit always answers, even
+// when the workspace is not a repository at all, so there is nothing to wait for that
+// might not come.
+func openGitPane(t *testing.T, m Model) Model {
+	t.Helper()
+	return driveAwaiting[gitLoadedMsg](t, m, key("v"))
+}
+
 func TestGitPaneNamesTheBranchAndTheUncommittedFile(t *testing.T) {
-	m := drive(t, gitWorkspace(t, false), key("v"))
+	m := openGitPane(t, gitWorkspace(t, false))
 
 	if m.mode != modeGit {
 		t.Fatalf("v did not open the repository view (mode %v)", m.mode)
@@ -85,7 +98,7 @@ func TestGitPaneNamesTheBranchAndTheUncommittedFile(t *testing.T) {
 }
 
 func TestGitPaneExplainsAWorkspaceWithNoRepository(t *testing.T) {
-	m := drive(t, boot(t, true, 120, 32), key("v"))
+	m := openGitPane(t, boot(t, true, 120, 32))
 	out := stripANSI(m.View())
 
 	// Not a fault, and not a dead end: the exact command is on screen. leetui does not
@@ -102,7 +115,7 @@ func TestGitPaneExplainsAWorkspaceWithNoRepository(t *testing.T) {
 // TestPushRefusalSaysWhy covers the failure mode a silent keybinding creates: p doing
 // nothing is indistinguishable from p being broken.
 func TestPushRefusalSaysWhy(t *testing.T) {
-	m := drive(t, gitWorkspace(t, true), key("v"))
+	m := openGitPane(t, gitWorkspace(t, true))
 	m = drive(t, m, key("p"))
 
 	if m.git.confirming {
@@ -123,7 +136,7 @@ func TestPushAsksFirst(t *testing.T) {
 	gitRun(t, remote, "init", "--bare")
 	gitRun(t, m.cfg.Workspace, "remote", "add", "origin", remote)
 
-	m = drive(t, m, key("v"))
+	m = openGitPane(t, m)
 	if !m.canPush() {
 		t.Fatalf("expected a pushable state; status %+v remote %q", m.git.status, m.git.remote)
 	}
@@ -149,9 +162,12 @@ func TestPushConfirmedReachesTheRemote(t *testing.T) {
 	gitRun(t, remote, "init", "--bare")
 	gitRun(t, m.cfg.Workspace, "remote", "add", "origin", remote)
 
-	m = drive(t, m, key("v"))
+	m = openGitPane(t, m)
 	m = drive(t, m, key("p"))
-	m = drive(t, m, key("y"))
+	// y spawns git push, so wait for it to answer rather than for cmdDeadline. The push
+	// itself would still reach the remote either way — but the message that disarms the
+	// confirmation would be dropped, and the assertion below would blame the wrong thing.
+	m = driveAwaiting[gitPushedMsg](t, m, key("y"))
 
 	// Ask the bare repository directly rather than trusting the status line.
 	out := gitRun(t, remote, "log", "--oneline")

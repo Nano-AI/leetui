@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -84,7 +85,23 @@ func seedProblems() []leetcode.ProblemSummary {
 // cmdDeadline is how long a command gets to produce a message before the harness moves
 // on. Timer-based commands (the one-second clock tick, the status-line expiry) never
 // resolve inside it, which is exactly the intent — a test must not wait on wall time.
+//
+// It is a filter, not a budget, and it cannot be both. Widening it past the 700ms watch
+// tick would make drive wait on the very commands it exists to skip, so anything slower
+// than this is unreachable by widening. A command that shells out — a local run spawns
+// python, a push spawns git — is real work with no ceiling the harness can name, and
+// belongs to driveAwaiting instead.
 var cmdDeadline = 120 * time.Millisecond
+
+// driveRounds bounds how many times a round of messages may produce another round.
+const driveRounds = 6
+
+// awaitBudget bounds driveAwaiting when the message it was told to expect never comes.
+//
+// Generous on purpose. It is not an estimate of how long a subprocess takes — nothing
+// pays it unless the test is already failing, and when that happens a few seconds buys a
+// diagnosis instead of a guess.
+const awaitBudget = 10 * time.Second
 
 // collect runs a command and gathers the messages it produces, recursing into batches.
 func collect(cmd tea.Cmd, out *[]tea.Msg) {
@@ -124,7 +141,7 @@ func drive(t *testing.T, m Model, msgs ...tea.Msg) Model {
 	var model tea.Model = m
 	pending := append([]tea.Msg{}, msgs...)
 
-	for round := 0; round < 6 && len(pending) > 0; round++ {
+	for round := 0; round < driveRounds && len(pending) > 0; round++ {
 		var produced []tea.Msg
 		for _, msg := range pending {
 			var cmd tea.Cmd
@@ -134,6 +151,125 @@ func drive(t *testing.T, m Model, msgs ...tea.Msg) Model {
 		pending = produced
 	}
 	return model.(Model)
+}
+
+// driveAwaiting settles a model like drive, but waits for the message the test is about
+// rather than for a slice of wall time.
+//
+// Use it wherever an assertion depends on a command that shells out. drive gives every
+// command cmdDeadline, and that same 120ms is then all a python or git subprocess gets:
+// about 60ms of real work on a developer's machine, which held right up until a macOS CI
+// runner made it slower and two after-edit tests began reporting that the feature had not
+// fired. The failure is silent by construction — collect drops the message it did not
+// wait long enough for, and the model simply looks as though nothing happened.
+//
+// Naming the message removes the guess. Timer commands are still never waited on: the
+// round ends the moment a T lands, so the 700ms tick beside it is abandoned exactly as
+// drive would have abandoned it.
+func driveAwaiting[T tea.Msg](t *testing.T, m Model, msgs ...tea.Msg) Model {
+	t.Helper()
+
+	var model tea.Model = m
+	pending := append([]tea.Msg{}, msgs...)
+	var delivered bool
+
+	for round := 0; round < driveRounds && len(pending) > 0; round++ {
+		cmds := make([]tea.Cmd, 0, len(pending))
+		for _, msg := range pending {
+			if _, ok := msg.(T); ok {
+				// Delivered, not merely received: the assertions are about what Update
+				// did with it, so the wait is not over until it has been through Update.
+				delivered = true
+			}
+			var cmd tea.Cmd
+			model, cmd = model.Update(msg)
+			cmds = append(cmds, cmd)
+		}
+		if delivered {
+			// Back to drive's terms. Holding the wider budget open would spend it on
+			// the timer commands that outlive the message we came for.
+			pending = gather(cmds, cmdDeadline, nil)
+			continue
+		}
+		pending = gather(cmds, awaitBudget, isMsg[T])
+	}
+
+	if !delivered {
+		t.Fatalf("no %T arrived within %s: the command that produces it either never ran "+
+			"or never finished", *new(T), awaitBudget)
+	}
+	return model.(Model)
+}
+
+// isMsg reports whether msg is a T, as a predicate gather can hold.
+func isMsg[T tea.Msg](msg tea.Msg) bool {
+	_, ok := msg.(T)
+	return ok
+}
+
+// gather runs commands concurrently and returns the messages they produce, recursing
+// into batches. It returns as soon as every command has answered, or stop accepts a
+// message, or budget expires. A nil stop waits for the first two.
+//
+// Concurrent where collect is sequential, and the difference is the point: a round mixes
+// the command under test with timer commands that never answer at all. Run one at a time,
+// each timer costs the full budget and the round costs their sum — which is affordable at
+// 120ms and absurd at ten seconds. Run together, the round costs whichever comes first.
+//
+// Abandoned commands are left running, as collect leaves them: a timer holds its
+// goroutine until it fires, each has somewhere to put its message, and the test binary
+// reaps them all on exit.
+func gather(cmds []tea.Cmd, budget time.Duration, stop func(tea.Msg) bool) []tea.Msg {
+	var (
+		mu   sync.Mutex
+		msgs []tea.Msg
+		wg   sync.WaitGroup
+		once sync.Once
+	)
+	done := make(chan struct{})
+	finish := func() { once.Do(func() { close(done) }) }
+
+	var run func(tea.Cmd)
+	run = func(cmd tea.Cmd) {
+		if cmd == nil {
+			return
+		}
+		// Counted before the parent's Done runs, so the group cannot reach zero while a
+		// batch is still handing out its children.
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			switch msg := cmd().(type) {
+			case nil:
+			case tea.BatchMsg:
+				for _, c := range msg {
+					run(c)
+				}
+			default:
+				mu.Lock()
+				msgs = append(msgs, msg)
+				mu.Unlock()
+				if stop != nil && stop(msg) {
+					finish()
+				}
+			}
+		}()
+	}
+	for _, cmd := range cmds {
+		run(cmd)
+	}
+	go func() { wg.Wait(); finish() }()
+
+	select {
+	case <-done:
+	case <-time.After(budget):
+	}
+
+	// Copied under the lock: the commands we walked away from are still holding a
+	// reference to msgs and may append to it after this returns.
+	mu.Lock()
+	defer mu.Unlock()
+	return append([]tea.Msg{}, msgs...)
 }
 
 // boot builds a model, runs Init (which is what loads the board from the store), and

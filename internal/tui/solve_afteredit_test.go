@@ -57,9 +57,13 @@ func TestEditExitRunsTheTests(t *testing.T) {
 	}
 	touchSolution(t, ws, "class Solution:\n    def twoSum(self, nums, target):\n        return []\n")
 
-	// Assert on the RESULT, not on m.running: the run completes inside drive, so the
-	// flag is back to false by the time we look and would pass either way.
-	m = drive(t, m, editDoneMsg{})
+	// Assert on the RESULT, not on m.running: the run has finished by the time we look,
+	// so the flag is back to false and would pass either way.
+	//
+	// driveAwaiting rather than drive because the run spawns python. drive would give it
+	// cmdDeadline and then quietly drop the result, which reads here as the feature not
+	// having fired at all.
+	m = driveAwaiting[runFinishedMsg](t, m, editDoneMsg{})
 	if m.runResult == nil || m.runSlug != "two-sum" {
 		t.Errorf("exiting the editor did not run the tests (result=%v slug=%q)",
 			m.runResult, m.runSlug)
@@ -122,7 +126,7 @@ func TestOneSaveRunsOnce(t *testing.T) {
 	touchSolution(t, ws, "class Solution:\n    def twoSum(self, nums, target):\n        return []\n")
 
 	// The exit claims the change.
-	m = drive(t, m, editDoneMsg{})
+	m = driveAwaiting[runFinishedMsg](t, m, editDoneMsg{})
 	if m.runResult == nil {
 		t.Fatal("the after-edit run did not happen")
 	}
