@@ -42,7 +42,7 @@ func TestSyncCost(t *testing.T) {
 	}
 	defer st.Close()
 
-	creds, _ := auth.Load()
+	creds, _, _ := auth.Load()
 	cl := leetcode.New(leetcode.WithCredentials(creds), leetcode.WithRateLimit(8))
 	sy := syncer.New(cl, st, 100)
 

@@ -26,6 +26,11 @@ type app struct {
 	client *leetcode.Client
 	sync   *syncer.Syncer
 
+	// authBackend is where the loaded credentials came from, or BackendNone when there
+	// are none. Carried so `doctor` and `login --status` can answer "where is my
+	// session kept" without a second Load.
+	authBackend auth.Backend
+
 	// log is the debug trace, or a discard. Never nil, so no call site branches.
 	log *config.Logger
 	// LogPath is where it went, for the one line that tells the user.
@@ -55,7 +60,7 @@ func open() (*app, error) {
 
 	// Missing credentials are the ordinary first-run case, not a failure: the problem
 	// list is public, so the app is useful before signing in.
-	creds, err := auth.Load()
+	creds, backend, err := auth.Load()
 	if err != nil && !errors.Is(err, auth.ErrNoCredentials) {
 		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
 	}
@@ -66,11 +71,12 @@ func open() (*app, error) {
 	)
 
 	a := &app{
-		cfg:    cfg,
-		store:  st,
-		client: client,
-		sync:   syncer.New(client, st, cfg.Sync.PageSize),
-		log:    config.Discard(),
+		cfg:         cfg,
+		store:       st,
+		client:      client,
+		sync:        syncer.New(client, st, cfg.Sync.PageSize),
+		authBackend: backend,
+		log:         config.Discard(),
 	}
 	// The environment turns tracing on for the SUBCOMMANDS, which have no convenient
 	// place for a flag — an editor owns that command line, not the user. The TUI adds

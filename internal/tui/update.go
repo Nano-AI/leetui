@@ -6,7 +6,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Nano-AI/leetui/internal/auth"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/syncer"
 	"github.com/Nano-AI/leetui/internal/tui/components"
@@ -22,7 +21,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 		m.search.Width = maxInt(m.width-20, 20)
-		m.authInput.Width = maxInt(m.width-20, 20)
+		for i := range m.authFields {
+			m.authFields[i].Width = authFieldWidth(m.width)
+		}
 		m.companyFilter.Width = maxInt(m.width-20, 20)
 
 		// Re-render whichever reading is on screen at the new width. Rendering both
@@ -107,18 +108,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.authErr = browserImportHint(msg.from, msg.err)
 			return m, nil
 		}
-		if err := auth.Store(msg.creds); err != nil {
-			m.authErr = err.Error()
-			return m, nil
-		}
-		m.client.SetCredentials(msg.creds)
-		m.mode = modeBoard
-		m.authInput.Blur()
-		m.authInput.SetValue("")
-		return m, tea.Batch(
-			m.loadAccount(),
-			status("Signed in from "+msg.from.Label()+". Press S to sync.", false),
-		)
+		// Imported cookies go through the same check as typed ones. A browser profile
+		// can hold a session that expired weeks ago, and reading it successfully says
+		// nothing about whether LeetCode still honours it.
+		m.importedFrom = msg.from.Label()
+		m.authVerify = true
+		return m, verifyCredentials(msg.creds, authSourceImport)
+
+	case authVerifiedMsg:
+		return m.handleAuthVerified(msg)
 
 	case editReadyMsg, editDoneMsg, runFinishedMsg, judgeMsg:
 		return m.handleSolveMsg(msg)

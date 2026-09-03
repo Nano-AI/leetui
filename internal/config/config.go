@@ -47,6 +47,7 @@ type Config struct {
 	UI   UI   `toml:"ui"`
 	Sync Sync `toml:"sync"`
 	Git  Git  `toml:"git"`
+	Auth Auth `toml:"auth"`
 
 	// Keys overrides individual bindings by action name, e.g. keys.submit = "S".
 	// Actions not listed keep their default. See DefaultKeymap.
@@ -117,4 +118,23 @@ type Git struct {
 
 	// CommitNotes controls whether notes.md is committed alongside solutions.
 	CommitNotes bool `toml:"commit_notes"`
+}
+
+// Auth configures where session credentials are kept.
+//
+// leetui prefers the OS keychain and needs no configuration to use it. This block exists
+// for machines that have no keychain (a headless box, an SSH session, or a Linux desktop
+// with no Secret Service running) where the only alternatives are an external helper or
+// a plaintext file.
+type Auth struct {
+	// Helper is a command that stores and retrieves credentials on leetui's behalf,
+	// following the same get/store/erase protocol Docker's credential helpers use.
+	//
+	// It exists because a helper is the only way to get real encryption without a
+	// keychain: the key lives in a GPG agent, a passphrase, or a TPM, somewhere other
+	// than beside the ciphertext. Encrypting a file with a key stored next to it would
+	// look like security without being any.
+	//
+	// Empty means no helper, and leetui falls back to a 0600 file, and says so.
+	Helper string `toml:"helper"`
 }

@@ -21,15 +21,67 @@ Settled: 2026-08-06.
 
 ## D-002 — Auth: paste cookie, with browser auto-import as convenience
 
-**Decision.** Primary path is pasting `LEETCODE_SESSION` + `csrftoken`. Secondary is reading the Chrome/Firefox cookie store on demand. Credentials go in the **OS keychain**, never plaintext config.
+**Decision.** Primary path is entering `LEETCODE_SESSION` + `csrftoken`, one field each.
+Secondary is reading the Chrome/Firefox cookie store on demand.
+Credentials go to the best store the machine has: OS keychain, then a user-configured credential helper, then a `0600` file.
+Nothing is stored until LeetCode has confirmed the cookies work.
 
-**Why.** LeetCode has no public API and no OAuth for third parties. Cookie paste is the only path that works identically on every OS with zero platform-specific code, so it is the floor. Browser import removes the friction for the common case.
+**Why.** LeetCode has no public API and no OAuth for third parties.
+Cookie entry is the only path that works identically on every OS with zero platform-specific code, so it is the floor.
+Browser import removes the friction for the common case.
 
-**Cost.** Sessions expire (~2 weeks). The app must detect 401/403 and re-prompt gracefully rather than failing mid-flow. Browser import needs macOS Keychain / Windows DPAPI / Linux keyring handling per browser, and breaks when Chrome rotates its encryption scheme — so it must always be optional and always degrade to paste.
+**Cost.** Sessions expire (~2 weeks).
+The app must detect 401/403 and re-prompt gracefully rather than failing mid-flow.
+Browser import needs macOS Keychain / Windows DPAPI / Linux keyring handling per browser, and breaks when Chrome rotates its encryption scheme, so it must always be optional and always degrade to manual entry.
 
 **Reverses if.** LeetCode ships a real API token. (They will not.)
 
-**Security invariant.** Cookies never touch `config.toml`, never get logged, never appear in an error message or a crash dump. Any HTTP debug logging must redact `Cookie` and `x-csrftoken` headers.
+**Security invariant.** Cookies never get logged, never appear in an error message or a crash dump, and never reach `config.toml`. Any HTTP debug logging must redact `Cookie` and `x-csrftoken` headers. Where a credential is written at rest is governed by D-002a, and a store weaker than the keychain must be disclosed to the user every time it is used.
+
+### D-002a — Storage: a fallback chain that is never silent
+
+**Amends D-002**, which said credentials go in the OS keychain and nowhere else.
+
+**Problem.** On Linux the keychain is the D-Bus Secret Service, and plenty of ordinary machines do not have one: a headless box, a container, an SSH session, a tiling WM that ships no keyring agent.
+On those, `keyring.Set` fails and sign-in cannot complete at all.
+The user saw a raw godbus error about `org.freedesktop.secrets`, truncated to the width of the sign-in panel.
+"Cannot sign in on this machine" is not a defensible reading of an invariant.
+
+**Decision.** Store to the best backend available, in order:
+
+1. **OS keychain.** Preferred, needs no configuration.
+2. **Credential helper.** A command in `[auth] helper`, following Docker's `get`/`store`/`erase` protocol.
+3. **Plaintext file.** `credentials.json` in the config dir, mode `0600`. Last resort.
+
+A tier is skipped only when it is genuinely unavailable.
+A keychain that exists and refuses the write is an error, not a reason to downgrade.
+`LEETUI_SESSION`/`LEETUI_CSRF` override everything at load time, for CI and for `pass`-driven shells.
+
+**Why not encrypt the file ourselves?** Because the key would have to live beside the ciphertext, and anyone who can read one can read the other.
+It raises no attacker's cost while letting the tool claim a security property it does not have.
+Docker reached the same conclusion: it moved from base64-in-`config.json` not to self-encryption but to **external credential helpers**, which is why tier 2 exists.
+A helper is the only way to get real encryption without a keychain, because the key ends up in a GPG agent, a passphrase, or a TPM.
+
+**Why a fallback at all, given the GitHub CLI's reputation for this?** Because the objection to `gh` is not that it falls back.
+It is that it falls back *silently* ([cli/cli#10108](https://github.com/cli/cli/issues/10108), [#8954](https://github.com/cli/cli/issues/8954), [#7757](https://github.com/cli/cli/issues/7757), [#13317](https://github.com/cli/cli/issues/13317) are all "I had no idea, and nothing told me").
+So the disclosure is the load-bearing part of this decision, not the chain.
+`auth.Store` and `auth.Load` return a `Backend` that every caller must handle, and it is surfaced in three places: the sign-in panel says where the cookies will go *before* they are typed, the confirmation says where they went, and `leetui doctor` has an `auth` section that names the file and both ways off it.
+
+**Cost.** A `0600` file is readable by anything running as that user.
+That is a genuine reduction against a keychain and the reason it is last, disclosed every time, and never chosen while a better tier works.
+
+### D-002b — Verify before storing
+
+**Decision.** Sign-in asks LeetCode `Status` with the candidate cookies and stores only if `isSignedIn`.
+
+**Why.** Storing whatever parsed and reporting success meant a typo'd or expired cookie produced "Signed in", then failed later mid-action as "Session expired", by which point the user had no reason to connect the failure to what they typed.
+It also silently replaced a working session with a broken one.
+Verification runs on a throwaway client, so an unverified session never becomes the one the app is using and a failure has nothing to roll back.
+
+**Bonus.** `UserStatus.Username` comes back from the same call, which is the only thing that ever populated `Credentials.Username`.
+
+**Cost.** One round trip on the sign-in path, and sign-in now requires network. Both are acceptable: the credentials are useless without network anyway.
+
 
 ---
 

@@ -9,6 +9,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 
@@ -75,6 +76,12 @@ func dispatch(args []string) int {
 	defer a.Close()
 
 	code, err := cmd.run(a, args[1:])
+	// -h is a request that was granted, not a failure. The flag package has already
+	// printed the usage the user asked for, and following it with "leetui: flag: help
+	// requested" reads as though asking for help was itself the mistake.
+	if errors.Is(err, flag.ErrHelp) {
+		return exitOK
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "leetui: %v\n", err)
 		if errors.Is(err, solve.ErrNoProblem) {

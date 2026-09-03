@@ -41,6 +41,14 @@ type Charset struct {
 	// Cursor is the bar marking the selected row. It costs no width and disturbs no
 	// alignment, which is the whole reason it is a half-block and not a caret.
 	Cursor string
+
+	// Check and Cross mark a form field as filled or still empty.
+	//
+	// They carry real information in the sign-in panel, where both fields are masked
+	// and the marker is the only thing that answers "did that paste land". So they get
+	// an ASCII fallback like everything else here: a terminal that cannot draw them
+	// would otherwise show the user two question marks in place of the one signal.
+	Check, Cross string
 }
 
 var (
@@ -60,6 +68,8 @@ var (
 		Bullet:   "┊",
 		Dot:      "·",
 		Cursor:   "▌",
+		Check:    "✓",
+		Cross:    "✗",
 	}
 
 	// asciiChars survives anything, including a non-UTF-8 locale.
@@ -85,6 +95,11 @@ var (
 		// sentence, and these separate items inside one.
 		Dot:    "*",
 		Cursor: ">",
+		// "*" and "-" rather than "y"/"n" or "!": one column each, unambiguous at a
+		// glance, and the empty state reads as "nothing here yet" rather than as a
+		// warning. An unfilled field is a step not reached, not a mistake.
+		Check: "*",
+		Cross: "-",
 	}
 )
 

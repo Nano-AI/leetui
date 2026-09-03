@@ -6,29 +6,37 @@
 //	LEETCODE_SESSION  the session JWT
 //	csrftoken         required as the x-csrftoken header on every mutating request
 //
+// STORAGE. Credentials go to the best store the machine actually has, in this order:
+//
+//	keychain  the OS keyring - preferred, and the only tier that needs no setup
+//	helper    a user-configured command (config.toml [auth] helper), Docker's model
+//	file      credentials.json in the config dir, mode 0600 - the last resort
+//
+// The file tier exists because the alternative is that leetui simply cannot sign in on
+// a Linux box with no Secret Service, which is not a defensible answer. What is not
+// negotiable is that the fallback is never silent: see Backend, which every caller of
+// Store and Load receives so it can tell the user where the secret went.
+//
+// We deliberately do NOT encrypt the file with a key kept beside it. That raises no
+// attacker's cost (anyone who can read the ciphertext can read the key) while letting
+// the tool claim a security property it does not have. Docker reached the same
+// conclusion and answered it with external helpers rather than self-encryption, which
+// is why the helper tier exists.
+//
 // SECURITY INVARIANTS — these are not style preferences:
 //
-//   - Credentials live in the OS keychain. Never in config.toml, never in the workspace,
-//     never in a dotfile.
 //   - Credentials are never logged, never included in an error message, and never
 //     written to a crash dump. Redact() exists for anything that must be displayed.
 //   - String returns a redacted form so an accidental %v or %s cannot leak a session.
+//   - A credentials file that is readable by anyone but its owner is refused, not
+//     repaired: a permission that loosened is a fact the user needs to hear.
 package auth
 
 import (
 	"errors"
 	"fmt"
 	"regexp"
-
-	"github.com/zalando/go-keyring"
-)
-
-// keyring identifiers.
-const (
-	service     = "leetui"
-	keySession  = "leetcode_session"
-	keyCSRF     = "leetcode_csrftoken"
-	keyUsername = "leetcode_username" // cosmetic only; shown in the rail
+	"strings"
 )
 
 // ErrNoCredentials means nothing is stored yet — the user has not authenticated.
@@ -116,83 +124,69 @@ func Parse(pasted string) (Credentials, error) {
 	return c, nil
 }
 
-// ---------------------------------------------------------------------------
-// Keychain storage
-// ---------------------------------------------------------------------------
-
-// Store writes credentials to the OS keychain.
-func Store(c Credentials) error {
-	if !c.Valid() {
-		return errors.New("refusing to store incomplete credentials")
-	}
-	if err := keyring.Set(service, keySession, c.Session); err != nil {
-		return fmt.Errorf("store session in keychain: %w", err)
-	}
-	if err := keyring.Set(service, keyCSRF, c.CSRF); err != nil {
-		return fmt.Errorf("store csrf token in keychain: %w", err)
-	}
-	if c.Username != "" {
-		// Cosmetic; a failure here must not fail authentication.
-		_ = keyring.Set(service, keyUsername, c.Username)
-	}
-	return nil
-}
-
-// Load reads credentials from the OS keychain.
+// Sniff reports whether a string contains BOTH cookies by name.
 //
-// Returns ErrNoCredentials when nothing is stored, which is the ordinary first-run case
-// and not a failure.
-func Load() (Credentials, error) {
-	var c Credentials
-
-	session, err := keyring.Get(service, keySession)
-	if errors.Is(err, keyring.ErrNotFound) {
-		return c, ErrNoCredentials
-	}
-	if err != nil {
-		return c, fmt.Errorf("read session from keychain: %w", err)
-	}
-
-	csrf, err := keyring.Get(service, keyCSRF)
-	if errors.Is(err, keyring.ErrNotFound) {
-		return c, ErrNoCredentials
-	}
-	if err != nil {
-		return c, fmt.Errorf("read csrf token from keychain: %w", err)
-	}
-
-	c.Session, c.CSRF = session, csrf
-	if u, err := keyring.Get(service, keyUsername); err == nil {
-		c.Username = u
-	}
-	return c, nil
+// It is the smart-paste hook for the two-field sign-in form: when what landed in either
+// field turns out to be a whole cookie header or a cURL command, both fields can be
+// filled from that one paste instead of making the user split it by hand.
+//
+// Deliberately all-or-nothing. Half a credential distributed across the form is worse
+// than leaving the paste alone, because the user cannot see which half moved.
+func Sniff(s string) (Credentials, bool) {
+	c, err := Parse(s)
+	return c, err == nil
 }
 
-// Clear removes stored credentials. Missing entries are not an error, so Clear is safe
-// to call as part of sign-out regardless of current state.
-func Clear() error {
-	var errs []error
-	for _, k := range []string{keySession, keyCSRF, keyUsername} {
-		if err := keyring.Delete(service, k); err != nil && !errors.Is(err, keyring.ErrNotFound) {
-			errs = append(errs, err)
+// Clean reduces one pasted field to the bare cookie value.
+//
+// The user is copying out of a devtools table, a password manager, or a shell variable,
+// and each one decorates the value differently. Rather than reject the decoration,
+// which is what the old single-field form did, with "found neither LEETCODE_SESSION nor
+// csrftoken" as the only explanation - strip it:
+//
+//	LEETCODE_SESSION=eyJ…    a name= prefix, in either = or : form
+//	"eyJ…"                   surrounding quotes, from JSON or a shell
+//	eyJ…;                    a trailing semicolon, from a cookie header
+//
+// Whitespace goes too, including the newline a terminal appends to a bracketed paste.
+func Clean(raw string) string {
+	v := strings.TrimSpace(raw)
+
+	// A name= prefix, only when it names a cookie we actually want. Stripping any
+	// leading "word=" would silently mangle a value that legitimately contains one.
+	for _, name := range []string{"LEETCODE_SESSION", "csrftoken"} {
+		if len(v) > len(name) && strings.EqualFold(v[:len(name)], name) {
+			if rest := strings.TrimLeft(v[len(name):], " \t"); strings.HasPrefix(rest, "=") || strings.HasPrefix(rest, ":") {
+				v = strings.TrimSpace(rest[1:])
+				break
+			}
 		}
 	}
-	return errors.Join(errs...)
+
+	// Quotes, but only as a matched pair: a lone quote is part of the value, or a
+	// sign the paste is truncated, and either way is not ours to remove.
+	if len(v) >= 2 {
+		if (v[0] == '"' && v[len(v)-1] == '"') || (v[0] == '\'' && v[len(v)-1] == '\'') {
+			v = v[1 : len(v)-1]
+		}
+	}
+
+	return strings.TrimSpace(strings.TrimRight(strings.TrimSpace(v), ";"))
 }
 
 // ---------------------------------------------------------------------------
 // Onboarding copy
 // ---------------------------------------------------------------------------
 
-// PasteSteps is the manual fallback, as short directions rather than an explanation.
+// PasteSteps is the manual route, as short directions rather than an explanation.
 // The user is mid-task and wants the steps, not a description of how the app works.
 //
 // Each line is kept under 52 columns so it fits the sign-in panel without wrapping.
 func PasteSteps() []string {
 	return []string{
 		"On leetcode.com: devtools → Application → Cookies",
-		"Copy LEETCODE_SESSION and csrftoken",
-		"Paste here in any form — cookie header, cURL, or",
-		"the two values on separate lines.",
+		"Copy each value into the matching field above.",
+		"A whole cookie header or cURL command works too:",
+		"paste it into either field and both fill in.",
 	}
 }

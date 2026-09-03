@@ -89,10 +89,22 @@ type Model struct {
 	packCounts map[leetcode.Timeframe]int
 
 	// Auth.
-	authInput textinput.Model
-	authErr   string
-	browsers  []auth.Browser
-	importing string // label of the browser currently being read, if any
+	//
+	// Two fields rather than one box holding both secrets. The single-field form asked
+	// the user to assemble "LEETCODE_SESSION=…; csrftoken=…" themselves, which is not
+	// the shape devtools hands you when you copy the two values out of its cookie table.
+	authFields [authFieldCount]textinput.Model
+	authFocus  int  // authFocusBrowsers, or authFocusSession/authFocusCSRF
+	authReveal bool // unmasked, so a bad paste can actually be seen
+	authVerify bool // a check against LeetCode is in flight
+	authErr    string
+	browsers   []auth.Browser
+	browserIdx int    // highlighted row in the browser list
+	importing  string // label of the browser currently being read, if any
+
+	// importedFrom is the browser a set of credentials came from, remembered across
+	// the verification round trip so the confirmation can name it.
+	importedFrom string
 
 	// Solve loop.
 	engine    runner.Engine
@@ -216,13 +228,21 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 	search.Placeholder = "search titles, tags, statements"
 	search.CharLimit = 120
 
-	authIn := textinput.New()
-	authIn.Prompt = ""
-	authIn.Placeholder = "paste cookies here"
-	authIn.CharLimit = 4096
-	// The pasted blob contains a session token. Echo it masked so it cannot be read off
-	// the screen or captured in a screen recording.
-	authIn.EchoMode = textinput.EchoPassword
+	// Both cookie fields are masked by default, because they are secrets and the
+	// terminal they are typed into may be shared or recorded. ctrl+r unmasks them:
+	// verifying an 800-character JWT you cannot see is not possible, and the old form
+	// offered no way to look.
+	var authFields [authFieldCount]textinput.Model
+	for i := range authFields {
+		in := textinput.New()
+		in.Prompt = ""
+		in.EchoMode = textinput.EchoPassword
+		in.Placeholder = "paste the value, or a whole cookie header"
+		// Sized for a LeetCode session JWT, which runs past 800 characters, with room
+		// for the cookie header a smart paste arrives as.
+		in.CharLimit = 4096
+		authFields[i] = in
+	}
 
 	companyIn := textinput.New()
 	companyIn.Prompt = ""
@@ -250,7 +270,7 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 		keys:          cfg.Actions(),
 		focus:         paneBoard,
 		search:        search,
-		authInput:     authIn,
+		authFields:    authFields,
 		companyFilter: companyIn,
 	}
 }
