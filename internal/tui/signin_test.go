@@ -246,7 +246,15 @@ func TestEscDuringVerificationCancels(t *testing.T) {
 	m = paste(t, m, testCSRF)
 	creds := m.authCreds()
 
-	m = drive(t, m, key("enter"))
+	// Update directly rather than through drive. The command enter returns really
+	// calls leetcode.com -- verifyCredentials builds its own client, so the harness's
+	// offline transport does not reach it -- and it lands either side of drive's 120ms
+	// deadline depending on the network. Under it, the answer arrives, clears
+	// authVerify, and this test fails; over it, the answer is dropped and it passes.
+	// Dropping the command removes the coin flip: the answer that matters here is the
+	// synthetic one below, which is the whole point of the test.
+	next, _ := m.Update(key("enter"))
+	m = next.(Model)
 	if !m.authVerify {
 		t.Fatal("a complete form did not start a verification")
 	}
