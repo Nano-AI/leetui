@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -28,16 +29,36 @@ func testStore(t *testing.T) *store.Store {
 // loop's paging, checkpointing, and resume behaviour can be tested without the network.
 type fakeLeetCode struct {
 	total    int
-	calls    int
 	failAt   int  // return 500 on this call index (1-based); 0 disables
 	rateAt   int  // return 429 on this call index; 0 disables
 	rateOnce bool // only rate-limit the first time
-	rated    bool
+
+	// mu guards what the handler writes. Cancelling a sync does not stop the handler
+	// goroutine already serving its last request, so a test that cancels and then reads
+	// the counter is reading it while that goroutine is still incrementing it.
+	mu    sync.Mutex
+	calls int
+	rated bool
+}
+
+// callCount reports how many requests the fake has served.
+func (f *fakeLeetCode) callCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.calls
 }
 
 func (f *fakeLeetCode) handler(t *testing.T) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f.mu.Lock()
 		f.calls++
+		calls := f.calls
+		failNow := f.failAt == calls
+		rateNow := f.rateAt == calls && !(f.rateOnce && f.rated)
+		if rateNow {
+			f.rated = true
+		}
+		f.mu.Unlock()
 
 		var body struct {
 			Variables struct {
@@ -49,13 +70,12 @@ func (f *fakeLeetCode) handler(t *testing.T) http.HandlerFunc {
 			t.Errorf("decode request: %v", err)
 		}
 
-		if f.failAt == f.calls {
+		if failNow {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, `{"errors":[{"message":"boom"}]}`)
 			return
 		}
-		if f.rateAt == f.calls && !(f.rateOnce && f.rated) {
-			f.rated = true
+		if rateNow {
 			w.WriteHeader(http.StatusTooManyRequests)
 			return
 		}
