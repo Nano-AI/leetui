@@ -344,15 +344,55 @@ profile without touching the user's:
 LEETUI_CONFIG_DIR=/tmp/agent-profile leetui todo --json
 ```
 
-The database lives in `~/.local/share/leetui/`. Session cookies are in the OS keychain,
-never on disk, and never printed — `leetui` will not hand you a session token.
+The database lives in `~/.local/share/leetui/`.
+Session cookies go to the best store the machine has: the OS keychain, then a credential helper you configure, then a `0600` file (D-002a).
+`leetui doctor` reports which one is in use.
+They are never printed either way — `leetui` will not hand you a session token.
+
+### Signing in without a keychain
+
+`leetui doctor` has an `auth` section that reports which store is in use and what else this machine offers.
+
+If it says the credentials are in a `0600` file, that is the last resort and it is working as designed — but there is a better option if you have `pass`, `gpg`, `age`, or anything else that can hold a secret.
+Point `[auth] helper` at a command implementing Docker's credential-helper protocol:
+
+```toml
+[auth]
+helper = "leetui-credential-pass"
+```
+
+The whole implementation, against `pass`:
+
+```sh
+#!/bin/sh
+# leetui-credential-pass — put this on your PATH, chmod +x
+case "$1" in
+  store) pass insert -m -f leetui/credentials >/dev/null ;;
+  get)   pass show leetui/credentials ;;
+  erase) pass rm -f leetui/credentials >/dev/null ;;
+esac
+```
+
+`get` writes `{"session":"…","csrftoken":"…","username":"…"}` to stdout and exits non-zero when it holds nothing yet.
+`store` reads that same JSON on stdin. Anything the helper writes to stderr is shown to the user on failure; stdin and stdout are never logged.
+
+For CI, or a shell that already sources secrets from somewhere, skip storage entirely:
+
+```sh
+export LEETUI_SESSION="…"
+export LEETUI_CSRF="…"
+```
+
+Both are required together, and they take precedence over everything on disk.
 
 ---
 
 ## What this surface will not do
 
-- **Sign in.** Credentials go through the interactive app, into the OS keychain. There is
-  no flag that takes a cookie.
+- **Sign in silently.** `leetui login` exists, for machines where the full-screen app is
+  awkward to reach, and it takes `--session`/`--csrf`/`--stdin`. What it will not do is
+  store anything it has not first verified against LeetCode, or fall back to a weaker
+  credential store without saying so on stdout.
 - **Print credentials.** Nothing here outputs a session token, and debug logging redacts
   them.
 - **Submit without being asked.** See above; it is real and public.

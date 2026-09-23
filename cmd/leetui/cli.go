@@ -83,6 +83,16 @@ var commands = []command{
 		run:     runImage,
 	},
 	{
+		name: "login", usage: "[--stdin|--status]",
+		summary: "store your LeetCode cookies, after checking that they work",
+		run:     runLogin,
+	},
+	{
+		name:    "logout",
+		summary: "forget the stored cookies",
+		run:     runLogout,
+	},
+	{
 		name:    "doctor",
 		summary: "check this machine: toolchains, editor, terminal images",
 		run:     runDoctor,
@@ -109,7 +119,7 @@ func usage(w io.Writer) {
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i].name < sorted[j].name })
 
 	for _, c := range sorted {
-		fmt.Fprintf(w, "  leetui %-8s %-14s %s\n", c.name, c.usage, c.summary)
+		fmt.Fprintf(w, "  leetui %-7s %-18s %s\n", c.name, c.usage, c.summary)
 	}
 
 	fmt.Fprintln(w)

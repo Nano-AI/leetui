@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
+	"github.com/Nano-AI/leetui/internal/auth"
 	"github.com/Nano-AI/leetui/internal/config"
 	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/runner"
@@ -32,6 +34,8 @@ func runDoctor(a *app, args []string) (int, error) {
 	if _, err := os.Stat(a.cfg.Workspace); err != nil {
 		fmt.Fprintf(w, "  %-14s not created yet — it appears on the first pull\n", "state")
 	}
+
+	problems += reportAuth(w, a)
 
 	fmt.Fprintln(w, "\nlocal runners")
 	engine := runner.NewLocal()
@@ -131,4 +135,55 @@ func splitLines(s string) []string {
 		}
 	}
 	return append(out, s[start:])
+}
+
+// reportAuth says whether the user is signed in and, more importantly, WHERE the
+// credentials are kept.
+//
+// doctor reported nothing about auth at all, which made it useless for the one failure
+// it should have caught first: a Linux machine with no Secret Service, where signing in
+// could not work and nothing on screen explained why. The storage line is not a
+// curiosity: it is the difference between "my session is in the OS keychain" and "my
+// session is a readable file", and the user is entitled to know which.
+//
+// Read-only, like the rest of doctor: it reads what is stored but never contacts
+// LeetCode. `leetui login --status` is the command that asks the judge.
+func reportAuth(w io.Writer, a *app) int {
+	fmt.Fprintln(w, "\nauth")
+
+	avail := auth.Available()
+	names := make([]string, len(avail))
+	for i, b := range avail {
+		names[i] = string(b)
+	}
+	fmt.Fprintf(w, "  %-14s %s\n", "available", strings.Join(names, ", "))
+
+	if a.authBackend == auth.BackendNone {
+		fmt.Fprintf(w, "  %-14s not signed in - run: leetui login\n", "state")
+		// Not a problem to fix. The board is public and works signed out.
+		return 0
+	}
+
+	who := "signed in"
+	if u := a.client.Username(); u != "" {
+		who = "signed in as " + u
+	}
+	fmt.Fprintf(w, "  %-14s %s\n", "state", who)
+	fmt.Fprintf(w, "  %-14s %s\n", "stored in", a.authBackend.Describe())
+
+	if a.authBackend.Secure() || a.authBackend == auth.BackendEnv {
+		return 0
+	}
+
+	// The plaintext case. Name the file, and name both ways off it.
+	if path, err := auth.FilePath(); err == nil {
+		fmt.Fprintf(w, "  %-14s %s\n", "path", path)
+	}
+	fmt.Fprintf(w, "  %-14s no OS keychain here; readable by your user only\n", "note")
+	fmt.Fprintf(w, "  %-14s start a Secret Service (gnome-keyring, kwallet),\n", "to improve")
+	fmt.Fprintf(w, "  %-14s or set [auth] helper in %s\n", "", a.cfg.Path())
+
+	// Deliberately not counted as a problem. It is a working configuration and the
+	// only one available on some machines; doctor's exit code should not fail CI for it.
+	return 0
 }

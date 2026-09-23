@@ -81,7 +81,7 @@ func TestSyncResumesFromCheckpoint(t *testing.T) {
 
 	// Resume. The fake counts calls, so a restart-from-zero would be visible as extra
 	// requests for pages already stored.
-	callsBefore := fake.calls
+	callsBefore := fake.callCount()
 	ch2 := make(chan Progress, 64)
 	go func() { _ = sy.Problems(ctx, ch2, true) }()
 	drainProgress(ch2)
@@ -95,7 +95,7 @@ func TestSyncResumesFromCheckpoint(t *testing.T) {
 	}
 
 	wantCalls := (500 - mid + 99) / 100
-	if got := fake.calls - callsBefore; got > wantCalls+1 {
+	if got := fake.callCount() - callsBefore; got > wantCalls+1 {
 		t.Errorf("resume made %d requests, want about %d — it restarted instead of resuming",
 			got, wantCalls)
 	}

@@ -29,7 +29,7 @@ func TestLiveContestEndpoints(t *testing.T) {
 	if os.Getenv("LEETUI_LIVE") != "1" {
 		t.Skip("set LEETUI_LIVE=1 to run")
 	}
-	creds, err := auth.Load()
+	creds, _, err := auth.Load()
 	if err != nil {
 		t.Fatalf("no credentials: %v", err)
 	}

@@ -307,7 +307,9 @@ go run ./cmd/leetui --no-motion                            # animation off
 ```
 
 Config is written to `~/.config/leetui/config.toml`; the database lives in
-`~/.local/share/leetui/`. Session cookies go to the OS keychain, never to disk.
+`~/.local/share/leetui/`. Session cookies go to your OS keychain. On a machine
+without one, they go to a credential helper you configure or to a `0600` file, and
+leetui tells you which — see `leetui doctor`.
 
 ---
 
@@ -476,7 +478,7 @@ Amber is the system speaking. Bone is content. **Green and red belong to the jud
 Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
 - **Go + Bubbletea/Lipgloss/Glamour** — single static binary
-- **Auth** — paste `LEETCODE_SESSION` + `csrftoken`, browser import as convenience, stored in the OS keychain
+- **Auth** — a field each for `LEETCODE_SESSION` and `csrftoken`, browser import as convenience, verified before it is stored, and kept in the best store your machine has
 - **Run local, submit remote** — tight loop stays offline, correctness of record comes from the judge
 - **Local execution: Python, Go, C++, JavaScript, TypeScript** — vendored drivers, zero new dependencies. Everything else edits and submits normally and runs on the judge
 - **Full Premium parity** — company packs, editorials, premium problems. No mock assessments

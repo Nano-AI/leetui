@@ -23,7 +23,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
 ## Phase 1 — Read-only client ✅ **CHECKPOINT — ready to test**
 
-- [x] `auth` — cookie paste (accepts any paste shape) + OS keychain storage
+- [x] `auth` — two fields, reveal toggle, smart paste, verified before storing, keychain/helper/file chain
 - [x] `leetcode` — GraphQL client, single rate limiter, typed errors, redacted logging
 - [x] `store` — schema, migrations, FTS5, faceted queries
 - [x] `syncer` — resumable checkpointed problem sync, 429 backoff, cancellable

@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"github.com/Nano-AI/leetui/internal/auth"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -206,15 +205,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.openGit()
 
 	case "auth":
-		m.mode = modeAuth
-		m.authErr = ""
-		m.importing = ""
-		m.authInput.SetValue("")
-		m.authInput.Focus()
-		// Detection is pure filesystem stats — no keychain, so no prompt until the
-		// user actually picks a browser.
-		m.browsers = auth.DetectBrowsers()
-		return m, textinput.Blink
+		// Detection inside beginAuth is pure filesystem stats — no keychain, so no
+		// prompt until the user actually picks a browser.
+		return m.beginAuth()
 
 	case "open_web":
 		return m.openInBrowser()

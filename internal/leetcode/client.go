@@ -91,5 +91,11 @@ func New(opts ...Option) *Client {
 // Authenticated reports whether a session is attached.
 func (c *Client) Authenticated() bool { return c.creds.Valid() }
 
+// Username is the account the stored credentials belong to, or "" if unknown.
+//
+// Cosmetic, and offline: it reports what was recorded at sign-in rather than asking
+// LeetCode. Callers that need the live answer call Status.
+func (c *Client) Username() string { return c.creds.Username }
+
 // SetCredentials swaps the session in place, for re-auth without rebuilding the client.
 func (c *Client) SetCredentials(cr auth.Credentials) { c.creds = cr }

@@ -28,7 +28,8 @@ internal/
               settings.go the settable registry — palette and settings view share it
               graphics.go which image protocol, and what is blocking it
               debug.go the redacted trace log (D-028)
-  auth/       auth.go paste+keychain · browser.go types · detect.go · import.go
+  auth/       auth.go parse · store.go backend chain · file/helper/env.go
+              browser.go types · detect.go · import.go
               chromium.go · chromium_crypto.go · firefox.go · cookiedb.go
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
               queries.go documents · models.go wire types · submit.go judge · rest.go
@@ -187,8 +188,12 @@ including panic (`defer` + `recover` at the top of `main`).
 
 ## Security invariants
 
-- Cookies live in the OS keychain. Never in `config.toml`, never in logs, never in an
-  error string.
+- Cookies live in the best store the machine has: OS keychain, then a configured
+  credential helper, then a `0600` file (D-002a). Never in `config.toml`, never in logs,
+  never in an error string.
+- A store weaker than the keychain is disclosed every time it is used, before sign-in
+  and after. A silent downgrade is the failure this chain exists to avoid.
+- Nothing is stored until LeetCode has confirmed the credentials work (D-002b).
 - HTTP debug logging redacts `Cookie` and `x-csrftoken`.
 - `vcs` verifies repo, branch, and remote before committing (D-011). Push is never
   automatic.

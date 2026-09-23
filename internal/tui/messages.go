@@ -119,6 +119,18 @@ type (
 		err   error
 	}
 
+	// authVerifiedMsg carries the answer to "do these cookies actually work".
+	//
+	// Sign-in asks LeetCode before storing anything, so the confirmation the user reads
+	// is one the judge agreed with. status.Username is the payoff beyond validation:
+	// it is the only place Credentials.Username ever gets a value.
+	authVerifiedMsg struct {
+		creds  auth.Credentials
+		source authSource
+		status leetcode.UserStatus
+		err    error
+	}
+
 	// editReadyMsg means the workspace is laid out and the editor can be launched.
 	// The plan carries where it opens — a pane, its own window, or this terminal.
 	editReadyMsg struct{ plan editPlan }

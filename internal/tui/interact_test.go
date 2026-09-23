@@ -67,16 +67,15 @@ func TestEmptyStateInvitesAction(t *testing.T) {
 	}
 }
 
-// TestAuthInputIsMasked is a security check: the pasted blob contains a session token,
-// and it must never be legible on screen.
+// TestAuthInputIsMasked is a security check: the cookies are session tokens, and they
+// must not be legible on screen until the user asks for them to be.
 func TestAuthInputIsMasked(t *testing.T) {
-	m := drive(t, boot(t, true, 120, 32), key("a"))
+	m := openSignIn(t)
 
 	secret := "supersecrettoken"
-	for _, r := range secret {
-		m = drive(t, m, key(string(r)))
-	}
-	if got := m.authInput.Value(); got != secret {
+	m = typeInto(t, m, secret)
+
+	if got := m.authFields[authFieldSession].Value(); got != secret {
 		t.Fatalf("input value = %q, want the typed text", got)
 	}
 	if strings.Contains(m.View(), secret) {

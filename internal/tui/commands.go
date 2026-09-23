@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Nano-AI/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/render"
 	"github.com/Nano-AI/leetui/internal/store"
 )
@@ -149,18 +150,63 @@ func (m Model) importFromBrowser(b auth.Browser) (tea.Model, tea.Cmd) {
 
 // browserImportHint turns an import failure into something the user can act on.
 //
-// The two common cases are "you are not signed in there" and "you declined the keychain
-// prompt", and neither is served by showing a raw error.
+// The common cases are "you are not signed in there", "you declined the keychain
+// prompt", and, on Linux, "this profile is encrypted with a key we cannot reach".
+// None of them is served by showing a raw error.
 func browserImportHint(b auth.Browser, err error) string {
+	msg := err.Error()
 	switch {
 	case errors.Is(err, auth.ErrNoBrowserCookies):
-		return "No LeetCode session in " + b.Label() + ". Sign in there, or paste below."
-	case strings.Contains(err.Error(), "keychain"):
-		return "Keychain access denied. Allow it, or paste the cookies below."
+		return "No LeetCode session in " + b.Label() + ". Sign in there, or enter them below."
+
+	case strings.Contains(msg, "keychain"):
+		return "Keychain access denied. Allow it, or enter the cookies below."
+
+	// Chromium on Linux encrypts its cookie store with a key held in the Secret
+	// Service, and falls back to a fixed passphrase when there is none. Decrypting a
+	// profile written under the other assumption fails deep in the cipher, so what
+	// surfaces is "bad padding" — true, and useless. Say what it means instead.
+	case strings.Contains(msg, "bad padding"), strings.Contains(msg, "unsupported cookie encryption"):
+		return "Cannot decrypt " + b.Label() + " cookies on this machine. Enter them below."
+
+	// No Secret Service at all, which is the ordinary case on a headless box or over
+	// SSH. The raw godbus text names an interface the user has never heard of.
+	case strings.Contains(msg, "org.freedesktop.secrets"), strings.Contains(msg, "session bus"):
+		return "No keychain on this machine to unlock " + b.Label() + ". Enter them below."
+
 	default:
-		return "Could not read " + b.Label() + ": " + err.Error()
+		return "Could not read " + b.Label() + ": " + msg
 	}
 }
+
+// authSource records which route produced a set of credentials, so the confirmation
+// can say where they came from after the round trip that verifies them.
+type authSource int
+
+const (
+	authSourcePaste authSource = iota
+	authSourceImport
+)
+
+// verifyCredentials asks LeetCode whether these cookies actually work.
+//
+// It builds a throwaway client rather than calling SetCredentials on the live one, so
+// an unverified session never becomes the one the rest of the app is using. If the
+// check fails, there is nothing to roll back.
+func verifyCredentials(c auth.Credentials, src authSource) tea.Cmd {
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), authVerifyTimeout)
+		defer cancel()
+
+		cl := leetcode.New(leetcode.WithCredentials(c))
+		st, err := cl.Status(ctx)
+		return authVerifiedMsg{creds: c, source: src, status: st, err: err}
+	}
+}
+
+// authVerifyTimeout bounds the check. Short, because the user is waiting on it with a
+// half-finished form on screen and a slow answer is worse than a retry.
+const authVerifyTimeout = 15 * time.Second
 
 func (m Model) loadAccount() tea.Cmd {
 	sy := m.sync
