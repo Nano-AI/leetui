@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,6 +27,9 @@ func runSubmit(a *app, args []string) (int, error) {
 	if err != nil {
 		return exitProblem, err
 	}
+	if len(rest) > 1 {
+		return exitProblem, fmt.Errorf("usage: leetui submit [problem|file] [--lang language]")
+	}
 	arg := first(rest)
 
 	if !a.client.Authenticated() {
@@ -44,7 +48,7 @@ func runSubmit(a *app, args []string) (int, error) {
 		return exitProblem, err
 	}
 
-	out, err := solve.Prepare(a.cfg.Workspace, d, l)
+	out, err := solve.Select(a.cfg.Workspace, arg, d, l)
 	if err != nil {
 		return exitProblem, err
 	}
@@ -83,7 +87,7 @@ func runSubmit(a *app, args []string) (int, error) {
 	exit := reportJudgement(os.Stdout, j)
 
 	if j.Accepted() {
-		commitAccepted(a, d, l, j)
+		commitAccepted(a, d, l, j, out)
 	}
 	return exit, nil
 }
@@ -96,13 +100,18 @@ func runSubmit(a *app, args []string) (int, error) {
 // Best effort by design. The submission is the result; a repository that will not take a
 // commit is worth a line on stderr and nothing more, and must never change the exit code
 // an agent is branching on (docs/AGENTS.md).
-func commitAccepted(a *app, d *store.Detail, l runner.Lang, j leetcode.Judgement) {
+func commitAccepted(a *app, d *store.Detail, l runner.Lang, j leetcode.Judgement, out solve.Layout) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	res, err := solve.Commit(ctx, a.cfg.Workspace, a.cfg.Git, solve.Solved{
+	filename, err := filepath.Rel(out.Dir, out.Solution)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "not committed: %v\n", err)
+		return
+	}
+	res, err := solve.Commit(ctx, filepath.Dir(out.Dir), a.cfg.Git, solve.Solved{
 		ID: d.NumericID, Slug: d.Slug, Title: d.Title,
-		Lang: l.Display, Filename: l.Filename(),
+		Lang: l.Display, Filename: filename, Dir: out.Dir,
 		Runtime: j.Runtime, Percentile: j.RuntimePercentile,
 	})
 	switch {

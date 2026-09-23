@@ -130,6 +130,28 @@ concession to convention here; the metaphor requires them.
 - **State is a glyph** — `✓` solved, `◐` tried, `⊘` locked (D-023), with an ASCII set for
   terminals that cannot be trusted with the width of `✓`. Legible only because the column
   is headed `STATE`; see the rule immediately below.
+- **The importance mark is the keystroke that sets it** — `+` and `-` under a `MARK`
+  header (D-032). ASCII in *both* glyph sets, unlike every other mark on the board: these
+  two characters cannot be drawn two cells wide, and a glyph that is literally the key you
+  pressed needs no legend at all. Bold amber for important so it pulls the eye down the
+  column on a redo pass, dim for written off so it recedes. Never green — green is the
+  judge's alone.
+- **A demoted row goes grey whole, and sinks — it never disappears** (D-032a). Marking a
+  problem unimportant drains the colour from its title, difficulty tag and state glyph and
+  drops it to the bottom of whatever the board is sorted by. Moving it out of the way and
+  draining its colour are two halves of one idea; either alone leaves it still competing
+  for the eye. The cursor row is exempt, because a selected row you cannot read is worse
+  than one you have to scroll past.
+- **An important row is gilded and floats**, the mirror image (D-032b). Amber number and
+  title — but **not bold**, because bold belongs to the cursor and a board with a dozen
+  bold rows on it has no cursor. The difficulty tag keeps its own colour in both
+  directions: that is semantic, and overwriting it trades information for emphasis.
+- **The verdict sweep is the only motion besides the flip** (D-033), and it is the one
+  place the board is allowed to be pleased with you. It runs on Accepted alone, for about
+  a second, and its last palette entry is AC green so it resolves into the calm state
+  rather than snapping back to it. `ui.celebrate` turns it down or off; `ui.reduce_motion`
+  outranks it. Nothing is ever conveyed by the animation alone — the verdict, the tier
+  badge and the figures are all still there with it off.
 - **Every column carries a header.** The board has now shipped an unlabelled glyph twice
   — the acceptance sparkline (D-020) and the todo dot (D-022) — and both times the first
   question asked of it was what the mark meant. A glyph is only allowed to be a glyph when

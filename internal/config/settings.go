@@ -111,6 +111,22 @@ var settings = []Setting{
 		Get: func(c *Config) string { return boolStr(c.UI.Mouse) },
 		Set: setBool(func(c *Config, v bool) { c.UI.Mouse = v }),
 	},
+	{
+		Key:     "ui.celebrate",
+		Help:    "how much an Accepted verdict makes of itself · reduce_motion outranks full",
+		Kind:    KindChoice,
+		Choices: CelebrateLevels(),
+		Get:     func(c *Config) string { return c.CelebrateLevel() },
+		Set: func(c *Config, v string) error {
+			for _, l := range CelebrateLevels() {
+				if v == l {
+					c.UI.Celebrate = v
+					return nil
+				}
+			}
+			return fmt.Errorf("celebrate is off, subtle, or full — not %q", v)
+		},
+	},
 
 	{
 		Key: "sync.requests_per_second", Help: "how hard to hit leetcode.com", Kind: KindFloat,

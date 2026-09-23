@@ -2,6 +2,25 @@ package tui
 
 import tea "github.com/charmbracelet/bubbletea"
 
+// filteredOrder restores the ordering implied by the remaining filters when an
+// annotation filter is removed. The persistent contest clock is not a filter.
+func (m Model) filteredOrder() string {
+	switch {
+	case m.filter.Mark != "":
+		return "mark"
+	case m.filter.TodoOnly:
+		return "todo"
+	case m.filter.Plan != "":
+		return "plan"
+	case m.filter.Contest != "":
+		return "contest"
+	case len(m.filter.Companies) > 0:
+		return "frequency"
+	default:
+		return ""
+	}
+}
+
 // Filter cycles.
 //
 // Both are one key that steps through every state and wraps, rather than a key per

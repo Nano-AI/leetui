@@ -77,7 +77,11 @@ func Prepare(root string, d *store.Detail, lang runner.Lang) (Layout, error) {
 	}
 
 	if metaErr == nil {
-		seedCases(ws, d, runner.ParseCases(d.ExampleTestcases, statement, len(meta.Params)))
+		paramCount := len(meta.Params)
+		if meta.IsDesign() {
+			paramCount = 2 // operation names, then their argument lists
+		}
+		seedCases(ws, d, runner.ParseCases(d.ExampleTestcases, statement, paramCount))
 	}
 	return out, nil
 }

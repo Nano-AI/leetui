@@ -47,7 +47,11 @@ func (l *Local) generateJS(p Problem, meta Meta, lang Lang, dir string) error {
 		return fmt.Errorf("read embedded javascript driver: %w", err)
 	}
 
-	solution, err := os.ReadFile(filepath.Join(dir, lang.Filename()))
+	source := l.SolutionFile
+	if source == "" {
+		source = filepath.Join(dir, lang.Filename())
+	}
+	solution, err := os.ReadFile(source)
 	if err != nil {
 		return fmt.Errorf("read solution: %w", err)
 	}

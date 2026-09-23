@@ -47,9 +47,46 @@ func (m Model) handleSyncProgress(p syncer.Progress) (tea.Model, tea.Cmd) {
 	switch p.Phase {
 	case syncer.PhaseCompanies:
 		return m, tea.Batch(m.loadRows(), m.loadCompanies(), status(m.packDone(p), false))
+	case syncer.PhasePlans:
+		cmds := []tea.Cmd{m.loadRows(), m.loadPlans(), status(m.planDone(p), false)}
+		// The chapters reload only when a plan is actually on the board: one that has just
+		// landed has groups the CHAPTER column cannot show until they are read back. After
+		// a registry sync there is no plan to read them for.
+		if m.plan.Active() {
+			cmds = append(cmds, m.loadPlanGroups(m.plan.Slug))
+		}
+		return m, tea.Batch(cmds...)
+	case syncer.PhaseContests:
+		return m, tea.Batch(m.loadRows(), m.loadContests(), status(m.contestDone(p), false))
 	default:
 		return m, tea.Batch(m.loadRows(), status(fmt.Sprintf("Synced %d problems.", p.Done), false))
 	}
+}
+
+// planDone words the outcome of a study plan job.
+//
+// The registry job finishes with no plan selected; a single-plan pull has one, and naming
+// it is what confirms which list the board is now showing.
+func (m Model) planDone(p syncer.Progress) string {
+	if !m.plan.Active() {
+		return fmt.Sprintf("Loaded %d study plans. Press P to browse them.", p.Done)
+	}
+	return fmt.Sprintf("Pulled %d problems for %s.", p.Done, m.plan.Name)
+}
+
+// contestDone words the outcome of a contest job.
+//
+// The empty case is the one that has to speak plainly: a contest that has not opened
+// returns nothing, and "Pulled 0 problems" reads as a failure when it is the schedule
+// working correctly.
+func (m Model) contestDone(p syncer.Progress) string {
+	if !m.contest.Active() {
+		return fmt.Sprintf("Loaded %d contests. Press C to browse them.", p.Done)
+	}
+	if p.Done == 0 {
+		return m.contest.Title + " has not opened yet. Press C then enter to check again."
+	}
+	return fmt.Sprintf("Pulled %d problems for %s.", p.Done, m.contest.Title)
 }
 
 // packDone words the outcome of a company job. The registry job carries no company name
@@ -72,11 +109,17 @@ func (m Model) syncFailed(p syncer.Progress) tea.Cmd {
 	case errors.Is(p.Err, leetcode.ErrSessionExpired):
 		return status("Session expired mid-sync. Press a to re-authenticate, then S to resume.", true)
 
+	case errors.Is(p.Err, leetcode.ErrPremiumRequired) && p.Phase == syncer.PhasePlans:
+		return status("That study plan needs LeetCode Premium. The free plans still work.", true)
+
 	case errors.Is(p.Err, leetcode.ErrPremiumRequired):
 		return status("Company lists need LeetCode Premium. Everything else still works.", true)
 
 	case errors.Is(p.Err, leetcode.ErrNotFound) && p.Phase == syncer.PhaseCompanies:
 		return status("LeetCode has no such company list.", true)
+
+	case errors.Is(p.Err, leetcode.ErrNotFound) && p.Phase == syncer.PhasePlans:
+		return status("LeetCode has no such study plan. Press P and sync the list again.", true)
 
 	default:
 		return tea.Batch(

@@ -3,6 +3,7 @@ package runner
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -55,6 +56,9 @@ func goType(t string) (string, error) {
 
 // generateGo writes the driver and the run() that calls the solution.
 func (l *Local) generateGo(p Problem, meta Meta, dir string) error {
+	if l.SolutionFile != "" {
+		dir = filepath.Dir(l.SolutionFile)
+	}
 	tmpl, err := drivers.ReadFile("drivers/golang/driver.go.tmpl")
 	if err != nil {
 		return fmt.Errorf("read embedded go driver: %w", err)
@@ -135,11 +139,16 @@ func prefix(v any, n int) any {
 // outside one. Written only when absent, so a user who added dependencies keeps them.
 func writeGoMod(dir string) error {
 	path := filepath.Join(dir, "go.mod")
-	if _, err := os.Stat(path); err == nil {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if errors.Is(err, os.ErrExist) {
 		return nil
 	}
+	if err != nil {
+		return fmt.Errorf("create go.mod: %w", err)
+	}
 	mod := fmt.Sprintf("module %s\n\ngo 1.22\n", filepath.Base(dir))
-	if err := os.WriteFile(path, []byte(mod), 0o644); err != nil {
+	_, writeErr := f.WriteString(mod)
+	if err := errors.Join(writeErr, f.Close()); err != nil {
 		return fmt.Errorf("write go.mod: %w", err)
 	}
 	return nil
@@ -150,9 +159,16 @@ func writeGoMod(dir string) error {
 // Compiling per case would pay the build cost every time; compiling once and reusing
 // the binary keeps a five-case run near the cost of one.
 func (l *Local) runGo(ctx context.Context, dir string, cases []TestCase, rule Rule) (Result, error) {
+	if l.SolutionFile != "" {
+		dir = filepath.Dir(l.SolutionFile)
+	}
 	bin := filepath.Join(dir, "_leetui_bin")
 
-	build := exec.CommandContext(ctx, "go", "build", "-o", bin, ".")
+	args := []string{"build", "-o", bin, "."}
+	if l.SolutionFile != "" {
+		args = []string{"build", "-o", bin, goDriverFile, filepath.Base(l.SolutionFile)}
+	}
+	build := exec.CommandContext(ctx, "go", args...)
 	build.Dir = dir
 	var buildErr bytes.Buffer
 	build.Stderr = &buildErr

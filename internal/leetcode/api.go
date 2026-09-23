@@ -29,9 +29,17 @@ func (c *Client) ProblemPage(ctx context.Context, skip, limit int) (problems []P
 		"limit":        limit,
 		"filters":      map[string]any{},
 	}
-	var out problemListResponse
+	var out struct {
+		ProblemsetQuestionList *struct {
+			Total     int              `json:"total"`
+			Questions []ProblemSummary `json:"questions"`
+		} `json:"problemsetQuestionList"`
+	}
 	if err := c.graphql(ctx, "problemsetQuestionList", qProblemList, vars, &out); err != nil {
 		return nil, 0, err
+	}
+	if out.ProblemsetQuestionList == nil {
+		return nil, 0, fmt.Errorf("problemsetQuestionList: missing problem page")
 	}
 	return out.ProblemsetQuestionList.Questions, out.ProblemsetQuestionList.Total, nil
 }

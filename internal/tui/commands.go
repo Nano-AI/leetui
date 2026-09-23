@@ -17,14 +17,21 @@ import (
 // Commands
 // ---------------------------------------------------------------------------
 
-func (m Model) loadRows() tea.Cmd {
+func (m *Model) loadRows() tea.Cmd {
+	m.rowsSeq++
+	return m.queryRows()
+}
+
+// queryRows also serves Init, whose value receiver cannot advance the model's sequence.
+func (m Model) queryRows() tea.Cmd {
 	f := m.filter
+	seq := m.rowsSeq
 	st := m.store
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		rows, err := st.Query(ctx, f)
-		return rowsMsg{rows: rows, err: err}
+		return rowsMsg{rows: rows, err: err, seq: seq, filter: f}
 	}
 }
 
@@ -103,13 +110,15 @@ func (m Model) fetchDetail(slug string, seq int) tea.Cmd {
 }
 
 // renderDetail re-renders an already-loaded statement, for resizes.
-func (m Model) renderDetail(d *store.Detail) tea.Cmd {
+func (m *Model) renderDetail(d *store.Detail) tea.Cmd {
+	m.detailSeq++
+	seq := m.detailSeq
 	width := m.detailWidth()
 	slug := d.Slug
 	content := d.Content
 	return func() tea.Msg {
 		md, images, err := render.HTML(content, width)
-		return detailMsg{slug: slug, detail: d, markdown: md, images: images, err: err}
+		return detailMsg{slug: slug, seq: seq, detail: d, markdown: md, images: images, err: err}
 	}
 }
 

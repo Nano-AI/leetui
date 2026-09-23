@@ -2,6 +2,7 @@ package tui
 
 import (
 	"github.com/Nano-AI/leetui/internal/auth"
+	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -34,6 +35,10 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case m.mode == modeCompany:
 		return m.handleCompanyKey(msg)
+	case m.mode == modePlan:
+		return m.handlePlanKey(msg)
+	case m.mode == modeContest:
+		return m.handleContestKey(msg)
 	case m.paletteOpen:
 		return m.handlePaletteKey(msg)
 	case m.mode == modeSettings:
@@ -53,16 +58,24 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+c":
 		return m, tea.Quit
 	case "down":
-		return m.moveCursor(1)
+		return m.scrollBy(1)
 	case "up":
-		return m.moveCursor(-1)
+		return m.scrollBy(-1)
 	case "pgdown":
-		return m.moveCursor(m.visibleRows())
+		return m.scrollBy(m.visibleRows())
 	case "pgup":
-		return m.moveCursor(-m.visibleRows())
+		return m.scrollBy(-m.visibleRows())
 	case "home":
+		if m.mode == modeSolve && m.focus == paneDetail {
+			m.detailScroll = 0
+			return m, nil
+		}
 		return m.moveCursorTo(0)
 	case "end":
+		if m.mode == modeSolve && m.focus == paneDetail {
+			m.detailScroll = m.detailMaxScroll()
+			return m, nil
+		}
 		return m.moveCursorTo(len(m.rows) - 1)
 	case "esc":
 		if m.mode == modeHelp {
@@ -99,25 +112,9 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.cycleFocus(-1)
 
 	case "down":
-		if m.mode == modeHelp {
-			m.helpScroll++
-			return m, nil
-		}
-		if m.focus == paneDetail {
-			m.detailScroll = minInt(m.detailScroll+1, m.detailMaxScroll())
-			return m, nil
-		}
-		return m.moveCursor(1)
+		return m.scrollBy(1)
 	case "up":
-		if m.mode == modeHelp {
-			m.helpScroll = maxInt(m.helpScroll-1, 0)
-			return m, nil
-		}
-		if m.focus == paneDetail {
-			m.detailScroll = maxInt(m.detailScroll-1, 0)
-			return m, nil
-		}
-		return m.moveCursor(-1)
+		return m.scrollBy(-1)
 	case "half_down":
 		return m.scrollBy(m.visibleRows() / 2)
 	case "half_up":
@@ -128,7 +125,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.scrollBy(-m.visibleRows())
 
 	case "top":
-		if m.focus == paneDetail {
+		if m.mode == modeSolve && m.focus == paneDetail {
 			m.detailScroll = 0
 			return m, nil
 		}
@@ -136,7 +133,7 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "bottom":
 		// Mirrors "top", which has always scrolled the statement when the statement is
 		// focused. G moving the board cursor instead was the odd one out.
-		if m.focus == paneDetail {
+		if m.mode == modeSolve && m.focus == paneDetail {
 			m.detailScroll = m.detailMaxScroll()
 			return m, nil
 		}
@@ -156,6 +153,12 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.toggleTodo()
 	case "todo_only":
 		return m.toggleTodoFilter()
+	case "mark_up":
+		return m.toggleMark(store.MarkUp)
+	case "mark_down":
+		return m.toggleMark(store.MarkDown)
+	case "marked_only":
+		return m.cycleMarkFilter()
 	case "run":
 		return m.startRun()
 	case "submit":
@@ -176,6 +179,10 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.toggleEditorial()
 	case "companies":
 		return m.openCompanies()
+	case "plans":
+		return m.openPlans()
+	case "contests":
+		return m.openContests()
 
 	case "sync":
 		return m.startSync()

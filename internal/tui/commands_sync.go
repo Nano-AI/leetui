@@ -59,6 +59,42 @@ func (m *Model) beginPack(company string, tf leetcode.Timeframe) tea.Cmd {
 	})
 }
 
+// beginPlan pulls one study plan (D-031). One request, and it works signed out.
+func (m *Model) beginPlan(slug string) tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.StudyPlan(ctx, slug, out)
+	})
+}
+
+// beginContestSchedule refreshes the contest schedule (D-036). One request, signed out.
+func (m *Model) beginContestSchedule() tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.ContestSchedule(ctx, out)
+	})
+}
+
+// beginContest pulls one contest's problems (D-036). Two requests, signed out.
+//
+// Pressed repeatedly by design: before a contest opens this returns nothing, and asking
+// again at the start is how the problems arrive.
+func (m *Model) beginContest(slug string) tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.Contest(ctx, slug, out)
+	})
+}
+
+// beginPlanRegistry refreshes the study plan list: a seed list unioned with a tag sweep,
+// each confirmed by a detail fetch. Signed out, and about twenty requests.
+func (m *Model) beginPlanRegistry() tea.Cmd {
+	sy := m.sync
+	return m.beginJob(func(ctx context.Context, out chan<- syncer.Progress) error {
+		return sy.PlanRegistry(ctx, out)
+	})
+}
+
 // beginRegistry refreshes the company list. One request, and it works signed out.
 func (m *Model) beginRegistry() tea.Cmd {
 	sy := m.sync

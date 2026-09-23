@@ -40,6 +40,7 @@ func (m Model) handleJudgement(msg judgeMsg) (tea.Model, tea.Cmd) {
 		m.queue[i].Runtime = j.Runtime
 		m.queue[i].Memory = j.Memory
 		m.queue[i].Percentile = j.RuntimePercentile
+		m.queue[i].MemoryPct = j.MemoryPercentile
 		m.queue[i].Correct, m.queue[i].Total = j.TotalCorrect, j.TotalTestcases
 
 		cmd := m.queue[i].flap.FlipTo(theme.Display(v.Text()), v.Color())
@@ -55,6 +56,14 @@ func (m Model) handleJudgement(msg judgeMsg) (tea.Model, tea.Cmd) {
 		// nothing when the workspace is not a repository — see handleCommitted.
 		if msg.judgement.Accepted() {
 			cmds = append(cmds, m.commitAccepted(msg.judgement))
+
+			// Grade once, here, and start the sweep (D-033). Both are no-ops at
+			// `ui.celebrate off`, and the badge survives without the animation at
+			// `subtle`.
+			m.queue[i].Tier = tierFor(j.RuntimePercentile, j.MemoryPercentile)
+			if cmd := m.beginCelebration(m.queue[i].flap.ID, m.queue[i].Tier); cmd != nil {
+				cmds = append(cmds, cmd)
+			}
 		}
 		return m, tea.Batch(cmds...)
 	}

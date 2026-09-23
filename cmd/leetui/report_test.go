@@ -41,7 +41,7 @@ func TestRunExitCodes(t *testing.T) {
 
 		{"nothing to judge", runner.Result{Cases: []runner.CaseResult{
 			caseResult("[2,7]\n9", "", "[0,1]", false, false),
-		}}, exitOK},
+		}}, exitProblem},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var buf bytes.Buffer

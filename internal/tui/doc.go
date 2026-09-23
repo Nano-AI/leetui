@@ -29,6 +29,9 @@
 //	watch.go        the solution-file poll
 //	picker.go       the selection lists — language, editor, company timeframe
 //	company.go      company packs (D-006); company_keys.go drives the browser
+//	studyplan.go    study plans (D-031); studyplan_keys.go drives the browser
+//	contest.go      contests — the third curated list, and the only one with a
+//	                clock (D-036); contest_keys.go drives the browser
 //	editorial.go    the editorial pane's state and fetch
 //	create.go       f — make the file, name it, do not open it (D-019)
 //	toast.go        the floating notice over the top right
@@ -55,6 +58,7 @@
 //	help.go         the key reference, folding to columns when it must
 //	signin.go       the sign-in panel
 //	company_view.go the company browser; picker_view.go the selection lists
+//	contest_view.go the contest schedule; studyplan_view.go the plan picker
 //	chrome.go       status line, hints, cell sizing
 //	format.go       small shared formatting helpers
 package tui

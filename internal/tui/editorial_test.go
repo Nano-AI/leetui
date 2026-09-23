@@ -75,7 +75,9 @@ func TestEditorialFollowsTheCursor(t *testing.T) {
 		t.Fatalf("editorial is %+v, want two-sum", m.editorial)
 	}
 
-	m = drive(t, m, key("down"))
+	// Exercise a cursor move directly: arrows in the reading pane now scroll prose.
+	next, _ := m.moveCursor(1)
+	m = next.(Model)
 	if !m.showEditorial {
 		t.Error("moving the cursor closed the editorial pane")
 	}

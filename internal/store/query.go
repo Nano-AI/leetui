@@ -32,18 +32,38 @@ type Filter struct {
 	// because a timeframe is a property of the company link, not of the problem.
 	Timeframe string
 
+	// Plan narrows to one study plan's problems (D-031). Unlike Companies this is a
+	// single slug: a plan is a curriculum you are working through, and the union of two
+	// curricula has no running order.
+	Plan string
+
+	// Contest narrows to one contest's problems (D-036). A single slug, for the same
+	// reason Plan is: a contest is a sitting, and two of them have no shared order.
+	Contest string
+
 	// PaidOnly, when set, filters to premium-only or free problems.
 	PaidOnly *bool
 
 	// TodoOnly narrows to the user's own todo list.
 	TodoOnly bool
 
-	// Sort is "id" (default), "title", "acrate", "difficulty", or "frequency".
+	// Mark narrows to problems carrying an importance verdict (D-032): MarkUp,
+	// MarkDown, or MarkAny for either. The zero value does not filter.
+	//
+	// It is a separate axis from Status on purpose — "solved AND worth doing again" is
+	// the query this whole feature exists to answer.
+	Mark Mark
+
+	// Sort is "id" (default), "title", "acrate", "difficulty", "frequency", or "plan".
 	// A text query always sorts by relevance and ignores this.
 	//
 	// "frequency" is how often the matched companies ask the problem, and is only
 	// meaningful with Companies set — it is what makes a company pack read as a
 	// priority list rather than as a numbered one.
+	//
+	// "plan" is the study plan's own running order, and is only meaningful with Plan set.
+	//
+	// "mark" is the importance verdict: worth redoing first, written off last.
 	Sort string
 
 	Limit  int
@@ -119,6 +139,18 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 		where = append(where, clause+`)`)
 	}
 
+	if f.Plan != "" {
+		where = append(where, `EXISTS (SELECT 1 FROM problem_plans pp
+			WHERE pp.problem_slug = p.slug AND pp.plan_slug = ?)`)
+		args = append(args, f.Plan)
+	}
+
+	if f.Contest != "" {
+		where = append(where, `EXISTS (SELECT 1 FROM problem_contests pc
+			WHERE pc.problem_slug = p.slug AND pc.contest_slug = ?)`)
+		args = append(args, f.Contest)
+	}
+
 	if f.PaidOnly != nil {
 		where = append(where, `p.paid_only = ?`)
 		args = append(args, *f.PaidOnly)
@@ -126,6 +158,15 @@ func (s *Store) Query(ctx context.Context, f Filter) ([]Row, error) {
 
 	if f.TodoOnly {
 		where = append(where, `EXISTS (SELECT 1 FROM todo t WHERE t.problem_slug = p.slug)`)
+	}
+
+	switch f.Mark {
+	case MarkUp, MarkDown:
+		where = append(where, `EXISTS (SELECT 1 FROM marks mk
+			WHERE mk.problem_slug = p.slug AND mk.mark = ?)`)
+		args = append(args, string(f.Mark))
+	case MarkAny:
+		where = append(where, `EXISTS (SELECT 1 FROM marks mk WHERE mk.problem_slug = p.slug)`)
 	}
 
 	if len(where) > 0 {

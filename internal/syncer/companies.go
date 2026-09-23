@@ -50,7 +50,10 @@ func (s *Syncer) CompanyRegistry(ctx context.Context, out chan<- Progress) error
 		return err
 	}
 
-	_ = s.store.SetState(ctx, store.KeyCompaniesSyncedAt, time.Now().Format(time.RFC3339))
+	if err := s.store.SetState(ctx, store.KeyCompaniesSyncedAt, time.Now().Format(time.RFC3339)); err != nil {
+		emit(Progress{Done: len(companies), Total: len(companies), Err: err, Finished: true})
+		return err
+	}
 	emit(Progress{Done: len(companies), Total: len(companies), Note: "done", Finished: true})
 	return nil
 }
@@ -126,7 +129,10 @@ func (s *Syncer) Pack(ctx context.Context, company string, tf leetcode.Timeframe
 		emit(Progress{Done: len(all), Total: total, Err: err, Finished: true})
 		return err
 	}
-	_ = s.store.SetState(ctx, store.PackKey(company, string(tf)), time.Now().Format(time.RFC3339))
+	if err := s.store.SetState(ctx, store.PackKey(company, string(tf)), time.Now().Format(time.RFC3339)); err != nil {
+		emit(Progress{Done: len(all), Total: total, Err: err, Finished: true})
+		return err
+	}
 
 	emit(Progress{Done: len(all), Total: total, Note: "done", Finished: true})
 	return nil

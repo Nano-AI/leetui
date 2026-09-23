@@ -103,3 +103,13 @@ func TestSupportsAndToolchain(t *testing.T) {
 		t.Error("python3 has a vendored driver and should be marked local")
 	}
 }
+
+func TestRunRelativeDirectory(t *testing.T) {
+	l := python3(t)
+	dir := generate(t, l, "two-sum", twoSumMeta, "class Solution:\n    def twoSum(self, nums, target): return [0,1]\n")
+	t.Chdir(filepath.Dir(dir))
+	res := run(t, l, filepath.Base(dir), "two-sum", []TestCase{{Input: "[2,7]\n9", Expected: "[0,1]"}})
+	if !res.Passed() {
+		t.Fatalf("relative path run failed: %+v", res.Cases)
+	}
+}

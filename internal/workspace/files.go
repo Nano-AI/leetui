@@ -83,16 +83,8 @@ func (w Workspace) WriteSolution(id int, slug, filename, snippet string) (path s
 	}
 	path = filepath.Join(dir, filename)
 
-	if _, err := os.Stat(path); err == nil {
-		return path, false, nil
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		return path, false, fmt.Errorf("check %s: %w", filename, err)
-	}
-
-	if err := os.WriteFile(path, []byte(snippet), 0o644); err != nil {
-		return path, false, fmt.Errorf("write %s: %w", filename, err)
-	}
-	return path, true, nil
+	created, err = createExclusive(path, snippet)
+	return path, created, err
 }
 
 // WriteTestcases seeds testcases.txt, leaving an existing file alone — the user may
@@ -144,13 +136,24 @@ func (w Workspace) Solutions(id int, slug string) []string {
 }
 
 func createIfMissing(path, content string) error {
-	if _, err := os.Stat(path); err == nil {
-		return nil
-	} else if !errors.Is(err, fs.ErrNotExist) {
-		return fmt.Errorf("check %s: %w", filepath.Base(path), err)
+	_, err := createExclusive(path, content)
+	return err
+}
+
+// Exclusive creation closes the check/write race and treats even dangling symlinks
+// as existing user-owned entries, rather than following them to a new target.
+func createExclusive(path, content string) (bool, error) {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if errors.Is(err, fs.ErrExist) {
+		return false, nil
 	}
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		return fmt.Errorf("write %s: %w", filepath.Base(path), err)
+	if err != nil {
+		return false, fmt.Errorf("create %s: %w", filepath.Base(path), err)
 	}
-	return nil
+	_, writeErr := f.WriteString(content)
+	closeErr := f.Close()
+	if err := errors.Join(writeErr, closeErr); err != nil {
+		return true, fmt.Errorf("write %s: %w", filepath.Base(path), err)
+	}
+	return true, nil
 }

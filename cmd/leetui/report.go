@@ -19,7 +19,12 @@ import (
 // looking for them.
 
 // reportRun writes a local run and returns the process exit code.
-func reportRun(w io.Writer, slug string, r runner.Result) int {
+func reportRun(w io.Writer, slug string, r runner.Result, solution ...string) int {
+	target := slug
+	if len(solution) > 0 {
+		// Quote an explicit path for the shell, including spaces and apostrophes.
+		target = "'" + strings.ReplaceAll(solution[0], "'", "'\\''") + "'"
+	}
 	if r.CompileErr != "" {
 		fmt.Fprintln(w, "did not compile:")
 		fmt.Fprintln(w, indent(r.CompileErr))
@@ -52,17 +57,18 @@ func reportRun(w io.Writer, slug string, r runner.Result) int {
 		// A local mismatch never claims authority: metaData cannot express in-place,
 		// unordered, or float-tolerant answers (D-003).
 		fmt.Fprintf(w, "\n%d of %d cases mismatched. This problem has no curated comparator,\n"+
-			"so check it on the judge: leetui submit %s\n", failed, passed+failed, slug)
+			"so check it on the judge: leetui submit %s\n", failed, passed+failed, target)
 		return exitFailed
 	case failed > 0:
 		fmt.Fprintf(w, "\n%d of %d cases failed.\n", failed, passed+failed)
 		return exitFailed
-	case passed > 0:
-		fmt.Fprintf(w, "\nAll %d cases passed. Submit with: leetui submit %s\n", passed, slug)
+	case passed > 0 && passed == len(r.Cases):
+		fmt.Fprintf(w, "\nAll %d cases passed. Submit with: leetui submit %s\n", passed, target)
 		return exitOK
 	default:
-		fmt.Fprintf(w, "\nRan %d cases; none had an expected answer to check against.\n", len(r.Cases))
-		return exitOK
+		fmt.Fprintf(w, "\n%d of %d cases passed; %d had no expected answer. Cannot verify this run.\n",
+			passed, len(r.Cases), len(r.Cases)-passed)
+		return exitProblem
 	}
 }
 

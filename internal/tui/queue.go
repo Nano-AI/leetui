@@ -12,6 +12,19 @@ import (
 // Queue
 // ---------------------------------------------------------------------------
 
+// verdictCell draws one submission's verdict, sweeping it through the palette while a
+// celebration is running on that row (D-033).
+//
+// The flap is left to render itself in every other case, including while it is still
+// flipping: the sweep only ever replaces a SETTLED Accepted, so the two animations never
+// run over each other and the flip keeps its job of being the thing that resolves.
+func (m Model) verdictCell(s queueItem, w int) string {
+	if !m.celebrate.active() || m.celebrate.flapID != s.flap.ID || s.flap.Flipping() {
+		return s.flap.View(w)
+	}
+	return rainbow(theme.Display(s.Verdict.Text()), m.celebrate.frame)
+}
+
 func (m Model) viewQueue(w, h int) string {
 	f := components.Frame{
 		Title:   "submissions",
@@ -34,10 +47,18 @@ func (m Model) viewQueue(w, h int) string {
 		b.WriteString(components.Row([]string{
 			cell(theme.Meta.Render(fmt.Sprintf("%04d", s.ProblemID)), 4),
 			cell(theme.Meta.Render(truncate(s.Lang, 7)), 7),
-			cell(s.flap.View(verdictW), verdictW),
+			cell(m.verdictCell(s, verdictW), verdictW),
 		}))
 		b.WriteString("\n")
 		rows++
+
+		// The badge sits on its own line above the figures, not beside the verdict: the
+		// verdict is letterspaced and already spends the width, and D-021's rule holds
+		// here too — the flip is the moment, so nothing shares a line with it.
+		if badge := m.celebrationBadge(s.Tier); badge != "" && rows < f.InnerHeight() {
+			b.WriteString("     " + badge + "\n")
+			rows++
+		}
 
 		// The figures go on their own line under the verdict rather than beside it.
 		// Beside it they would have to share width with a letterspaced verdict and get

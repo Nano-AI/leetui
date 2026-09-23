@@ -96,6 +96,7 @@ func (m Model) applyPack(c store.Company, tf leetcode.Timeframe, stored int) (te
 	m.companyFilter.Blur()
 
 	m.pack = pack{Company: c.Slug, Name: c.Name, Timeframe: tf}
+	m.plan = planSel{}
 	m.filter = store.Filter{
 		Companies: []string{c.Slug},
 		Timeframe: string(tf),
@@ -114,8 +115,13 @@ func (m Model) applyPack(c store.Company, tf leetcode.Timeframe, stored int) (te
 }
 
 // clearPack drops back to the whole problem set.
+//
+// It clears the study plan too (D-031). The filter reset already drops both, and leaving
+// m.plan set would keep the rail and the bezel announcing a plan the board is no longer
+// filtered to — a label describing a filter that is gone is worse than no label.
 func (m Model) clearPack() (tea.Model, tea.Cmd) {
 	m.pack = pack{}
+	m.plan = planSel{}
 	m.filter = store.Filter{}
 	m.cursor, m.scroll = 0, 0
 	return m, m.loadRows()

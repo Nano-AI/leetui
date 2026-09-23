@@ -2,6 +2,8 @@ package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/Nano-AI/leetui/internal/store"
 )
 
 // ---------------------------------------------------------------------------
@@ -15,7 +17,11 @@ func (m Model) moveCursor(delta int) (tea.Model, tea.Cmd) {
 // scrollBy moves by a page or half-page. In the detail pane it scrolls the statement
 // instead of the list, so ctrl-d does the expected thing wherever focus happens to be.
 func (m Model) scrollBy(delta int) (tea.Model, tea.Cmd) {
-	if m.focus == paneDetail {
+	if m.mode == modeHelp {
+		m.helpScroll = maxInt(m.helpScroll+delta, 0)
+		return m, nil
+	}
+	if m.mode == modeSolve && m.focus == paneDetail {
 		m.detailScroll = clamp(m.detailScroll+delta, 0, m.detailMaxScroll())
 		return m, nil
 	}
@@ -71,7 +77,8 @@ func (m Model) currentSlug() string {
 func (m Model) filterActive() bool {
 	f := m.filter
 	return f.Text != "" || len(f.Difficulty) > 0 || f.Status != "" ||
-		len(f.Tags) > 0 || len(f.Companies) > 0 || f.PaidOnly != nil
+		len(f.Tags) > 0 || len(f.Companies) > 0 || f.Plan != "" || f.Contest != "" ||
+		f.Mark != store.MarkNone || f.PaidOnly != nil || f.TodoOnly
 }
 
 // toggleDifficulty maps 1/2/3 to Easy/Medium/Hard and 0 to "clear".

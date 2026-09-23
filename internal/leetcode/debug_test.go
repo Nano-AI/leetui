@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -22,11 +23,20 @@ func TestDebugTraceNeverCarriesTheSession(t *testing.T) {
 		w.Write([]byte(`{"data":{}}`))
 	}))
 	defer srv.Close()
+	target, err := url.Parse(srv.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	httpClient := &http.Client{Transport: responseTransport(func(r *http.Request) (*http.Response, error) {
+		r = r.Clone(r.Context())
+		r.URL.Scheme, r.URL.Host = target.Scheme, target.Host
+		return srv.Client().Transport.RoundTrip(r)
+	})}
 
 	var log strings.Builder
 	c := New(
 		WithCredentials(auth.Credentials{Session: session, CSRF: csrf}),
-		WithHTTPClient(srv.Client()),
+		WithHTTPClient(httpClient),
 	)
 	c.Debugf = func(format string, args ...any) {
 		log.WriteString(strings.TrimSpace(fmt.Sprintf(format, args...)) + "\n")

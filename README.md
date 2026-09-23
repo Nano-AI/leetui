@@ -10,12 +10,17 @@ the terminal — with full Premium parity and optional GitHub sync.
 
 **[Website](https://nano-ai.github.io/leetui/) · [Install](#install) · [Keys](#run-it) · [For agents](docs/AGENTS.md) · [Report a bug](https://github.com/Nano-AI/leetui/issues/new)**
 
+![The leetui board: 500 problems with columns for number, todo, mark, title, difficulty, acceptance rate and state](site/shots/board.png)
+
+<sub>A real screen, not a mockup. `site/tools/capture.sh` runs the binary in tmux and converts what it drew.</sub>
+
 **Status: v0.1.0 released.** All seven phases complete. Install with Homebrew, `go
 install`, or a prebuilt binary for macOS, Linux, or Windows.
 Sync 4,013 problems locally and search them instantly offline. Edit in your editor, run
 against the examples without leaving the terminal (Python, Go, C++, JS/TS), and submit to the
-judge. Company packs, editorials, and the premium filter are in. An accepted solution
-commits itself; pushing is yours to press. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+judge. Study plans, contests, company packs, editorials, and the premium filter are in. An
+accepted solution commits itself; pushing is yours to press.
+See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
@@ -57,11 +62,15 @@ status and premium content. Browsing and search work signed out.
 | `u` | cycle all → unsolved → solved |
 | `p` | cycle all → premium → free |
 | `m` `M` | mark a problem / show just your list |
+| `+` `-` | important / unimportant — press again to clear |
+| `i` | cycle all → important → unimportant |
 | `0` `esc` | clear filters |
 | `f` | create the solution file and show its path |
 | `e` `r` `s` | edit / run locally / submit |
 | `l` `E` | choose language / editor |
+| `P` | study plans — Top Interview 150 and friends |
 | `c` | browse company lists, then a timeframe |
+| `C` | contests — the schedule, and a countdown while one is live |
 | `d` | read the official editorial |
 | `S` | sync (press again to pause — it resumes where it stopped) |
 | `a` | sign in |
@@ -83,6 +92,14 @@ leetui path two-sum        # prints the folder, for scripting
 
 leetui todo add two-sum --note "from the JD"
 leetui todo --json         # stable array, for agents
+
+leetui mark up two-sum     # worth doing again
+leetui mark down 3sum      # not worth another pass
+leetui mark --json --up    # the redo list, for agents
+
+leetui contest                             # the schedule, with a countdown
+leetui contest pull weekly-contest-517     # every problem's folder, in one command
+leetui contest submit weekly-contest-517   # the contest judge — the only one that scores
 
 leetui run --watch         # stays open, re-runs on save — put it in its own pane
 leetui image two-sum 1     # draw a figure, on kitty / iTerm2 / WezTerm / Ghostty
@@ -117,6 +134,75 @@ they are waiting on the board next time you open it:
 ```sh
 leetui todo add two-sum group-anagrams --note "phone screen prep"
 ```
+
+### Which ones were worth doing
+
+A todo list empties as you solve it. That is the wrong shape for the question you ask on a
+second pass through Top Interview 150: *which of these taught me something?*
+
+So a problem also carries a verdict. **`+`** says worth doing again, **`-`** says not,
+pressing the same key again withdraws it, and **`i`** cycles the board through
+all → important → unimportant. The verdict **survives solving** — "solved, and still worth
+redoing" is the whole point, and it is a state a todo list cannot express.
+
+**The mark sorts the board.** Important floats to the top and is gilded; unimportant sinks
+to the bottom and goes grey — title, difficulty, and state, not just its mark. Unmarked
+sits in the middle, because "no opinion" genuinely is between the two.
+
+```
+  #     │ TODO │ MARK │ PROBLEM                   │ DIF │ ACC  │ STATE
+  0146  │      │  +   │ LRU Cache                 │ MED │ 43%  │   ✓     ← gold, and first
+  0011  │  ●   │      │ Container With Most Water │ MED │ 56%  │
+  0027  │      │  -   │ Remove Element            │ esy │ 59%  │   ✓     ← grey, and last
+```
+
+**`-` demotes; it never deletes.** The row stays on the board, stays searchable, and stays
+in its study plan, because a judgment you cannot revise is not a judgment. Press `-` again
+and it comes straight back up.
+
+This holds in *every* sort — problem number, a company pack's frequency, a study plan's
+curriculum order, search relevance. On a second pass through Top Interview 150 that is the
+point: you are not working the curriculum any more, you are working the shortlist.
+
+Like the todo list it is writable from outside the app, which is the point — hand an agent
+the list and let it do the triage:
+
+```sh
+leetui mark up lru-cache --note "eviction order is the whole problem"
+leetui mark down remove-element
+
+# the redo pass: solved, and still marked important
+leetui mark --json --up | jq -r '.[] | select(.status == "ac") | .slug'
+```
+
+Three states, never a score, and every operation is idempotent — so nothing has to read a
+value before writing one. Full contract in [`docs/AGENTS.md`](docs/AGENTS.md).
+
+### When it goes green
+
+An Accepted verdict sweeps through a colour band and settles into its normal green. A
+result that beat the field says so, reading the judge's own percentiles:
+
+| | |
+|---|---|
+| Accepted | the sweep |
+| beats >50% on runtime **or** memory | `✦ FAST` |
+| beats >50% on **both** | `✦ DOUBLE 50` |
+| beats ≥90% on both | `✦ TOP 10` |
+
+Better results sweep for longer. This is the only animation in leetui besides the flip,
+and it is deliberately easy to turn off:
+
+```sh
+:set ui.celebrate off      # just the verdict
+:set ui.celebrate subtle   # badge and figures, no motion
+:set ui.celebrate full     # the sweep too — the default
+```
+
+`ui.reduce_motion` outranks `full` and degrades it to `subtle`, so there is one answer to
+"will this screen move" and it is the accessibility setting. The badge is information —
+the percentiles said in two words — so it survives without the motion; only the sweep is
+decoration.
 
 ### Your solutions, in git
 
@@ -265,6 +351,37 @@ automatically.
 ```
 
 
+Press **`P`** for the curated lists — Top Interview 150, LeetCode 75, Top 100 Liked, SQL 50,
+Graph Theory. Pick one and work it in the order its author intended. **These are free**: a
+plan's contents read signed out, so a free account gets all 150 problems of Top Interview
+150. The picker leads with how far through each one you are, because that is what you came
+back to find out.
+
+```
+╭─ STUDY PLAN ──────────────────────────────── 3 OF 22 ─╮
+│ top                                                   │
+╰───────────────────────────────────────────────────────╯
+╭─ PLANS ───────────────────────────────────────────────╮
+│ ▌ Top Interview 150  Must-do List for Interview…      │
+│                                          18/150   12% │
+│   Top 100 Liked      100 Best Rated Problems          │
+│                                            1/100   1% │
+│   Premium Algo 100                            premium │
+╰───────────────────────────────────────────────────────╯
+ type to narrow ┊ ↑↓ move ┊ enter pick ┊ esc back
+```
+
+The board then follows the plan's own running order rather than problem numbers, and the
+last column becomes the chapter you are in:
+
+```
+  #     │ PROBLEM               │ DIF │ ACC  │ CHAPTER
+  1768  │ Merge Strings Altern… │ ESY │ 78%  │ Array / String
+  1071  │ Greatest Common Divi… │ ESY │ 65%  │ Array / String
+  392   │ Is Subsequence        │ ESY │ 48%  │ Two Pointers
+  11    │ Container With Most … │ MED │ 56%  │ Two Pointers
+```
+
 Press **`c`** for the premium loop the website is built around — pick a company, pick how
 recently it asked, work the list. Typing narrows immediately; there is only one thing to
 do with a keystroke in a list of 984 companies.
@@ -283,6 +400,17 @@ do with a keystroke in a list of 984 companies.
 
 The chosen pack filters the board and sorts it by **frequency**, so what that company asks
 most sits at the top. That ordering is the whole reason a pack beats a tag filter.
+
+Press **`C`** for contests. The schedule reads signed out, picking one filters the board to
+that contest's problems in the contest's own running order, and the rail counts down while
+one is live. Ninety minutes is not the time to learn a screen, so this one leans on the
+CLI: `leetui contest pull weekly-contest-517` lays out all four folders in a single
+command, and `leetui contest submit` is a separate verb from `leetui submit` because the
+ordinary endpoint accepts a submission during a contest, judges it, and scores nothing.
+
+It also checks whether you are **registered**, and says so loudly if you are not. That is
+the same silent failure one level up: an unregistered submission is judged, comes back
+Accepted, and scores nothing, and nobody notices until the standings do not move.
 
 Solution files are written so your editor can actually resolve them — LeetCode's snippets
 have no imports, no package clause, and no `ListNode`, because the judge supplies all of
@@ -311,7 +439,7 @@ vscode-leetcode's `@lc code=start` markers are read too, so a workspace built wi
 extension works here unchanged.
 
 **leetui is the LeetCode side of the desk, not the editor.** It owns browsing, search,
-company packs, statements, editorials, running, and submitting. The code happens in
+study plans, company packs, statements, editorials, running, and submitting. The code happens in
 whatever you already have open — nvim in the next tmux pane, a VS Code terminal, an editor
 on another monitor. So the side column always names the file and says whether a save will
 re-run it:
@@ -352,6 +480,8 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Run local, submit remote** — tight loop stays offline, correctness of record comes from the judge
 - **Local execution: Python, Go, C++, JavaScript, TypeScript** — vendored drivers, zero new dependencies. Everything else edits and submits normally and runs on the judge
 - **Full Premium parity** — company packs, editorials, premium problems. No mock assessments
+- **Study plans are free and arrive whole** — one request returns all 150 questions and 23 chapters, readable signed out. The inverse of company packs, whose registry is free and contents are not
+- **Contests are the third curated list, and have their own judge** — `C` browses the schedule signed out and sorts a contest by its own running order; `leetui contest submit` is a separate verb because the ordinary endpoint accepts a submission during a contest, judges it, and scores nothing. It warns when you are not registered, which fails the same silent way
 - **SQLite + FTS5** (`modernc.org/sqlite`, pure Go) for instant offline search
 - **Company packs sync one at a time** — 984 companies × 5 timeframes is ~5,000 requests; one pack is ~24
 - **Solution files carry editor scaffolding** — imports and driver types above `@leetui code=start`; only the marked region is submitted
@@ -360,6 +490,7 @@ Full reasoning in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 - **Editing** — delegate to `$EDITOR`, in a pane beside leetui where the terminal allows it; a file watcher re-runs on save
 - **Two screens** — the list is the list; `enter` opens a problem, `esc` comes back
 - **A todo list you can script** — `m` in the app, `leetui todo add` from anywhere
+- **Importance marks, also scriptable** — `+`/`-` in the app, `leetui mark` from anywhere. Its own table, not a todo flag: a verdict outlives the solve, which is what makes a second pass possible
 - **Difficulty in LeetCode's own teal / amber / red** — reads without a legend
 - **Every column has a header** — a glyph is only a glyph when something names it
 - **Keys** — vim-first, arrows always work, everything remappable

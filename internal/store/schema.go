@@ -143,6 +143,100 @@ var migrations = []string{
 		added_at     INTEGER NOT NULL DEFAULT 0
 	);
 	`,
+
+	// 5: study plans (D-031) — curated, ordered lists like Top Interview 150.
+	//
+	// Deliberately its own pair of tables rather than a reuse of companies /
+	// problem_companies. The two look alike and are not: a pack is keyed by a timeframe
+	// and ranked by frequency, a plan has no timeframe and is ranked by its author's
+	// running order. Folding them together would mean a timeframe column that is always
+	// empty for plans and a frequency column that is always zero.
+	//
+	// plan_rank, not rank: RANK() is a window function, and a bare `rank` in an ORDER BY
+	// is the kind of thing that parses today and stops parsing later. group_name, not
+	// group, because GROUP is reserved outright.
+	`
+	CREATE TABLE IF NOT EXISTS study_plans (
+		slug         TEXT PRIMARY KEY,
+		name         TEXT NOT NULL DEFAULT '',
+		highlight    TEXT NOT NULL DEFAULT '',
+		question_num INTEGER NOT NULL DEFAULT 0,
+		premium_only INTEGER NOT NULL DEFAULT 0
+	);
+
+	-- No timeframe in the primary key: a problem appears at most once in a plan, which is
+	-- what lets plan_rank be a plain position rather than a per-window score.
+	CREATE TABLE IF NOT EXISTS problem_plans (
+		problem_slug TEXT NOT NULL REFERENCES problems(slug) ON DELETE CASCADE,
+		plan_slug    TEXT NOT NULL,
+		plan_rank    INTEGER NOT NULL DEFAULT 0,
+		group_name   TEXT NOT NULL DEFAULT '',
+		PRIMARY KEY (problem_slug, plan_slug)
+	);
+	CREATE INDEX IF NOT EXISTS idx_problem_plans_plan ON problem_plans(plan_slug);
+	`,
+
+	// 6: importance marks — the user's verdict on whether a problem was worth doing
+	// (D-032).
+	//
+	// Its own table, and NOT a column on todo, because the two say different things. A
+	// todo is a queue you drain: done means off the list. A mark is a judgment that
+	// SURVIVES solving — "solved, and worth doing again" is the whole point, and it is a
+	// state the todo list cannot express.
+	//
+	// No foreign key, for the same reason todo has none (D-022): an agent may mark a
+	// problem this machine has not synced yet, and the mark has to survive until it does.
+	`
+	CREATE TABLE IF NOT EXISTS marks (
+		problem_slug TEXT PRIMARY KEY,
+		mark         TEXT NOT NULL DEFAULT '',
+		note         TEXT NOT NULL DEFAULT '',
+		marked_at    INTEGER NOT NULL DEFAULT 0
+	);
+	CREATE INDEX IF NOT EXISTS idx_marks_mark ON marks(mark);
+	`,
+
+	// 7: contests (D-036) — the schedule, and the problems in each contest.
+	//
+	// Its own pair of tables rather than a reuse of study_plans / problem_plans, for the
+	// reason migration 5 gives about packs: the two look alike and are not. A plan is a
+	// curriculum with no clock; a contest is defined by one. start_time and duration are
+	// the whole feature, and a plan has nowhere to put them.
+	//
+	// start_time and duration are SECONDS, matching what the API sends. Storing
+	// milliseconds here and seconds there is how a countdown ends up 1000x wrong.
+	//
+	// No foreign key from problem_contests to problems, unlike problem_plans. A live
+	// contest's problems do not exist in the problems table yet — they are not in the
+	// problem set until the contest ends — so a foreign key would reject the exact rows
+	// this feature exists to store. This is the todo/marks bargain (D-022) for the same
+	// reason: the row has to survive until a sync catches up.
+	//
+	// credit, not rank: the contest's own scoring weight is also its running order, so
+	// one column carries both and there is no second number to keep in step.
+	`
+	CREATE TABLE IF NOT EXISTS contests (
+		slug        TEXT PRIMARY KEY,
+		title       TEXT NOT NULL DEFAULT '',
+		start_time  INTEGER NOT NULL DEFAULT 0,
+		duration    INTEGER NOT NULL DEFAULT 0,
+		is_virtual  INTEGER NOT NULL DEFAULT 0,
+		has_premium INTEGER NOT NULL DEFAULT 0,
+		synced_at   INTEGER NOT NULL DEFAULT 0
+	);
+	CREATE INDEX IF NOT EXISTS idx_contests_start ON contests(start_time);
+
+	CREATE TABLE IF NOT EXISTS problem_contests (
+		problem_slug  TEXT NOT NULL,
+		contest_slug  TEXT NOT NULL,
+		question_id   TEXT NOT NULL DEFAULT '',
+		title         TEXT NOT NULL DEFAULT '',
+		credit        INTEGER NOT NULL DEFAULT 0,
+		solved        INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY (problem_slug, contest_slug)
+	);
+	CREATE INDEX IF NOT EXISTS idx_problem_contests_contest ON problem_contests(contest_slug);
+	`,
 }
 
 func (s *Store) migrate(ctx context.Context) error {

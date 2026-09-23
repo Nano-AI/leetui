@@ -42,6 +42,19 @@ const (
 	// pickers are pure selection lists.
 	modeCompany
 
+	// modePlan is the study plan browser (D-031). A mode rather than a picker for the
+	// same reason as modeCompany — it owns a text field — but it is a ONE-step choice:
+	// a plan has no timeframe to follow up with, so enter goes straight to the board.
+	modePlan
+
+	// modeContest is the contest browser (D-036). A mode for the same reason modePlan is
+	// — it owns a text field — and a one-step choice for the same reason: a contest has
+	// no timeframe to follow up with.
+	//
+	// The one thing no other list needs: the selection stays live after you leave. A
+	// contest is the only curated list with a clock, and the rail counts it down.
+	modeContest
+
 	// modeSolve is one problem: statement, editorial, run results, submissions.
 	//
 	// Separate from the board because browsing and solving want opposite things from the

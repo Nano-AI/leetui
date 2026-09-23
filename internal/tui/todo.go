@@ -72,7 +72,7 @@ func (m Model) toggleTodoFilter() (tea.Model, tea.Cmd) {
 	if m.filter.TodoOnly {
 		m.filter.Sort = "todo"
 	} else if m.filter.Sort == "todo" {
-		m.filter.Sort = ""
+		m.filter.Sort = m.filteredOrder()
 	}
 	m.cursor, m.scroll = 0, 0
 	return m, m.loadRows()

@@ -18,22 +18,52 @@ import (
 func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols, terms []string) string {
 	diff := difficultyOf(r.Difficulty)
 
+	// A marked row is styled to match where the sort has put it (D-032b). Unimportant
+	// goes grey throughout and sinks; important is gilded and floats. Sinking or floating
+	// moves a row out of or into the way; the colour is what makes it read that way
+	// without counting positions. Neither half does the job alone.
+	//
+	// The cursor outranks both. A row you have deliberately moved onto must render
+	// normally, whatever you decided about it earlier — the selection has to be the
+	// loudest thing on the board or it is not a selection.
+	mark := m.marks[r.Slug]
+	dim := !selected && mark == store.MarkDown
+	gold := !selected && mark == store.MarkUp
+
 	title := truncate(r.Title, c.title)
 	styled := highlight(title, terms, selected)
+	switch {
+	case dim:
+		// Search terms are not highlighted on a dimmed row: amber on grey would be the one
+		// bright thing in a row whose whole job is to recede.
+		styled = theme.Meta.Render(title)
+	case gold:
+		// Gilded, but NOT bold. Bold is the cursor's, and a board with a dozen bold rows
+		// on it has no cursor.
+		styled = lipgloss.NewStyle().Foreground(theme.Amber).Render(title)
+	}
 
 	cells := []string{
-		cell(theme.ID(r.NumericID, selected), c.id),
-		cell(todoMark(m.todo[r.Slug]), colTodo),
-		cell(styled, c.title),
-		cell(diff.Render(), c.diff),
-		cell(theme.Meta.Render(acceptance(r.AcRate)), c.ac),
+		cell(rowID(r.NumericID, selected, gold), c.id),
+		cell(todoMark(m.todo[r.Slug], dim), colTodo),
 	}
+	if c.mark > 0 {
+		cells = append(cells, cell(importanceMark(m.marks[r.Slug]), c.mark))
+	}
+	diffCell := diff.Render()
+	if dim {
+		diffCell = theme.Meta.Render(diff.Tag())
+	}
+	cells = append(cells,
+		cell(styled, c.title),
+		cell(diffCell, c.diff),
+		cell(theme.Meta.Render(acceptance(r.AcRate)), c.ac),
+	)
 	if c.status > 0 {
-		cells = append(cells, cell(rowState(r, m.premium), c.status))
+		cells = append(cells, cell(rowState(r, m.premium, dim), c.status))
 	}
 	if c.comp > 0 {
-		cells = append(cells,
-			cell(theme.Meta.Render(truncate(strings.Join(r.Companies, " "), c.comp)), c.comp))
+		cells = append(cells, cell(theme.Meta.Render(truncate(m.lastColText(r), c.comp)), c.comp))
 	}
 	row := components.Row(cells)
 	switch {
@@ -46,18 +76,68 @@ func (m Model) viewProblemRow(r store.Row, index int, selected bool, c boardCols
 	}
 }
 
+// lastColText fills the final column: the plan's chapter when one is active, otherwise
+// the companies that ask this problem. See lastColLabel for why they share a slot.
+//
+// A missing chapter renders empty rather than falling back to companies. The header says
+// CHAPTER, and a row that quietly answered a different question than its header would be
+// the exact mistake the state column already made twice (D-023).
+func (m Model) lastColText(r store.Row) string {
+	if m.plan.Active() {
+		return m.plan.Groups[r.Slug]
+	}
+	return strings.Join(r.Companies, " ")
+}
+
 // todoMark shows whether a problem is on the user's list.
 //
 // A glyph is only allowed to be a glyph when something else names it, and the FIRST thing
 // asked about this column was what the dot meant — because its header was blank. The
 // header is now "TODO"; the mark sits under it and needs no legend of its own. Do not
 // remove that header. Amber because it is the user's own annotation, not LeetCode's data.
-func todoMark(on bool) string {
+func todoMark(on, dim bool) string {
 	if !on {
 		return ""
 	}
+	if dim {
+		return theme.Center(theme.Meta.Render(theme.Glyphs().Todo), colTodo)
+	}
 	return theme.Center(
 		lipgloss.NewStyle().Foreground(theme.Amber).Render(theme.Glyphs().Todo), colTodo)
+}
+
+// rowID draws the problem number, gilded when the row is marked important.
+//
+// theme.ID owns the selected and normal cases, including the cursor bar, so this only
+// intercepts the gold one — a second copy of the selection rule is a second place for it
+// to drift.
+func rowID(id int, selected, gold bool) string {
+	if !gold {
+		return theme.ID(id, selected)
+	}
+	return lipgloss.NewStyle().Foreground(theme.Amber).Render("  " + theme.Pad4(id))
+}
+
+// importanceMark is the user's verdict on a problem (D-032).
+//
+// Green is not available here — it belongs to the judge alone — so the two directions are
+// separated by weight rather than by hue: an important problem is bold amber and pulls the
+// eye down a column, a written-off one is dim and recedes. That is the right emphasis for
+// a second pass, where you are hunting for the pluses.
+//
+// The glyphs are literally the keys that set them, so the column needs no legend beyond
+// its MARK header.
+func importanceMark(mk store.Mark) string {
+	g := theme.Glyphs()
+	switch mk {
+	case store.MarkUp:
+		return theme.Center(
+			lipgloss.NewStyle().Foreground(theme.Amber).Bold(true).Render(g.Important), colMark)
+	case store.MarkDown:
+		return theme.Center(theme.Meta.Render(g.Unimportant), colMark)
+	default:
+		return ""
+	}
 }
 
 // rowState is the progress column: solved, tried, or out of reach.
@@ -79,8 +159,25 @@ func todoMark(on bool) string {
 // problem. Signed out counts as locked, because signed out you genuinely cannot read it.
 //
 // Solved is bone, never green: green belongs to the judge alone.
-func rowState(r store.Row, premium bool) string {
+func rowState(r store.Row, premium, dim bool) string {
 	g := theme.Glyphs()
+
+	// A dimmed row keeps its state glyph — whether it is solved is still true, and losing
+	// the mark entirely would make an unimportant row look untouched. It just stops
+	// announcing it.
+	if dim {
+		switch {
+		case r.Solved():
+			return theme.Center(theme.Meta.Render(g.Solved), colStatus)
+		case r.Status == "notac":
+			return theme.Center(theme.Meta.Render(g.Tried), colStatus)
+		case r.PaidOnly && !premium:
+			return theme.Center(theme.Meta.Render(g.Locked), colStatus)
+		default:
+			return ""
+		}
+	}
+
 	switch {
 	case r.Solved():
 		// Bone and bold, never green: green belongs to the judge alone.

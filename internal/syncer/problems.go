@@ -19,18 +19,6 @@ import (
 func (s *Syncer) Problems(ctx context.Context, out chan<- Progress, resume bool) error {
 	defer close(out)
 
-	skip := 0
-	if resume {
-		if v, err := s.store.GetState(ctx, store.KeyProblemsCursor); err == nil {
-			skip = store.Atoi(v)
-		}
-	}
-
-	total := 0
-	if v, err := s.store.GetState(ctx, store.KeyProblemsTotal); err == nil {
-		total = store.Atoi(v)
-	}
-
 	emit := func(p Progress) {
 		p.Phase = PhaseProblems
 		select {
@@ -39,7 +27,32 @@ func (s *Syncer) Problems(ctx context.Context, out chan<- Progress, resume bool)
 		}
 	}
 
+	skip := 0
+	if resume {
+		v, err := s.store.GetState(ctx, store.KeyProblemsCursor)
+		if err != nil {
+			emit(Progress{Err: err, Finished: true})
+			return err
+		}
+		skip = store.Atoi(v)
+	}
+
+	v, err := s.store.GetState(ctx, store.KeyProblemsTotal)
+	if err != nil {
+		emit(Progress{Done: skip, Err: err, Finished: true})
+		return err
+	}
+	total := store.Atoi(v)
+
 	emit(Progress{Done: skip, Total: total, Note: "starting"})
+	if !resume {
+		// Invalidate an older run's checkpoint before the first request. If that
+		// request fails, resume must retry this run from zero, not skip old pages.
+		if err := s.store.SetState(ctx, store.KeyProblemsCursor, "0"); err != nil {
+			emit(Progress{Err: err, Finished: true})
+			return err
+		}
+	}
 
 	for {
 		if err := ctx.Err(); err != nil {
@@ -67,12 +80,20 @@ func (s *Syncer) Problems(ctx context.Context, out chan<- Progress, resume bool)
 			return fmt.Errorf("sync problems at offset %d: %w", skip, err)
 		}
 
-		if pageTotal > 0 && pageTotal != total {
+		if pageTotal != total {
 			total = pageTotal
-			_ = s.store.SetState(ctx, store.KeyProblemsTotal, store.Itoa(total))
+			if err := s.store.SetState(ctx, store.KeyProblemsTotal, store.Itoa(total)); err != nil {
+				emit(Progress{Done: skip, Total: total, Err: err, Finished: true})
+				return err
+			}
 		}
 
 		if len(page) == 0 {
+			if skip < total {
+				err := fmt.Errorf("empty problem page at offset %d before total %d", skip, total)
+				emit(Progress{Done: skip, Total: total, Err: err, Finished: true})
+				return err
+			}
 			break // reached the end
 		}
 
@@ -98,8 +119,13 @@ func (s *Syncer) Problems(ctx context.Context, out chan<- Progress, resume bool)
 	}
 
 	// Completed: clear the cursor so the next sync starts fresh, and stamp the time.
-	_ = s.store.SetState(ctx, store.KeyProblemsCursor, "0")
-	_ = s.store.SetState(ctx, store.KeyProblemsSyncedAt, time.Now().Format(time.RFC3339))
+	if err := s.store.SetStates(ctx, map[string]string{
+		store.KeyProblemsCursor:   "0",
+		store.KeyProblemsSyncedAt: time.Now().Format(time.RFC3339),
+	}); err != nil {
+		emit(Progress{Done: skip, Total: total, Err: err, Finished: true})
+		return err
+	}
 
 	emit(Progress{Done: skip, Total: max(total, skip), Note: "done", Finished: true})
 	return nil

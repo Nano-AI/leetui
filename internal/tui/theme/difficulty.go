@@ -66,14 +66,24 @@ func (d Difficulty) Label() string {
 // Three letters rather than the full word: the column is scanned, not read, and a fixed
 // width is what keeps the grid rigid.
 func (d Difficulty) Render() string {
-	tag := "ESY"
+	return lipgloss.NewStyle().Foreground(d.Color()).Bold(true).Render(d.Tag())
+}
+
+// Tag is the three-letter difficulty with no colour applied.
+//
+// Split out of Render so a row that has been demoted can draw the same text in grey
+// (D-032a). The alternative — re-styling an already-rendered string — does not work:
+// lipgloss writes escape codes into the output, and wrapping them in more escape codes
+// leaves the inner colour intact.
+func (d Difficulty) Tag() string {
 	switch d {
 	case Hard:
-		tag = "HRD"
+		return "HRD"
 	case Medium:
-		tag = "MED"
+		return "MED"
+	default:
+		return "ESY"
 	}
-	return lipgloss.NewStyle().Foreground(d.Color()).Bold(true).Render(tag)
 }
 
 // ID renders a problem's number in the board's leftmost cell.
@@ -98,6 +108,13 @@ func ID(id int, selected bool) string {
 
 // IDWidth is the width ID always renders to.
 const IDWidth = 6
+
+// Pad4 is the zero-padded problem number ID renders, without its colour.
+//
+// Exported for the same reason Difficulty.Tag is: a row that has been gilded needs the
+// raw text to colour for itself, and re-styling an already-rendered string leaves the
+// original escape codes in place.
+func Pad4(n int) string { return pad4(n) }
 
 func pad4(n int) string {
 	s := itoa(n)

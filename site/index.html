@@ -63,11 +63,13 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html {
+  color-scheme: dark;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   /* A frame's title hangs half a line above its border, and the rail is
      sticky; land anchors clear of both. */
   scroll-padding-top: calc(var(--rail-h) + 1.4rem);
+  scroll-padding-bottom: calc(var(--bar-h) + 1rem);
 }
 body {
   margin: 0;
@@ -84,7 +86,9 @@ a:hover { text-decoration-color: var(--amber); }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 2px; }
 code { font-family: inherit; color: var(--bone); }
 p { margin: 0; }
-.say { color: var(--dim); max-width: 62ch; }
+h1, h2 { text-wrap: balance; }
+a, button { touch-action: manipulation; }
+.say { color: var(--dim); max-width: 62ch; overflow-wrap: anywhere; }
 .say code, code.i { color: var(--bone); }
 
 .skip { position: absolute; left: -9999px; top: 0; padding: .6rem 1rem; background: var(--flap); z-index: 40; }
@@ -109,12 +113,13 @@ kbd {
 }
 .rail-in { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .wordmark {
+  display: inline-flex; align-items: center; min-height: 44px;
   color: var(--amber); text-decoration: none;
   font-weight: 700; font-size: .84rem;
   text-transform: uppercase; letter-spacing: .44em;   /* L E E T U I */
 }
 .rail-meta { display: flex; align-items: center; font-size: .76rem; color: var(--dim); white-space: nowrap; }
-.rail-meta a { color: var(--dim); text-decoration: none; }
+.rail-meta a { display: inline-flex; align-items: center; min-height: 44px; color: var(--dim); text-decoration: none; }
 .rail-meta a:hover { color: var(--bone); }
 .sep { color: var(--hinge); padding-inline: .7em; }
 @media (max-width: 40rem) { .rail-meta .narrow-hide { display: none; } }
@@ -131,7 +136,6 @@ kbd {
   border-radius: 5px;
   padding: 1.15rem 1.15rem 1.2rem;
   margin-top: var(--gap);
-  transition: border-color .25s ease;
 }
 .frame-head {
   position: absolute; top: -.6em; left: .9rem; right: .9rem;
@@ -140,10 +144,10 @@ kbd {
 }
 .frame-title, .frame-meta {
   margin: 0; background: var(--ink); padding-inline: .5em;
-  font-weight: 400; font-size: .72rem; text-transform: uppercase; letter-spacing: .14em;
+  font-weight: 400; font-size: .72rem; text-transform: uppercase;
   pointer-events: auto; white-space: nowrap;
 }
-.frame-title { color: var(--bone); transition: color .25s ease; }
+.frame-title { color: var(--bone); }
 .frame-title kbd { margin-right: .35em; font-size: 1em; padding: 0 .4em; letter-spacing: 0; vertical-align: 0; }
 .frame-meta { color: var(--dim); overflow: hidden; text-overflow: ellipsis; }
 .frame.is-focus { border-color: var(--amber); }
@@ -154,6 +158,11 @@ kbd {
 .frame-btn { all: unset; cursor: pointer; color: var(--amber); }
 .frame-btn::before { content: "┊ "; color: var(--hinge); }
 .frame-btn:hover { text-decoration: underline; text-underline-offset: .22em; }
+.frame-btn { min-height: 44px; padding-inline: .5rem; }
+.demo-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+.demo-controls .cap { margin: 0; }
+.pan-hint { display: none; }
+@media (max-width: 46rem) { .pan-hint { display: block; } }
 
 /* A capture inside a frame. The SVG is the screen and nothing else;
    what is inside came out of site/tools/capture.sh. */
@@ -229,6 +238,7 @@ kbd {
   all: unset; cursor: pointer; display: flex; align-items: center; gap: .55rem;
   padding: .28rem .6rem .28rem .5rem; border-radius: 3px;
   font: inherit; color: var(--bone);
+  min-height: 44px;
 }
 .picker-list [role="tab"]::before { content: "▌"; color: transparent; }
 .picker-list [role="tab"]:hover { background: var(--band); }
@@ -241,6 +251,10 @@ kbd {
    would be unreachable. Reveal them all — a correct stacked page. The
    .js rule above re-hides the inactive ones the moment the script runs. */
 html:not(.js) .panel[hidden] { display: block; }
+html:not(.js) .picker-list, html:not(.js) .copy { display: none; }
+html:not(.js) .picker { display: block; }
+html:not(.js) .panel + .panel { margin-top: 1.2rem; }
+html:not(.js) .panel::before { content: attr(data-method); display: block; color: var(--amber); margin-bottom: .4rem; }
 @media (max-width: 40rem) {
   /* minmax(0,1fr), not 1fr: 1fr is minmax(auto,1fr), and the auto min takes
      the nowrap curl line's min-content (~660px) and blows the track past the
@@ -252,23 +266,24 @@ html:not(.js) .panel[hidden] { display: block; }
 .cmd { display: flex; border: 1px solid var(--hinge); border-radius: 4px; background: var(--flap); overflow: hidden; }
 /* A curl line is longer than any column it will sit in, and a command
    broken across lines is a command someone copies wrong. So it scrolls,
-   and the far edge fades to say so. */
+   and a scrollbar keeps the complete command reachable. */
 .cmd-line {
   flex: 1; min-width: 0; display: flex; align-items: center; gap: .6rem;
   padding: .8rem 1rem; overflow-x: auto; white-space: nowrap;
-  font-size: .86rem; scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent);
-  mask-image: linear-gradient(90deg, #000 calc(100% - 2.5rem), transparent);
+  font-size: .86rem; scrollbar-width: thin;
 }
-.cmd-line::-webkit-scrollbar { height: 0; }
 .cmd-line .sigil { color: var(--amber); flex: none; }
 .copy {
   all: unset; cursor: pointer; flex: none;
   border-left: 1px solid var(--hinge); color: var(--dim);
-  font-size: .72rem; text-transform: uppercase; letter-spacing: .14em;
+  font-size: .72rem; text-transform: uppercase;
   padding-inline: 1rem;
+  min-width: 6.5rem; min-height: 44px; text-align: center;
 }
 .copy:hover, .copy:focus-visible { color: var(--amber); }
+.copy:focus-visible, .frame-btn:focus-visible, .picker-list [role="tab"]:focus-visible { outline: 2px solid var(--amber); outline-offset: -3px; }
+[hidden] { display: none !important; }
+html:not(.js) .panel[hidden] { display: block !important; }
 
 /* ---- The session ------------------------------------------------- */
 
@@ -322,7 +337,7 @@ html:not(.js) .panel[hidden] { display: block; }
 /* ---- Doc links ---------------------------------------------------- */
 
 .links { margin-top: var(--gap); display: flex; flex-wrap: wrap; gap: .4rem 0; color: var(--dim); font-size: .76rem; }
-.links a { color: var(--dim); text-decoration: none; }
+.links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--dim); text-decoration: none; }
 .links a:hover { color: var(--amber); }
 .links a + a::before { content: "┊"; color: var(--hinge); margin-inline: .9rem; }
 
@@ -341,7 +356,8 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
 .bar-keys { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; font-size: .78rem; white-space: nowrap; overflow-x: auto; scrollbar-width: none; }
 .bar-keys::-webkit-scrollbar { height: 0; }
 .bar-keys li + li::before { content: "┊"; color: var(--hinge); margin-inline: .9rem; }
-.bar-keys a { color: var(--dim); text-decoration: none; }
+.bar-keys a { display: inline-flex; align-items: center; min-height: 44px; color: var(--dim); text-decoration: none; }
+.bar-keys a:focus-visible { outline-offset: -3px; }
 .bar-keys a:hover, .bar-keys a.is-on { color: var(--bone); }
 .bar-keys b { font-weight: 400; color: var(--bone); margin-right: .45em; }
 .bar-keys a.is-on b { color: var(--amber); }
@@ -351,8 +367,12 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
 @media (max-width: 45rem), (hover: none) and (pointer: coarse) {
   .bar { position: static; height: auto; padding-block: .8rem; }
   .bar-keys { flex-wrap: wrap; white-space: normal; gap: .5rem 0; }
-  .bar-keys b, .bar-keys .quiet, .bar-status { display: none; }
+  .bar-keys b, .bar-keys .quiet { display: none; }
 }
+.install-status { min-height: 1.6em; margin-top: .6rem; font-size: .84rem; color: var(--amber); overflow-wrap: anywhere; }
+.first-run { margin-top: .8rem; }
+.shortcut-toggle { margin-top: .6rem; color: var(--dim); font-size: .8rem; display: flex; align-items: center; gap: .6rem; min-height: 44px; }
+html:not(.js) .shortcut-toggle { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -369,16 +389,18 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
   <div class="wrap rail-in">
     <a class="wordmark" href="#main">leetui</a>
     <p class="rail-meta">
-      <span>v0.1.0</span>
-      <span class="sep" aria-hidden="true">┊</span>
+      <span class="narrow-hide">v0.1.0</span>
+      <span class="sep narrow-hide" aria-hidden="true">┊</span>
       <span class="narrow-hide">macOS · Linux · Windows</span>
       <span class="sep narrow-hide" aria-hidden="true">┊</span>
+      <a href="#install">install</a>
+      <span class="sep" aria-hidden="true">┊</span>
       <a href="https://github.com/Nano-AI/leetui">github</a>
     </p>
   </div>
 </header>
 
-<main id="main" class="wrap">
+<main id="main" class="wrap" tabindex="-1">
 
   <section class="hero" aria-labelledby="h1">
     <h1 class="board" id="h1">
@@ -402,28 +424,28 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         <button type="button" role="tab" id="tab-binary" aria-controls="panel-binary" aria-selected="false" tabindex="-1">binary</button>
       </div>
       <div class="picker-body">
-        <div class="panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script">
+        <div class="panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script" data-method="Script">
           <div class="cmd">
-            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-script">curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh</code></span>
+            <span class="cmd-line" tabindex="0" role="region" aria-label="Script install command" translate="no"><span class="sigil" aria-hidden="true">$</span><code id="cmd-script">curl -fsSL https://raw.githubusercontent.com/Nano-AI/leetui/main/install.sh | sh</code></span>
             <button class="copy" type="button" data-copy="#cmd-script">Copy</button>
           </div>
           <p class="say"><a href="https://github.com/Nano-AI/leetui/blob/main/install.sh">Read it first</a>. That goes for every install script.</p>
         </div>
-        <div class="panel" id="panel-brew" role="tabpanel" aria-labelledby="tab-brew" hidden>
+        <div class="panel" id="panel-brew" role="tabpanel" aria-labelledby="tab-brew" data-method="Homebrew" hidden>
           <div class="cmd">
-            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-brew">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
+            <span class="cmd-line" tabindex="0" role="region" aria-label="Homebrew install command" translate="no"><span class="sigil" aria-hidden="true">$</span><code id="cmd-brew">brew tap Nano-AI/tap &amp;&amp; brew trust nano-ai/tap &amp;&amp; brew install leetui</code></span>
             <button class="copy" type="button" data-copy="#cmd-brew">Copy</button>
           </div>
           <p class="say"><code>brew trust</code> is Homebrew's gate on third party taps.</p>
         </div>
-        <div class="panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" hidden>
+        <div class="panel" id="panel-go" role="tabpanel" aria-labelledby="tab-go" data-method="Go" hidden>
           <div class="cmd">
-            <span class="cmd-line"><span class="sigil" aria-hidden="true">$</span><code id="cmd-go">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
+            <span class="cmd-line" tabindex="0" role="region" aria-label="Go install command" translate="no"><span class="sigil" aria-hidden="true">$</span><code id="cmd-go">go install github.com/Nano-AI/leetui/cmd/leetui@latest</code></span>
             <button class="copy" type="button" data-copy="#cmd-go">Copy</button>
           </div>
-          <p class="say">Go 1.24 or newer. The binary lands in <code>~/go/bin</code>.</p>
+          <p class="say">Building the current source requires Go 1.26.5 or newer. The binary lands in <code>$(go env GOPATH)/bin</code> unless <code>GOBIN</code> is set. Add that directory to your PATH if <code>leetui</code> is not found.</p>
         </div>
-        <div class="panel" id="panel-binary" role="tabpanel" aria-labelledby="tab-binary" hidden>
+        <div class="panel" id="panel-binary" role="tabpanel" aria-labelledby="tab-binary" data-method="Binary" hidden>
           <p class="say" style="margin-top:0">
             macOS, Linux and Windows builds are on
             <a href="https://github.com/Nano-AI/leetui/releases">Releases</a>. One static file.
@@ -431,20 +453,27 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         </div>
       </div>
     </div>
+    <p class="install-status" id="status" role="status" aria-live="polite"></p>
+    <p class="say first-run">Run <code>leetui</code>, then press <kbd>S</kbd> to sync. Press <kbd>a</kbd> to sign in for your solved status and Premium content.</p>
   </section>
 
   <!-- The session. The board loads as a still; the player swaps in a
-       recorded session over it once site/shots/demo.json arrives, so a
+       recorded session over it when the reader presses play, so a
        page with no JavaScript still opens on a real screenshot. -->
   <section class="frame frame-demo" id="demo" aria-labelledby="t-session">
     <div class="frame-head">
       <h2 class="frame-title" id="t-session">Session</h2>
-      <span class="frame-meta">recorded off the program<button class="frame-btn" type="button" id="demo-toggle" hidden>pause</button></span>
+      <span class="frame-meta">recorded off the program</span>
     </div>
-    <div class="term-view"><img src="shots/board.svg" width="1363" height="776" fetchpriority="high"
+    <div class="term-view" tabindex="0" role="region" aria-label="leetui board capture" aria-describedby="demo-description"><img src="shots/board.svg" width="1363" height="750" fetchpriority="high"
          alt="The leetui board: a dense table of LeetCode problems with columns for number, todo, mark, title, difficulty, acceptance rate, state and the company that asked it."></div>
   </section>
-  <p class="cap">Every frame is the program, not a mockup.</p>
+  <div class="demo-controls">
+    <p class="cap" id="demo-description">Every frame is the program, not a mockup. The silent recording shows searching for tree, browsing companies and study plans, then opening a problem.</p>
+    <button class="frame-btn" type="button" id="demo-toggle" aria-controls="demo" hidden>Play session</button>
+  </div>
+  <p class="cap" id="demo-status" role="status"></p>
+  <p class="cap pan-hint">Scroll captures sideways to see the full screen. With a keyboard, focus a capture and use the arrow keys.</p>
 
   <section class="frame" id="local" aria-labelledby="t-local">
     <div class="frame-head">
@@ -452,10 +481,10 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       <span class="frame-meta">after one sync</span>
     </div>
     <ul class="counts">
-      <li><span class="count-n flaps" data-flap="4013" data-spin></span><span class="count-l">problems</span></li>
-      <li><span class="count-n flaps" data-flap="989"  data-spin></span><span class="count-l">company lists</span></li>
-      <li><span class="count-n flaps" data-flap="17"   data-spin></span><span class="count-l">study plans</span></li>
-      <li><span class="count-n flaps" data-flap="0"    data-spin></span><span class="count-l">network calls to search</span></li>
+      <li><span class="count-n flaps" data-flap="4013" data-spin>4013</span><span class="count-l">problems</span></li>
+      <li><span class="count-n flaps" data-flap="989"  data-spin>989</span><span class="count-l">company lists</span></li>
+      <li><span class="count-n flaps" data-flap="17"   data-spin>17</span><span class="count-l">study plans</span></li>
+      <li><span class="count-n flaps" data-flap="0"    data-spin>0</span><span class="count-l">network calls to search</span></li>
     </ul>
   </section>
 
@@ -465,7 +494,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       <span class="frame-meta">local index</span>
     </div>
     <p class="say frame-lede">Titles, tags and full statements, searched on the local index — no network call, so it answers while you type.</p>
-    <figure class="shot" style="--nat:1363px">
+    <figure class="shot" style="--nat:1363px" tabindex="0" aria-label="Search capture">
       <img src="shots/search.svg" loading="lazy" width="1363" height="410"
            alt="Searching for tree: a search field above the board and 378 matching problems below it, with the query highlighted in each title.">
     </figure>
@@ -476,10 +505,10 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       <h2 class="frame-title" id="t-solve"><kbd>e</kbd>Solve</h2>
       <span class="frame-meta">e your editor · r runs the examples here</span>
     </div>
-    <p class="say frame-lede">Statement on the left; your file and every past verdict on the right. <kbd>e</kbd> opens your editor, <kbd>r</kbd> runs the examples without leaving.</p>
-    <figure class="shot" style="--nat:1363px">
-      <img src="shots/detail.svg" loading="lazy" width="1363" height="776"
-           alt="A problem open in leetui: the statement with examples and constraints on the left, and the solution file path, language and submission history on the right.">
+    <p class="say frame-lede"><kbd>e</kbd> opens your editor in a tmux pane beside the statement, and saving re-runs the tests. Below is that split, photographed: leetui on the left, Neovim on the right holding the real file.</p>
+    <figure class="shot" style="--nat:1296px" tabindex="0" aria-label="Editor capture">
+      <img src="shots/editor.svg" loading="lazy" width="1296" height="512"
+           alt="A tmux split: leetui showing the Valid Parentheses statement on the left, and Neovim on the right with the solution file open, line numbers and syntax highlighting visible.">
     </figure>
   </section>
 
@@ -490,7 +519,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
     </div>
     <p class="say frame-lede">There are no spinners in leetui. A pending verdict is a flap held mid flip.</p>
     <div class="split">
-      <figure class="shot" style="--nat:574px">
+      <figure class="shot" style="--nat:574px" tabindex="0" aria-label="Local test capture">
         <img src="shots/run.svg" loading="lazy" width="574" height="172"
              alt="Terminal output of leetui run: five test cases, each marked ok, ending with All 5 cases passed.">
       </figure>
@@ -498,7 +527,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         <div class="queue-row">
           <span class="m">0020</span>
           <span class="m">python3</span>
-          <span class="verdict flaps" id="verdict" data-flap="PENDING" data-width="8"></span>
+          <span class="verdict flaps" id="verdict" data-flap="PENDING" data-width="8">PENDING</span>
         </div>
         <p class="say">Accepted commits itself. Pushing asks first.</p>
       </div>
@@ -511,7 +540,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       <span class="frame-meta">all remappable</span>
     </div>
     <p class="say frame-lede">Every binding on one screen, behind <kbd>?</kbd>.</p>
-    <figure class="shot" style="--nat:1069px">
+    <figure class="shot" style="--nat:1069px" tabindex="0" aria-label="Key bindings capture">
       <img src="shots/keys.svg" loading="lazy" width="1069" height="665"
            alt="The keys screen: two columns of bindings grouped under Move, List, Find, Solve, Worth redoing, Lists, Premium and Do.">
     </figure>
@@ -527,7 +556,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         Session cookies go to the OS keychain, never to disk.
         <code class="i">leetui doctor</code> reports what this machine is missing before you sync.
       </p>
-      <figure class="shot" style="--nat:666px">
+      <figure class="shot" style="--nat:666px" tabindex="0" aria-label="Doctor capture">
         <img src="shots/doctor.svg" loading="lazy" width="666" height="512"
              alt="Output of leetui doctor: the workspace path, five local runners all reporting ok, the detected editor and terminal, and inline image support.">
       </figure>
@@ -540,6 +569,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
     <a href="https://github.com/Nano-AI/leetui/blob/main/docs/AGENTS.md">Agents</a>
     <a href="https://github.com/Nano-AI/leetui/blob/main/site/tools/capture.sh">How these were shot</a>
   </nav>
+  <label class="shortcut-toggle"><input type="checkbox" id="shortcuts"> Enable single-key website shortcuts (i, /, e, s, ?, o, j, k, g)</label>
 
 </main>
 
@@ -555,7 +585,6 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       <li class="quiet"><b>j·k</b>scroll</li>
       <li class="quiet"><b>g·G</b>ends</li>
     </ul>
-    <span class="bar-status" id="status" role="status" aria-live="polite"></span>
   </div>
 </nav>
 
@@ -565,14 +594,20 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   document.documentElement.classList.add("js");
+  document.querySelectorAll(".shot, .term-view, .cmd-line").forEach(function (el) {
+    el.tabIndex = 0;
+    el.setAttribute("role", "region");
+    var img = el.querySelector("img");
+    el.setAttribute("aria-label", img ? img.alt + " Scroll horizontally to see the full capture." : "Install command; scroll horizontally to read");
+  });
 
   var status = document.getElementById("status");
   var statusTimer = null;
-  function say(text) {
+  function say(text, persistent) {
     if (!status) { return; }
     status.textContent = text;
     clearTimeout(statusTimer);
-    statusTimer = setTimeout(function () { status.textContent = ""; }, 2200);
+    if (!persistent) { statusTimer = setTimeout(function () { status.textContent = ""; }, 2200); }
   }
 
   /* ---------------------------------------------------------------
@@ -648,7 +683,10 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
     var padded = text;
     while (padded.length < width) { padded += " "; }
     holder.textContent = "";
-    if (!holder.hasAttribute("aria-hidden")) { holder.setAttribute("aria-label", text); }
+    if (!holder.hasAttribute("aria-hidden")) {
+      holder.setAttribute("role", "img");
+      holder.setAttribute("aria-label", text);
+    }
     var cells = [];
     for (var i = 0; i < padded.length; i++) {
       /* Built showing the settled text. A cell that starts blank and
@@ -657,6 +695,7 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
          observer reports. Blanking is the opening move of the rows that
          roll, and they ask for it with data-spin. */
       var c = cell(holder.hasAttribute("data-spin") && !reduced.matches ? " " : padded.charAt(i));
+      c.setAttribute("aria-hidden", "true");
       holder.appendChild(c);
       cells.push(c);
     }
@@ -715,15 +754,30 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
      The picker: install methods. Without JavaScript every panel is
      visible and stacked, which is a correct page.
      --------------------------------------------------------------- */
-  function copyText(text, onDone) {
-    if (!navigator.clipboard) { onDone(false); return; }
-    navigator.clipboard.writeText(text.trim()).then(function () { onDone(true); }, function () { onDone(false); });
+  function copyText(target, onDone) {
+    function fallback() {
+      var range = document.createRange();
+      range.selectNodeContents(target);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      say("Command selected. Use your device’s Copy action or press Ctrl+C (⌘C on Mac).", true);
+      onDone(false);
+    }
+    if (!navigator.clipboard) { fallback(); return; }
+    navigator.clipboard.writeText(target.textContent.trim()).then(function () {
+      say("Command copied."); onDone(true);
+    }, fallback);
   }
   var tablist = document.querySelector('[role="tablist"]');
   if (tablist) {
     var tabs = [].slice.call(tablist.querySelectorAll('[role="tab"]'));
+    var narrow = window.matchMedia("(max-width: 40rem)");
+    function orient() { tablist.setAttribute("aria-orientation", narrow.matches ? "horizontal" : "vertical"); }
+    orient();
+    narrow.addEventListener("change", orient);
 
-    var select = function (tab, focus) {
+    var select = function (tab, focus, updateURL) {
       tabs.forEach(function (t) {
         var on = t === tab;
         t.setAttribute("aria-selected", on ? "true" : "false");
@@ -733,23 +787,33 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         t.tabIndex = on ? 0 : -1;
         document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
       });
+      say("");
       if (focus) { tab.focus(); }
+      if (updateURL) {
+        var url = new URL(window.location.href);
+        var method = tab.id.replace("tab-", "");
+        if (url.searchParams.get("install") !== method) {
+          url.searchParams.set("install", method);
+          history.pushState(null, "", url);
+        }
+      }
     };
 
     tabs.forEach(function (tab, i) {
-      tab.addEventListener("click", function () { select(tab, false); });
+      tab.addEventListener("click", function () { select(tab, false, true); });
       tab.addEventListener("keydown", function (e) {
-        var stepBy = (e.key === "ArrowDown" || e.key === "j") ? 1 : (e.key === "ArrowUp" || e.key === "k") ? -1 : 0;
-        if (stepBy) { e.preventDefault(); e.stopPropagation(); select(tabs[(i + stepBy + tabs.length) % tabs.length], true); return; }
-        if (e.key === "Home") { e.preventDefault(); select(tabs[0], true); }
-        if (e.key === "End") { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+        if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) { return; }
+        var stepBy = (e.key === (narrow.matches ? "ArrowRight" : "ArrowDown") || e.key === "j") ? 1 : (e.key === (narrow.matches ? "ArrowLeft" : "ArrowUp") || e.key === "k") ? -1 : 0;
+        if (stepBy) { e.preventDefault(); e.stopPropagation(); select(tabs[(i + stepBy + tabs.length) % tabs.length], true, true); return; }
+        if (e.key === "Home") { e.preventDefault(); select(tabs[0], true, true); }
+        if (e.key === "End") { e.preventDefault(); select(tabs[tabs.length - 1], true, true); }
         /* enter copies, as the frame's note promises. */
         if (e.key === "Enter") {
           var panel = document.getElementById(tab.getAttribute("aria-controls"));
           var code = panel && panel.querySelector("code[id]");
           if (!code) { return; }
           e.preventDefault();
-          copyText(code.textContent, function (ok) { say(ok ? "copied" : "select it and press ⌘C"); });
+          copyText(code, function () {});
         }
       });
     });
@@ -758,7 +822,14 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
        first. Windows has neither a POSIX shell nor Homebrew, so the
        honest answer there is the binary. */
     var win = navigator.platform && navigator.platform.indexOf("Win") === 0;
-    select(win ? document.getElementById("tab-binary") : tabs[0], false);
+    function restoreMethod() {
+      var method = new URL(window.location.href).searchParams.get("install");
+      var tab = tabs.find(function (t) { return t.id === "tab-" + method; });
+      var focusInPicker = tablist.contains(document.activeElement) || document.querySelector(".picker-body").contains(document.activeElement);
+      select(tab || (win ? document.getElementById("tab-binary") : tabs[0]), focusInPicker, false);
+    }
+    restoreMethod();
+    window.addEventListener("popstate", restoreMethod);
   }
 
   /* ---------------------------------------------------------------
@@ -791,12 +862,15 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
   function jump(sel) {
     var el = document.querySelector(sel);
     if (!el) { return; }
+    history.pushState(null, "", sel);
+    el.tabIndex = -1;
+    el.focus({ preventScroll: true });
     el.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "start" });
   }
   document.addEventListener("keydown", function (e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) { return; }
+    if (!document.getElementById("shortcuts").checked || e.defaultPrevented || e.isComposing || e.metaKey || e.ctrlKey || e.altKey) { return; }
     var t = e.target, tag = t && t.tagName;
-    if (tag === "INPUT" || tag === "TEXTAREA" || (t && t.isContentEditable)) { return; }
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON" || tag === "A" || (t && t.isContentEditable)) { return; }
     var k = e.key;
     if (JUMPS[k]) { e.preventDefault(); jump(JUMPS[k]); return; }
     if (k === "o") { window.open("https://github.com/Nano-AI/leetui", "_blank", "noopener"); return; }
@@ -820,17 +894,27 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
      It only starts once the frame is on screen and stops again when it
      leaves, so a page left open in a background tab is not repainting a
      terminal nobody is looking at. With motion reduced it paints the
-     opening frame and never runs.
+      still until the reader explicitly requests playback.
      --------------------------------------------------------------- */
 
   var demo = document.getElementById("demo");
   if (demo) {
+    var toggle = document.getElementById("demo-toggle");
+    toggle.hidden = false;
+    toggle.addEventListener("click", loadDemo, { once: true });
+    function loadDemo() {
+    var demoStatus = document.getElementById("demo-status");
+    demoStatus.textContent = "Loading session…";
+    toggle.textContent = "Loading…";
+    toggle.disabled = true;
     fetch("shots/demo.json").then(function (r) {
       if (!r.ok) { throw new Error(r.status); }
       return r.json();
     }).then(function (cast) {
       var view = demo.querySelector(".term-view");
-      var toggle = document.getElementById("demo-toggle");
+      if (!cast.frames || !cast.frames.length || !cast.styles || !Number.isInteger(cast.rows) || cast.rows < 1 || !Number.isInteger(cast.cols) || cast.cols < 1) {
+        throw new Error("Invalid recording");
+      }
 
       var sheet = document.createElement("style");
       sheet.textContent = cast.styles.map(function (css, i) {
@@ -883,13 +967,13 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       }
 
       function step() {
+        if (frame === 0) { lines.forEach(function (l) { l.innerHTML = ""; }); }
         paint(cast.frames[frame]);
         var wait = cast.frames[frame].d;
         frame = (frame + 1) % cast.frames.length;
         /* Back at the top: clear, so a loop does not inherit lines the
            first frame happens not to repaint. */
         if (frame === 0) {
-          lines.forEach(function (l) { l.innerHTML = ""; });
           wait += 700;
         }
         timer = setTimeout(step, wait);
@@ -905,12 +989,12 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
         clearTimeout(timer);
       }
 
-      view.textContent = "";
+      // The region keeps the still's accessible description when playback starts.
       view.appendChild(screen);
       fit();
       paint(cast.frames[0]);
-
-      if (reduced.matches) { return; }
+      view.querySelector("img").hidden = true;
+      demoStatus.textContent = "";
 
       window.addEventListener("resize", fit);
 
@@ -925,13 +1009,16 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       var paused = false, visible = true;
       function sync() {
         if (!paused && visible && !document.hidden) { play(); } else { stop(); }
+        toggle.textContent = paused ? "Play session" : "Pause session";
       }
 
-      toggle.hidden = false;
+      toggle.disabled = false;
       toggle.addEventListener("click", function () {
         paused = !paused;
-        toggle.textContent = paused ? "play" : "pause";
         sync();
+      });
+      reduced.addEventListener("change", function () {
+        if (reduced.matches) { paused = true; sync(); }
       });
 
       document.addEventListener("visibilitychange", sync);
@@ -944,8 +1031,15 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
       }
       sync();
     }).catch(function () {
-      /* The still that is already in the markup stays. */
+      /* Restore the still even if rendering failed after the fetch. */
+      demo.querySelector(".term-view img").hidden = false;
+      demo.querySelectorAll(".screen").forEach(function (el) { el.remove(); });
+      demoStatus.textContent = "Session could not load. The still is available; choose Retry session to try again.";
+      toggle.disabled = false;
+      toggle.textContent = "Retry session";
+      toggle.addEventListener("click", loadDemo, { once: true });
     });
+    }
   }
 
   /* Copy. The button says what happens, then says what happened. */
@@ -953,9 +1047,8 @@ main { padding-bottom: calc(var(--gap) * 1.2); }
     btn.addEventListener("click", function () {
       var target = document.querySelector(btn.getAttribute("data-copy"));
       if (!target) { return; }
-      copyText(target.textContent, function (ok) {
-        btn.textContent = ok ? "Copied" : "Press ⌘C";
-        say(ok ? "copied" : "");
+      copyText(target, function (ok) {
+        btn.textContent = ok ? "Copied" : "Selected";
         setTimeout(function () { btn.textContent = "Copy"; }, 2000);
       });
     });

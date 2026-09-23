@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -29,6 +30,9 @@ const DefaultTimeout = 10 * time.Second
 // interface exists to keep the TUI from caring how execution happens, and to make the
 // remote fallback in D-004 a routing decision instead of a special case.
 type Local struct {
+	// SolutionFile selects an explicit source file. Empty uses solution.<ext>.
+	SolutionFile string
+
 	// Timeout bounds a single test case. Zero uses DefaultTimeout.
 	Timeout time.Duration
 
@@ -106,6 +110,13 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 		return fmt.Errorf("%s: %w", lang.Display, ErrLangNotLocal)
 	}
 
+	// A few problems ship a metaData that does not describe the function they hand you,
+	// so nothing generated from it can compile. Say which problem and why, rather than
+	// writing a driver that fails with an error the reader will read as their own.
+	if reason := RuleFor(p.Slug).NoLocal; reason != "" {
+		return NotLocal("%s cannot run locally — %s", p.Slug, reason)
+	}
+
 	meta, err := ParseMeta(p.MetaData)
 	if err != nil {
 		return err
@@ -138,6 +149,13 @@ func (l *Local) Generate(ctx context.Context, p Problem, lang Lang, dir string) 
 // happening at all, so the caller can tell "your answer is wrong" apart from "nothing
 // ran".
 func (l *Local) Run(ctx context.Context, dir string, lang Lang, cases []TestCase, rule Rule) (Result, error) {
+	// Commands run with dir as their working directory. Make generated entry points
+	// and binaries absolute so a relative dir is not applied a second time by exec.
+	abs, err := filepath.Abs(dir)
+	if err != nil {
+		return Result{}, fmt.Errorf("resolve run directory: %w", err)
+	}
+	dir = abs
 	if !l.Supports(lang) {
 		if bin := l.MissingToolchain(lang); bin != "" {
 			return Result{}, fmt.Errorf("%s needs %q on PATH: %w", lang.Display, bin, ErrNoToolchain)

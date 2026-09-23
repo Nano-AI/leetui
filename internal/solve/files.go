@@ -1,6 +1,8 @@
 package solve
 
 import (
+	"strings"
+
 	"github.com/Nano-AI/leetui/internal/runner"
 	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/workspace"
@@ -41,9 +43,9 @@ func writeSolution(ws workspace.Workspace, d *store.Detail, lang runner.Lang, s 
 // seedCases writes testcases.txt, and repairs one written by an older leetui.
 //
 // Existing cases are never replaced — the user may have added their own. The single
-// exception is a file where EVERY case has an empty expected answer, which is what the
-// broken scrape produced: it holds nothing a person would have typed, and leaving it
-// would make every future run report that there was nothing to check against.
+// exception is an exact copy of the original examples with every answer blank,
+// which is what the broken scrape produced. Blank answers alone do not establish
+// ownership: users also add unchecked inputs or deliberately empty the file.
 func seedCases(ws workspace.Workspace, d *store.Detail, cases []runner.TestCase) {
 	if len(cases) == 0 {
 		return
@@ -56,6 +58,13 @@ func seedCases(ws workspace.Workspace, d *store.Detail, cases []runner.TestCase)
 		return
 	}
 	if runner.HasExpected(runner.LoadCases(existing)) || !runner.HasExpected(cases) {
+		return
+	}
+	blank := make([]runner.TestCase, len(cases))
+	for i, c := range cases {
+		blank[i].Input = c.Input
+	}
+	if strings.ReplaceAll(existing, "\r\n", "\n") != runner.FormatCases(blank) {
 		return
 	}
 	_, _ = ws.ReplaceTestcases(d.NumericID, d.Slug, formatted)

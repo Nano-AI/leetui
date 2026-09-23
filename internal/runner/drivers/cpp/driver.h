@@ -269,6 +269,19 @@ inline TreeNode* toTree(const Json& j) {
     return root;
 }
 
+// A list of lists, or a forest. These sit below toList/toTree rather than beside
+// the other vector builders because toVector needs the element builder to already
+// be declared.
+//
+// dump needs nothing added: the vector template below resolves its elements
+// through dump(ListNode*) and dump(TreeNode*), which are declared above it.
+inline std::vector<ListNode*> toListVector(const Json& j) {
+    return toVector<ListNode*>(j, toList);
+}
+inline std::vector<TreeNode*> toTreeVector(const Json& j) {
+    return toVector<TreeNode*>(j, toTree);
+}
+
 // --- printing results ------------------------------------------------------
 
 inline std::string dump(int v) { return std::to_string(v); }

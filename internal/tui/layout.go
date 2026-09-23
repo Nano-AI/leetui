@@ -82,6 +82,10 @@ func (m Model) View() string {
 		return m.viewAuth()
 	case modeCompany:
 		return m.viewCompanies()
+	case modePlan:
+		return m.viewPlans()
+	case modeContest:
+		return m.viewContests()
 	case modeGit:
 		return m.viewGit()
 	case modeSettings:

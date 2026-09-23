@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Nano-AI/leetui/internal/tui/components"
 	"github.com/Nano-AI/leetui/internal/tui/theme"
@@ -34,6 +35,30 @@ func (m Model) viewRail() string {
 	// what every row means, and the rail is where the app's current state lives.
 	if m.pack.Active() {
 		right = append(right, theme.Label.Render("◈ "+m.pack.Name))
+	}
+
+	// A study plan is announced the same way and for the same reason (D-031). The two are
+	// mutually exclusive, so only one badge can ever appear.
+	if m.plan.Active() {
+		right = append(right, theme.Label.Render("◈ "+m.plan.Name))
+	}
+
+	// A contest is announced the same way, and then counted down (D-036). The countdown
+	// is a SECOND clock next to the stopwatch rather than a replacement for it: the
+	// stopwatch measures this problem and the countdown measures the sitting, and during
+	// a contest both questions are live at once.
+	if m.contest.Active() {
+		now := time.Now()
+		right = append(right, theme.Label.Render("◈ "+m.contest.Title))
+		if clock := m.contestClock(now); clock != "" {
+			// Amber only while it is running. Before the start it is a schedule, and a
+			// schedule that shouts is a schedule you learn to ignore.
+			style := theme.Meta
+			if m.contestLive(now) {
+				style = theme.Label
+			}
+			right = append(right, style.Render("⧗ "+clock))
+		}
 	}
 
 	timer := theme.Meta.Render("⏱ --:--:--")

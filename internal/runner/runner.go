@@ -27,6 +27,7 @@ package runner
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -35,6 +36,21 @@ import (
 // Callers are expected to fall back to a remote run rather than surfacing this as a
 // failure — it is a routing decision, not an error the user caused.
 var ErrLangNotLocal = errors.New("no local runner for this language")
+
+// NotLocal routes to the judge like ErrLangNotLocal, while saying something truer than
+// "this language" — some problems cannot run locally in any language.
+//
+// It unwraps rather than wrapping, so errors.Is still matches and the reader is not read
+// a sentence about languages when the reason is the problem. runErrorHint prints the
+// whole chain (internal/tui/judge.go), which is what makes that distinction visible.
+func NotLocal(format string, args ...any) error {
+	return notLocal{fmt.Sprintf(format, args...)}
+}
+
+type notLocal struct{ msg string }
+
+func (e notLocal) Error() string { return e.msg }
+func (e notLocal) Unwrap() error { return ErrLangNotLocal }
 
 // ErrNoToolchain means the language is supported but its compiler or interpreter is not
 // installed. Distinct from ErrLangNotLocal because the fix is different: install a

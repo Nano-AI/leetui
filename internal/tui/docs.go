@@ -29,8 +29,34 @@ type docSection struct {
 	rows [][2]string
 }
 
+// docSections is ORDERED FOR THE FOLD, not just for reading.
+//
+// viewDocs lays these out in two height-balanced columns and the reference scrolls, so
+// whatever sits late in the list is below the fold on a short terminal. The surfaces with
+// no key of their own — the subcommands and the command line — go first, because those
+// are the ones a keymap can never mention and this screen exists to make findable.
+// `TestDocsIsReachableAndListsTheSurface` fails the build if they slip under.
 func docSections() []docSection {
 	return []docSection{
+		{
+			name: "from your shell",
+			note: "same core · see docs/AGENTS.md",
+			rows: [][2]string{
+				{"leetui pull <p>", "lay out the problem folder"},
+				{"leetui run [p]", "run locally · exit 0 1 2"},
+				{"leetui run --watch", "re-run on save, in its own pane"},
+				{"leetui submit [p]", "to the judge — real and public"},
+				{"leetui path <p>", "print the folder, for scripts"},
+				{"leetui image <p> [n]", "draw figure N (kitty, iTerm2)"},
+				{"leetui todo add <p>", "queue a problem from anywhere"},
+				{"leetui todo --json", "the queue, as JSON"},
+				{"leetui mark up <p>", "worth doing again"},
+				{"leetui mark down <p>", "not worth another pass"},
+				{"leetui mark --json --up", "the redo list, as JSON"},
+				{"leetui doctor", "what works here, and what to fix"},
+				{"leetui --debug", "trace requests, credentials redacted"},
+			},
+		},
 		{
 			name: "the command line",
 			note: "press : · tab completes",
@@ -42,6 +68,19 @@ func docSections() []docSection {
 				{":sync", "fetch the problem set"},
 				{":git", "the repository view"},
 				{":help", "the keymap"},
+			},
+		},
+		{
+			name: "worth redoing",
+			note: "a verdict outlives the solve",
+			rows: [][2]string{
+				{"+", "gilds it, floats it to the top"},
+				{"-", "greys it, sinks it to the bottom"},
+				{"", "never removed — press the key to undo"},
+				{"i", "all → important → unimportant"},
+				{"", "shown in the MARK column"},
+				{"", "a todo empties as you solve;"},
+				{"", "a mark is how you find it again"},
 			},
 		},
 		{
@@ -58,19 +97,34 @@ func docSections() []docSection {
 			},
 		},
 		{
-			name: "from your shell",
-			note: "same core · see docs/AGENTS.md",
+			name: "when it goes green",
+			note: "the only animation besides the flip",
 			rows: [][2]string{
-				{"leetui pull <p>", "lay out the problem folder"},
-				{"leetui run [p]", "run locally · exit 0 1 2"},
-				{"leetui run --watch", "re-run on save, in its own pane"},
-				{"leetui submit [p]", "to the judge — real and public"},
-				{"leetui path <p>", "print the folder, for scripts"},
-				{"leetui image <p> [n]", "draw figure N (kitty, iTerm2)"},
-				{"leetui todo add <p>", "queue a problem from anywhere"},
-				{"leetui todo --json", "the queue, as JSON"},
-				{"leetui doctor", "what works here, and what to fix"},
-				{"leetui --debug", "trace requests, credentials redacted"},
+				{"accepted", "the verdict sweeps, then settles"},
+				{"✦ FAST", "beats >50% on runtime or memory"},
+				{"✦ DOUBLE 50", "beats >50% on both"},
+				{"✦ TOP 10", "beats 90% on both"},
+				{":set ui.celebrate off", "just the verdict"},
+				{":set ui.celebrate subtle", "badge and figures, no motion"},
+				{"", "ui.reduce_motion outranks full"},
+			},
+		},
+		{
+			name: "curated lists",
+			note: "each sorts the board its own way",
+			rows: [][2]string{
+				{"P", "study plans — free, signed out"},
+				{"", "Top Interview 150, LeetCode 75, SQL 50"},
+				{"", "board follows the plan's own order"},
+				{"C", "contests — free, signed out"},
+				{"", "board follows the contest's own order"},
+				{"", "the rail counts down while one runs"},
+				{"", "leetui contest pull <slug> lays out all four"},
+				{"", "leetui contest submit <slug> — this one scores"},
+				{"c", "company lists, then a timeframe"},
+				{"", "board sorts by how often they ask"},
+				{"", "company lists need Premium"},
+				{"esc", "back to every problem"},
 			},
 		},
 		{

@@ -37,8 +37,11 @@ func (m Model) viewStatus() string {
 // the end of the strip.
 func (m Model) hintKeys() []string {
 	if m.mode != modeSolve {
-		return []string{"enter open", "m mark", "M my list", "/ search", "c companies",
-			"1·2·3 difficulty", "u unsolved", "S sync", "? keys", "q quit"}
+		// P sits ahead of c: study plans work on any account, company packs need Premium,
+		// and hints are dropped from the end when they do not fit.
+		return []string{"enter open", "m mark", "M my list", "/ search", "P plans",
+			"C contests", "c companies", "1·2·3 difficulty", "u unsolved", "S sync",
+			"? keys", "q quit"}
 	}
 
 	keys := []string{"f file", "r run", "s submit", "d editorial", "e edit",

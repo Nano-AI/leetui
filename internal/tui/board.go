@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Nano-AI/leetui/internal/store"
 	"github.com/Nano-AI/leetui/internal/tui/components"
 	"github.com/Nano-AI/leetui/internal/tui/theme"
 )
@@ -26,6 +27,7 @@ import (
 type boardCols struct {
 	id     int
 	todo   int
+	mark   int // 0 when dropped
 	title  int // flexes to absorb the remaining space
 	diff   int
 	ac     int
@@ -36,6 +38,7 @@ type boardCols struct {
 const (
 	colID     = theme.IDWidth
 	colTodo   = 4
+	colMark   = 4
 	colDiff   = 3
 	colAC     = 4
 	colStatus = 5
@@ -44,8 +47,16 @@ const (
 )
 
 // widths returns the column widths in render order, omitting dropped columns.
+//
+// MARK sits beside TODO because both are the user's own annotations rather than
+// LeetCode's data, and keeping them together means everything you wrote yourself is at
+// the left edge.
 func (c boardCols) widths() []int {
-	w := []int{c.id, c.todo, c.title, c.diff, c.ac}
+	w := []int{c.id, c.todo}
+	if c.mark > 0 {
+		w = append(w, c.mark)
+	}
+	w = append(w, c.title, c.diff, c.ac)
 	if c.status > 0 {
 		w = append(w, c.status)
 	}
@@ -58,10 +69,14 @@ func (c boardCols) widths() []int {
 // boardLayout solves the columns so a row is exactly inner cells wide.
 //
 // Columns are dropped in order of how little they carry: companies first (premium
-// metadata), then the progress column. The ID, title, difficulty, and acceptance rate
-// are never dropped — they are the row.
+// metadata), then the importance mark, then the progress column. The ID, title,
+// difficulty, and acceptance rate are never dropped — they are the row.
+//
+// MARK yields before STATE because solved-or-not is the more fundamental fact about a
+// row, and a verdict you recorded yourself is one you can still reach with `i`.
 func boardLayout(inner int) boardCols {
-	c := boardCols{id: colID, todo: colTodo, diff: colDiff, ac: colAC, status: colStatus, comp: colComp}
+	c := boardCols{id: colID, todo: colTodo, mark: colMark, diff: colDiff, ac: colAC,
+		status: colStatus, comp: colComp}
 
 	fit := func(cc boardCols) int {
 		w := cc.widths()
@@ -74,6 +89,10 @@ func boardLayout(inner int) boardCols {
 		return c
 	}
 	c.comp = 0
+	if c.title = fit(c); c.title >= minTitle {
+		return c
+	}
+	c.mark = 0
 	if c.title = fit(c); c.title >= minTitle {
 		return c
 	}
@@ -105,15 +124,24 @@ func (m Model) viewBoard(w, h int) string {
 	head := []string{
 		cell(theme.Utility.Render(theme.UtilityText("#")), c.id),
 		cell(theme.Utility.Render(theme.UtilityText("todo")), c.todo),
+	}
+	if c.mark > 0 {
+		head = append(head, cell(theme.Utility.Render(theme.UtilityText("mark")), c.mark))
+	}
+	head = append(head,
 		cell(theme.Utility.Render(theme.UtilityText("problem")), c.title),
 		cell(theme.Utility.Render(theme.UtilityText("dif")), c.diff),
 		cell(theme.Utility.Render(theme.UtilityText("acc")), c.ac),
-	}
+	)
 	if c.status > 0 {
 		head = append(head, cell(theme.Utility.Render(theme.UtilityText("state")), c.status))
 	}
 	if c.comp > 0 {
-		head = append(head, cell(theme.Utility.Render(theme.UtilityText("asked by")), c.comp))
+		// One slot, two jobs (D-031). Under a study plan the companies that ask a problem
+		// are beside the point and its chapter is the whole story — and a plan and a pack
+		// can never both be active, so the column is never asked to be both at once.
+		// Reusing it beats a seventh column on a board that already drops this one first.
+		head = append(head, cell(theme.Utility.Render(theme.UtilityText(m.lastColLabel())), c.comp))
 	}
 
 	var b strings.Builder
@@ -145,6 +173,14 @@ func (m Model) viewBoard(w, h int) string {
 	return f.Render(b.String())
 }
 
+// lastColLabel names the final column for whichever list is filtering the board.
+func (m Model) lastColLabel() string {
+	if m.plan.Active() {
+		return "chapter"
+	}
+	return "asked by"
+}
+
 // blankRows draws n empty grid rows, preserving the column rules.
 func blankRows(widths []int, n int) string {
 	if n <= 0 {
@@ -167,8 +203,14 @@ func (m Model) boardSummary() string {
 	if m.filter.TodoOnly {
 		parts = append(parts, "my list")
 	}
+	if m.filter.Mark != store.MarkNone {
+		parts = append(parts, m.filter.Mark.Label())
+	}
 	if m.pack.Active() {
 		parts = append(parts, m.pack.Label())
+	}
+	if m.plan.Active() {
+		parts = append(parts, m.plan.Label())
 	}
 	if m.filter.PaidOnly != nil {
 		if *m.filter.PaidOnly {

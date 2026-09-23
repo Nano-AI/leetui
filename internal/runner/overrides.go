@@ -27,8 +27,27 @@ type Rule struct {
 	// Unordered accepts any permutation of a list answer.
 	Unordered bool
 
+	// OrderedRows preserves the order within each row of an unordered answer.
+	// Permutations and partitions are sequences, unlike subsets or anagram groups.
+	OrderedRows bool
+
 	// FloatTolerance judges numbers to within this absolute error. Zero means exact.
 	FloatTolerance float64
+
+	// NoLocal names the reason a problem cannot run locally at all, or is empty when
+	// it can.
+	//
+	// A handful of problems carry a `metaData` that does not describe the function
+	// LeetCode actually asks you to write. Clone Graph declares
+	// `cloneGraph(integer[][]) -> boolean` and hands you `Node* cloneGraph(Node*)`.
+	// Linked List Cycle declares two parameters and the snippet takes one, because the
+	// judge uses the second to wire the cycle before calling. Nothing generated from
+	// that description can compile, so the driver must not be written at all.
+	//
+	// This is deliberately a list of named problems rather than a rule over
+	// `metaData.manual`. Number of Islands is also marked manual and its description is
+	// exact — gating on the flag would break a problem that works today.
+	NoLocal string
 }
 
 // DefaultRule judges the return value exactly.
@@ -55,15 +74,15 @@ var overrides = map[string]Rule{
 	// --- any order accepted ---
 	"subsets":                               {MutatesArg: -1, Unordered: true},
 	"subsets-ii":                            {MutatesArg: -1, Unordered: true},
-	"permutations":                          {MutatesArg: -1, Unordered: true},
-	"permutations-ii":                       {MutatesArg: -1, Unordered: true},
+	"permutations":                          {MutatesArg: -1, Unordered: true, OrderedRows: true},
+	"permutations-ii":                       {MutatesArg: -1, Unordered: true, OrderedRows: true},
 	"combination-sum":                       {MutatesArg: -1, Unordered: true},
 	"combination-sum-ii":                    {MutatesArg: -1, Unordered: true},
 	"combinations":                          {MutatesArg: -1, Unordered: true},
 	"group-anagrams":                        {MutatesArg: -1, Unordered: true},
 	"3sum":                                  {MutatesArg: -1, Unordered: true},
 	"4sum":                                  {MutatesArg: -1, Unordered: true},
-	"palindrome-partitioning":               {MutatesArg: -1, Unordered: true},
+	"palindrome-partitioning":               {MutatesArg: -1, Unordered: true, OrderedRows: true},
 	"letter-combinations-of-a-phone-number": {MutatesArg: -1, Unordered: true},
 	"generate-parentheses":                  {MutatesArg: -1, Unordered: true},
 	"word-break-ii":                         {MutatesArg: -1, Unordered: true},
@@ -74,6 +93,25 @@ var overrides = map[string]Rule{
 	"average-of-levels-in-binary-tree": {MutatesArg: -1, FloatTolerance: 1e-5},
 	"maximum-average-subarray-i":       {MutatesArg: -1, FloatTolerance: 1e-5},
 	"minimum-time-to-repair-cars":      {MutatesArg: -1, FloatTolerance: 1e-5},
+
+	// --- metaData does not describe the real function; the judge writes the driver ---
+	//
+	// Verified against each problem's own C++ snippet. Number of Islands is marked
+	// manual too and is deliberately absent: its description is exact and it runs.
+	"clone-graph": {MutatesArg: -1,
+		NoLocal: "the judge builds the graph and passes a Node*, which metaData describes as integer[][]"},
+	"construct-quad-tree": {MutatesArg: -1,
+		NoLocal: "the answer is a quad tree of Node*, which metaData describes as list<list<integer>>"},
+	"encode-n-ary-tree-to-binary-tree": {MutatesArg: -1,
+		NoLocal: "both sides are an n-ary Node* the judge constructs"},
+	"linked-list-cycle": {MutatesArg: -1,
+		NoLocal: "the judge uses the second parameter to wire the cycle before calling; the snippet takes one"},
+	"inorder-successor-in-bst": {MutatesArg: -1,
+		NoLocal: "the second parameter is a pointer into the tree, not the integer metaData claims"},
+	"read-n-characters-given-read4": {MutatesArg: -1,
+		NoLocal: "read4 is supplied by the judge and exists nowhere locally"},
+	"read-n-characters-given-read4-ii-call-multiple-times": {MutatesArg: -1,
+		NoLocal: "read4 is supplied by the judge and exists nowhere locally"},
 }
 
 // RuleFor returns how a problem should be judged.

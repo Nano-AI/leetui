@@ -55,10 +55,11 @@ func runWatch(a *app, arg, langFlag string) (int, error) {
 		return exitProblem, fmt.Errorf("%s has no local runner; --watch has nothing to do", l.Display)
 	}
 
-	out, err := solve.Prepare(a.cfg.Workspace, d, l)
+	out, err := solve.Select(a.cfg.Workspace, arg, d, l)
 	if err != nil {
 		return exitProblem, err
 	}
+	engine.SolutionFile = out.Solution
 
 	fmt.Fprintf(os.Stderr, "watching %s\n", out.Solution)
 	fmt.Fprintf(os.Stderr, "%d. %s  %s  ·  ctrl-c to stop\n\n", d.NumericID, d.Title, l.Display)
@@ -66,7 +67,7 @@ func runWatch(a *app, arg, langFlag string) (int, error) {
 	// The first sighting only records the time. Opening a solution written last week
 	// should not fire a run before the user has typed anything.
 	last := modTime(out.Solution)
-	runOnce(ctx, a, engine, out.Dir, d, l)
+	runOnce(ctx, a, engine, out, d, l)
 
 	for {
 		select {
@@ -85,19 +86,19 @@ func runWatch(a *app, arg, langFlag string) (int, error) {
 		// attempts buries the current one, which is the only one being asked about.
 		clearScreen(os.Stdout)
 		fmt.Fprintf(os.Stderr, "%s  %s\n\n", d.Title, time.Now().Format("15:04:05"))
-		runOnce(ctx, a, engine, out.Dir, d, l)
+		runOnce(ctx, a, engine, out, d, l)
 	}
 }
 
 // runOnce executes the tests and prints them, reporting a failure rather than returning
 // it: a watch loop that exits on the first wrong answer would be useless.
-func runOnce(ctx context.Context, a *app, engine runner.Engine, dir string, d *store.Detail, l runner.Lang) {
-	res, err := solve.Run(ctx, engine, dir, d, l)
+func runOnce(ctx context.Context, a *app, engine runner.Engine, out solve.Layout, d *store.Detail, l runner.Lang) {
+	res, err := solve.Run(ctx, engine, out.Dir, d, l)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "could not run: %v\n", err)
 		return
 	}
-	reportRun(os.Stdout, d.Slug, res)
+	reportRun(os.Stdout, d.Slug, res, out.Solution)
 }
 
 func modTime(path string) time.Time {

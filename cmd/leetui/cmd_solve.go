@@ -20,6 +20,9 @@ func runPull(a *app, args []string) (int, error) {
 	if err != nil {
 		return exitProblem, err
 	}
+	if len(rest) > 1 {
+		return exitProblem, fmt.Errorf("usage: leetui pull [problem] [--lang language]")
+	}
 	arg := first(rest)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -50,11 +53,20 @@ func runPath(a *app, args []string) (int, error) {
 	if err != nil {
 		return exitProblem, err
 	}
+	if len(rest) > 1 {
+		return exitProblem, fmt.Errorf("usage: leetui path [problem]")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	d, err := a.problem(ctx, first(rest))
+	slug, err := solve.Locate(first(rest))
+	if err != nil {
+		return exitProblem, err
+	}
+	// A path needs only the cached ID. Fetching detail here makes this read-only
+	// command write to the store and fail offline even after a problem-list sync.
+	d, err := a.store.Get(ctx, slug)
 	if err != nil {
 		return exitProblem, err
 	}
@@ -79,6 +91,9 @@ func runRun(a *app, args []string) (int, error) {
 	rest, err := parseFlags(fs, args)
 	if err != nil {
 		return exitProblem, err
+	}
+	if len(rest) > 1 {
+		return exitProblem, fmt.Errorf("usage: leetui run [problem|file] [--lang language] [--watch]")
 	}
 	arg := first(rest)
 
@@ -106,16 +121,17 @@ func runRun(a *app, args []string) (int, error) {
 		return exitProblem, fmt.Errorf("%s has no local runner; use `leetui submit`", l.Display)
 	}
 
-	out, err := solve.Prepare(a.cfg.Workspace, d, l)
+	out, err := solve.Select(a.cfg.Workspace, arg, d, l)
 	if err != nil {
 		return exitProblem, err
 	}
+	engine.SolutionFile = out.Solution
 
 	res, err := solve.Run(ctx, engine, out.Dir, d, l)
 	if err != nil {
 		return exitProblem, err
 	}
-	return reportRun(os.Stdout, d.Slug, res), nil
+	return reportRun(os.Stdout, d.Slug, res, out.Solution), nil
 }
 
 // first returns the first positional argument, or "" for none.

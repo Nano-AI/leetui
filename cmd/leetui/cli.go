@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 )
 
 // The command-line surface.
@@ -57,9 +58,19 @@ var commands = []command{
 		run:     runSubmit,
 	},
 	{
+		name: "contest", usage: "[slug|pull|submit] …",
+		summary: "the contest schedule, its problems, and the judge that scores them",
+		run:     runContest,
+	},
+	{
 		name: "todo", usage: "[add|rm|list] …",
 		summary: "the list of problems you mean to get to",
 		run:     runTodo,
+	},
+	{
+		name: "mark", usage: "[up|down|clear]",
+		summary: "record which problems were worth doing, for a second pass",
+		run:     runMark,
 	},
 	{
 		name: "path", usage: "[problem]",
@@ -108,9 +119,11 @@ func usage(w io.Writer) {
 	fmt.Fprintln(w, "From an editor, the file you are looking at is enough:")
 	fmt.Fprintln(w, "  :!leetui run %")
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "The todo list is meant to be driven by scripts and agents:")
+	fmt.Fprintln(w, "The todo list and the marks are meant to be driven by scripts and agents:")
 	fmt.Fprintln(w, "  leetui todo add two-sum --note \"from the JD\"")
 	fmt.Fprintln(w, "  leetui todo --json")
+	fmt.Fprintln(w, "  leetui mark up two-sum --note \"worth redoing\"")
+	fmt.Fprintln(w, "  leetui mark --json --up")
 	fmt.Fprintln(w, "See docs/AGENTS.md.")
 }
 
@@ -129,19 +142,34 @@ func flags(name string) (*flag.FlagSet, *string) {
 // silently treats `--note` as another problem name. That is the order a person writes
 // naturally and the order an agent will generate, so it has to work.
 //
-// The loop is the standard interspersed-parsing idiom: parse, take one positional, parse
-// what is left, repeat.
+// Parse one flag (and its value) at a time so -- terminates parsing for the whole
+// command, while a literal -- used as a string flag's value remains a value.
 func parseFlags(fs *flag.FlagSet, args []string) ([]string, error) {
 	var positional []string
-	rest := args
-	for {
-		if err := fs.Parse(rest); err != nil {
+	for len(args) > 0 {
+		arg := args[0]
+		if arg == "--" {
+			return append(positional, args[1:]...), nil
+		}
+		if arg == "-" || !strings.HasPrefix(arg, "-") {
+			positional = append(positional, arg)
+			args = args[1:]
+			continue
+		}
+		n := 1
+		name := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-")
+		if !strings.Contains(name, "=") {
+			if f := fs.Lookup(name); f != nil {
+				b, ok := f.Value.(interface{ IsBoolFlag() bool })
+				if (!ok || !b.IsBoolFlag()) && len(args) > 1 {
+					n = 2
+				}
+			}
+		}
+		if err := fs.Parse(args[:n]); err != nil {
 			return nil, err
 		}
-		if fs.NArg() == 0 {
-			return positional, nil
-		}
-		positional = append(positional, fs.Arg(0))
-		rest = fs.Args()[1:]
+		args = args[n:]
 	}
+	return positional, nil
 }

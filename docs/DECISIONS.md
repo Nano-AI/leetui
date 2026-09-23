@@ -645,7 +645,307 @@ Each escape is now wrapped individually. `TestPassthroughWrapsEachChunk` builds 
 
 ---
 
-## D-031 — A void return names the mutated argument by itself
+## D-031 — Study plans get their own view, one key, one request
+
+Settled 2026-08-09. This closes the open item that asked whether plans get a dedicated view or fold into company packs.
+
+**They get their own view, on `P`.** The two look like the same feature and are not, and the wire format is what settles it.
+
+| | registry | contents | shape | ordering |
+|---|---|---|---|---|
+| Company pack | free, one request | **Premium** | 984 × 5 timeframes, paged at 100 | frequency |
+| Study plan | needs discovery | **free, signed out** | ~22 plans, no timeframe | curriculum |
+
+**A plan arrives whole.** `studyPlanV2Detail(planSlug:)` returns every question and every chapter in a single response — Top Interview 150 is 150 questions across 23 subgroups, one round trip, no `limit`/`skip`. Google's pack is 24 requests. That is why `SetPlan` has no paging loop and no half-written state to defend against: the plan lands or it does not.
+
+**The free/premium axis is inverted, and the useful half is free.** A company pack lets a free account see that Google's list exists and nothing inside it. A study plan lets a free account work all 150 problems of Top Interview 150. Verified signed out.
+
+**Folding plans into `c` was rejected.** The timeframe step is meaningless for a plan, so one picker would have to branch on which kind of list was selected, and the board would have to explain an "asked by" column for something nobody asked. Two concepts, two keys.
+
+### The registry is a union, because neither source is the catalogue
+
+`studyPlansV2ByTag` works signed out but its tag vocabulary is a short curated set — `interview`, `beginner`, `intermediate`, `database`, `dynamic-programming`. Topic tags do not work: `array` and `graph` return nothing. The sweep misses Top 100 Liked, Binary Search, Graph Theory and every premium plan.
+
+So the registry is `SeedPlans()` ∪ tag sweep, each entry confirmed by a real detail fetch. Seventeen seeds is seventeen requests, which is affordable only because a plan is one request each. `UpsertPlans` **merges** rather than replaces for exactly this reason: a sweep that returns less than usual must not delete plans the seed list knows.
+
+`studyPlansV2ByUpc` is the website's "Ongoing" row and is the one operation here that needs a session. It is not used — progress is computed locally against `problems.status`, which works for a free account.
+
+**A seed slug that dies costs one plan, not the registry.** `TestLiveStudyPlanSlugs` is what turns that into a fixable fact. It has already earned its keep: the website's URL says `sql-50` and the plan slug is **`top-sql-50`**.
+
+### The plan endpoint disagrees with every other endpoint
+
+`problemsetQuestionList` answers `"Easy"` and `"ac"`. `studyPlanV2Detail` answers `"EASY"` and `"SOLVED"`.
+
+Stored raw, every plan row would render Easy — `difficultyOf` falls through to Easy for anything unrecognised — and none would ever count as solved, so the picker's progress would read 0/150 forever. Both are normalised once, at the client boundary, so nothing downstream branches on where a question came from. An unrecognised value is **left alone**, not guessed at: a new enum member should surface as an odd-looking row rather than a silent Easy.
+
+### Two things share a slot
+
+`plan_rank` is the flattened position, and `Sort: "plan"` reads it. Chapters are a column, not a second picker: the running order is the plan, and hiding 22 of 23 chapters behind another keypress hides the shape of the thing.
+
+That column is **the same slot as ASKED BY**, relabelled CHAPTER. A plan and a pack are mutually exclusive, so it is never asked to be both, and the board already drops this column first when narrow — a seventh column would just be dropped more often. A row with no chapter renders empty rather than falling back to companies: answering a different question than the header is the mistake D-023 already made twice.
+
+---
+
+## D-032 — Importance is its own table, ternary, and not the todo list
+
+Settled 2026-08-09, from a real need: work through Top Interview 150 once, then come back
+and redo only the problems that taught something.
+
+**The todo list is the wrong shape for this, and it is worth being precise about why.**
+
+| | question | when solved |
+|---|---|---|
+| `todo` | "get to this" — a queue | you take it off |
+| `marks` | "this was worth doing" — a judgment | **it stays** |
+
+The state that matters is **solved AND worth doing again**. A queue that empties as you
+finish it cannot hold that, and a `priority` column bolted onto `todo` would force
+"important" to imply "still outstanding" — which is precisely backwards for a second pass.
+
+So: its own table, and no foreign key, for the same reason `todo` has none (D-022). An
+agent may mark a problem this machine has not synced, and the verdict must survive until
+it has. It also has to survive a re-sync, which rewrites the problems cache wholesale;
+`TestMarksSurviveAResync` is what holds that.
+
+**Ternary, not a score.** Up, down, or no opinion. A stacking counter was considered and
+rejected: every write becomes read-modify-write, which is exactly the race D-022 avoided
+by making todo idempotent. An agent marking in bulk would have to read each current value
+to reach a target, and two agents would clobber each other. Three states need no read.
+
+**Two keys, not one.** `m` toggles a todo with a single key because the state is binary. A
+verdict has three states, and one key cycling up → down → clear would make "mark this
+important" cost a variable number of presses that depends on state you must read off the
+screen first. `+` and `-` each set their own direction; pressing the one a row already
+carries withdraws it.
+
+**`i` cycles the filter** through all → important → unimportant, and sorts by verdict while
+it is on. One key there, because filtering is deliberate and done while looking at the
+result.
+
+**Unmarked sorts in the MIDDLE**, not last. "No opinion" genuinely sits between "worth
+redoing" and "written off", and on a board of 4,013 problems where a dozen are marked,
+burying everything unmarked underneath the handful marked down would make the sort useless.
+
+**An empty note never erases an existing one.** A bulk agent pass and a human who wrote a
+reason must not be in a race the bulk pass wins.
+
+**The glyphs are the keys.** `+` and `-` are ASCII in both glyph sets, unlike every other
+board mark. They cannot be drawn two cells wide the way an Ambiguous-width arrow could
+(the hazard `theme/glyphs.go` exists to manage), and a column headed `MARK` showing `+`
+needs no legend — the glyph *is* the keystroke that produced it.
+
+**The column drops third**, after companies and before state. Solved-or-not is the more
+fundamental fact about a row, and a verdict you recorded yourself is one `i` away.
+
+### D-032a — `-` demotes, it never deletes
+
+Corrected the same day, from use. The first cut only drew a `-` glyph and left the row
+exactly where it was, which made the mark decorative: you still had to read past
+everything you had already written off.
+
+**Unimportant now sinks to the bottom of every sort and renders grey throughout** — title,
+difficulty tag, and state glyph, not just the mark column. Sinking moves it out of the
+way; draining the colour is what stops it pulling the eye on the way past. Neither one
+alone does the job.
+
+**It is never removed.** The row stays in the result set, stays searchable, stays in its
+study plan and its company pack. That is the whole distinction between a judgment and a
+delete, and only a judgment can be revised later — press `-` again and it comes straight
+back up.
+
+**Demotion is a prefix on every sort**, not a sort of its own:
+
+```sql
+CASE WHEN EXISTS (SELECT 1 FROM marks mk
+  WHERE mk.problem_slug = p.slug AND mk.mark = 'down') THEN 1 ELSE 0 END, <the real sort>
+```
+
+So the rule holds under problem number, title, acceptance, difficulty, a pack's frequency,
+a plan's curriculum order, and search relevance, without any of them knowing about it. It
+carries no bind argument, which is what makes prefixing safe — the remaining placeholders
+bind in the same order they did before. With nothing marked down the prefix is constant
+for every row and changes no ordering at all; `TestDemotionChangesNothingWithoutMarks`
+holds that, because a demotion rule that quietly reshuffles an unmarked board would be a
+regression in every existing view.
+
+~~**Important is NOT promoted to the top.** Only the downs move.~~ **Reversed the same
+day — see D-032b.** The argument was that floating the ups would fight a study plan's
+curriculum order. It does, and that turns out to be the point: on a redo pass the plan's
+order is not what you are there for.
+
+**The cursor beats dimming.** A row you deliberately moved onto is rendered normally
+whatever you decided about it earlier — the alternative is a selected row you cannot read.
+
+**Search terms are not highlighted on a dimmed row.** Amber on grey would be the single
+brightest thing in a row whose entire job is to recede.
+
+`Difficulty.Tag()` was split out of `Difficulty.Render()` for this. Re-styling an
+already-rendered string does not work — lipgloss writes escape codes into the output, and
+wrapping those in more escape codes leaves the inner colour intact — so the dim path needs
+the raw text to colour for itself.
+
+### D-032b — and `+` promotes, symmetrically
+
+Reverses D-032a's "only the downs move", after a session of real use.
+
+**Up floats, unmarked sits in the middle, down sinks — in every sort.** One `markRank`
+prefix on the ORDER BY does all three, replacing the demote-only version.
+
+The objection to floating was that it fights a study plan's curriculum order. It does.
+That is what a redo pass wants: the second time through Top Interview 150 you are not
+working the curriculum, you are working the shortlist, and burying it under the plan's
+running order means scrolling for it. The curriculum is still there the moment the marks
+come off.
+
+**Unmarked stays in the middle**, for the reason D-032a gave: on a board of four thousand
+with a dozen marked, sorting everything unmarked below the handful marked down would make
+the rule useless.
+
+**Gilded, not bold.** An important row draws its number and title in amber. It does not
+get bold, because bold belongs to the cursor, and a board with a dozen bold rows on it has
+no cursor. The difficulty tag keeps its own colour either way — that is semantic, and
+overwriting it would trade information for emphasis.
+
+Dimming and gilding are mirror images and the cursor outranks both. `theme.Pad4` was
+exported alongside `Difficulty.Tag` for the same reason: the gold path needs the raw
+number to colour itself.
+
+---
+
+## D-033 — The one place leetui is pleased with you
+
+Settled 2026-08-09. An Accepted verdict sweeps through a colour band and settles into its
+normal green, and a result that beat the field says so in two words.
+
+**This is a deliberate exception to a rule the codebase states out loud.**
+`components/flap.go` says the flip is "the app's entire motion budget… if a new animation
+seems necessary somewhere, the answer is that the flip should cover it." The flip cannot
+cover this: it is the mechanism by which a verdict *arrives*, and it has to look the same
+whether the news is good or bad. Celebrating is a different message and needs a different
+channel.
+
+It earns the exception by being **rare, brief, and self-cancelling** — only on Accepted,
+about a second, and it settles into exactly the frame that would have been there anyway.
+The final palette entry before it stops is AC green, so the animation resolves into the
+calm state rather than snapping back to it.
+
+**Three levels, not a boolean.** `ui.celebrate` is `off`, `subtle`, or `full`, default
+`full`. "No animation" and "no acknowledgement at all" are different requests: someone on
+a slow SSH link wants the badge without the frames. At `subtle` no frames are ever
+scheduled, which makes it genuinely cheaper rather than merely quieter.
+
+**`ui.reduce_motion` outranks `full`** and demotes it to `subtle`. There is one answer to
+"will this screen move", and it is the accessibility setting. It demotes to `subtle`
+rather than `off` because asking for no animation is not asking to stop being told you did
+well.
+
+**Tiers read the judge's own percentiles**, so a badge means what the website means:
+
+| tier | condition | badge |
+|---|---|---|
+| pass | Accepted | — |
+| fast | beats >50% on one axis | `✦ FAST` |
+| double | beats >50% on **both** | `✦ DOUBLE 50` |
+| elite | beats ≥90% on both | `✦ TOP 10` |
+
+A better result sweeps for longer, which is the cheapest way to make the rare thing feel
+rare. **A zero percentile means "not reported", not "beats nobody"** — LeetCode omits them
+for some problems and languages — so a missing figure can never demote a result below
+`pass`, and the stats line never prints `beats 0%` for one.
+
+**The badge is information, the motion is decoration.** The badge is the percentiles said
+in two words, so it survives at `subtle`; only `full` adds frames. Nothing is ever
+conveyed by the animation alone.
+
+**The sweep colours visible characters, not rune positions.** Verdicts are letterspaced by
+`theme.Display`, so indexing by position stepped the palette by two and dropped half of
+it — the gradient came out coarse and stripey until the counter skipped spaces.
+
+**The sweep never overlaps the flip.** It only replaces a settled verdict, so the two
+animations cannot run over each other and the flip keeps its job of being the thing that
+resolves. The sweep is keyed to a flap ID, so a second submission landing mid-animation
+cannot leave colour running on the wrong row.
+
+---
+
+## D-034 — The site shows the program, not a drawing of it
+
+Settled 2026-08-18. Every screenshot on `site/` is produced by `site/tools/capture.sh`,
+which starts the real binary in tmux, presses the keys a reader would press, and pipes
+`tmux capture-pane -e` through `site/tools/ansi2svg.py`. Nothing on the page is drawn by
+hand. Re-run the script after any change to the interface.
+
+**Why not a hand-built HTML mock.** The site used to reproduce the board in a table with
+five invented rows. It drifted from the app immediately, and it undersold it: the real
+board is 158 columns of dense, aligned, colour-coded data, and that density is the
+product. A mock cannot show density it does not have.
+
+**SVG, not PNG.** The board is type. A raster of a 158-column grid is either enormous or
+mushy, and reading it is the entire point. The converter emits one `<text>` per styled run
+with a `textLength`, so the grid stays aligned whatever monospace font the reader has, and
+`board.svg` is 80 KB and sharp at any zoom. One PNG is rasterised as well, for the README
+and the link preview: GitHub proxies SVGs through a sanitiser and no unfurler renders them.
+
+**The window frame belongs to the page, not the capture.** The SVG is the screen and
+nothing else. `index.html` draws the titlebar around it, so one frame style covers every
+shot, and the frame is what tells a reader where the page stops and the program starts.
+That boundary is the whole job: without it the captures read as more page.
+
+**The hero is a recorded session, not a still.** `capture.sh` also drives a scripted
+run through the app and snapshots the screen every 90 ms; `record.py` turns that into a
+style palette plus one frame per snapshot carrying **only the lines that changed**. A
+terminal mostly holds still, so a keystroke repaints two rows out of thirty-four, and
+thirteen seconds of a 120-column screen comes to about 10 KB over the wire. The player
+in `index.html` keeps an array of lines, patches the ones a frame names, and waits that
+frame's own delay.
+
+Not a GIF or a video: both would be an order of magnitude larger, neither is sharp at
+two different widths, and neither leaves the text selectable. Not an embedded player
+either. The recording is 120 columns rather than 158 because the whole board still fits
+and the glyphs stay readable at the width the page gives the hero.
+
+The still is what the markup ships; the player replaces it once the JSON arrives, so the
+page opens on a real screenshot whatever happens to the script. Playback stops when the
+window scrolls off screen or the tab goes to the background, and never starts under
+`prefers-reduced-motion`.
+
+**The editor split is photographed by nesting tmux.** `e` asks tmux for the pane, so
+there is no single pane holding both halves and `capture-pane` cannot see the split. The
+capture runs one tmux session inside another: the inner one is what leetui splits, and the
+outer one sees that window already composited, divider and all, which is what a reader
+would see. `editor.svg` is leetui and a real Neovim on the same screen, holding the file
+that is really on disk.
+
+**An MP4 exists for places that will not run a page.** `render_mp4.py` replays the frame
+diffs back into whole frames, hands each to Chrome, and lets ffmpeg carry the timing from
+a concat list rather than a fixed frame rate, because the recording holds still for a
+second on a screen worth reading and then moves in 90 ms steps. Chrome is the rasteriser
+so the video and the page cannot disagree about what the program looked like. It is not
+part of `capture.sh`: it takes a minute per run, needs ffmpeg, and nothing on the site
+uses it. Run it when a README or a post needs a video.
+
+**The demo is why there is no company-and-plans section.** It shows both pickers
+narrowing under real keystrokes, which is a better argument than two stills, and the
+counters above it already carry the figures.
+
+**Captures are never scaled up past 1:1.** Each figure carries the SVG's own width in
+`--nat` and the frame stops there. A short `leetui run` and the full board then put the
+same glyph on screen at the same size. Scaling each to fill its column made one page out
+of five differently-sized terminals.
+
+**The flip is the page's only animation, and it is the physical one.** In the terminal a
+flip is the five half-block glyphs of `components/flap.go`, because that is every frame a
+character cell has. A browser has the other 355 degrees, so the leaf actually falls. It
+runs in two places, the counters and the verdict, and nothing else moves. Every value is
+correct in the markup before a frame runs.
+
+**The captures come off a real machine with a real account.** That is deliberate: a
+signed-in board with solved rows on it is the thing being sold. The script scrubs `$HOME`
+to `/Users/you` on the way out, which is the only detail nobody else needs.
+
+---
+
+## D-035 — A void return names the mutated argument by itself
 
 Settled 2026-08-19, after `move-zeroes` would not compile.
 
@@ -661,6 +961,141 @@ The override table (D-003) stays the first authority in both directions. A curat
 
 ---
 
+## D-036 — A contest is a curated list with a clock, and its own judge
+
+Settled 2026-08-30, the morning of Weekly Contest 517.
+
+**Decision.** Contests are the third curated list — `C`, next to `P` for plans and `c` for
+companies — filtering the board and sorting it by the contest's own running order. What
+makes them their own feature rather than a saved filter is the two things a list cannot
+have: a countdown, and a different judge.
+
+### The endpoint that scores is not the endpoint that judges
+
+This is the whole reason the feature exists, and it is the one thing that cannot be got
+wrong. `POST /problems/{slug}/submit/` during a live contest **is accepted, is judged,
+returns Accepted, and scores nothing.** The contest never sees it. Only
+`POST /contest/api/{contest}/problems/{slug}/submit/` counts, and the two return the
+same shape, so a wrong call looks exactly like a right one until the standings do not
+move — an hour later, when nothing can be done about it.
+
+So `SubmitContest` is a separate method from `Submit` and `leetui contest submit` is a
+separate verb from `leetui submit`. Neither guesses. A single command that inferred "is a
+contest running?" would be right most of the time, and the times it was wrong would cost
+a rank nobody could recover.
+
+`postJSON` grew a sibling, `postJSONTo`, taking the Referer explicitly: a contest
+submission is posted from the contest's copy of the problem page, and LeetCode rejects a
+submission whose Referer does not plausibly name where it came from.
+
+### Empty is the normal answer, and must never be believed
+
+`contestQuestionList` returns an **empty list** for a contest that has not opened — the
+same response as a slug that does not exist. Three places had to be taught this:
+
+- `SetContest` treats an empty list as a **no-op, not a wipe.** Refreshing is the normal
+  way to use this feature (it is how the problems appear at the start), and a refresh that
+  erased the four problems being worked on would be the worst bug this app could have.
+- The syncer reports the count and says nothing about what it means; it does not own the
+  clock.
+- The phase is what distinguishes "not open yet" from "no such contest", and only the
+  caller knows the time.
+
+`TestSetContestEmptyDoesNotWipe` is the guard, and it is the most important test here.
+
+### Times are read, never assumed
+
+`startTime` is a Unix **second** and `duration` is in **seconds**. LeetCode sends
+milliseconds on other endpoints, and reading this one as milliseconds puts every contest
+in 1970 while the countdown still appears to work. `TestStartTimeIsSecondsNotMillis` pins
+it against the real value observed for Weekly Contest 517.
+
+Ninety minutes is not hardcoded anywhere. It is what both weeklies and biweeklies run
+today, and a constant would be silently wrong the first time LeetCode ran something else.
+
+`PhaseAt` and `Remaining` take a `now` rather than reading the wall clock, so the rail can
+tick them and a test can pin them. `Remaining` never returns a negative: `-1m23s` on a
+countdown reads as a broken clock, and it is the state every ended contest would sit in.
+
+### Credit is the running order, and is NOT a difficulty
+
+The contest API gives no difficulty field. It gives `credit` — 3/4/5/6 across a weekly's
+four problems — which is the scoring weight and also the order they are meant to be read
+in. The board sorts on it.
+
+Mapping it onto Easy/Medium/Medium/Hard was rejected. It looks obvious and it is a guess:
+a weekly's second problem is routinely an Easy and its third routinely a Hard. So
+`ContestQuestion.Summary()` leaves difficulty **blank**, which renders as unknown. A blank
+is honest; a wrong difficulty is a lie the board repeats every redraw, and the real one
+arrives with the next problem-list sync anyway.
+
+### `problem_contests` has no foreign key, and stores its own `question_id`
+
+Both follow from the same fact: **a live contest's problems are not in the problem set.**
+They are added when it ends. A foreign key to `problems` would reject the exact rows this
+feature exists to store — the todo/marks bargain of D-022, for the same reason.
+
+And `question_id` is stored on the contest row rather than joined for, because during a
+contest there is nowhere else on the machine it exists, and without it no submission can
+be built at all.
+
+### The CLI matters more here than the app
+
+Ninety minutes is not the time to learn a screen. `leetui contest pull <slug>` lays out
+all four folders in one command, so an editor can be open on the first problem before the
+timer starts, and a problem that fails to lay out does not stop the others — three folders
+beats an error and none. Where the API cannot supply a statement, the error names
+`leetcode.com/contest/<slug>/`, because during a contest a fallback that works beats a
+diagnosis that is correct.
+
+### Cloudflare guards `/contest/api/`, and a session is the key
+
+Worth recording because it looks like a wall and is not. Every `/contest/api/` path
+answers **403 with a Cloudflare challenge to an anonymous client**, regardless of user
+agent — which is what makes it look like the REST contest API needs a headless browser or
+a stealth driver. It does not. **With the session cookie attached it answers 200.** The
+challenge is for clients with no session at all, not for this one.
+
+That was established by probing with the app's own credentials rather than guessed:
+
+| path | signed out | signed in |
+|---|---|---|
+| `/contest/api/info/{slug}/` | 403, CF challenge | **200, JSON** |
+| `/contest/api/{c}/problems/{s}/submit/` (GET) | — | **405 Method Not Allowed** |
+| `/problems/{s}/submit/` (GET) | — | 405 Method Not Allowed |
+
+**The 405 is the useful one.** A wrong path returns 404; 405 means the path exists and
+POST is what it wants — and the contest endpoint behaves identically to the ordinary
+submit endpoint that this app has shipped for months. That is as far as the submit URL can
+be verified without making a real scoring submission to a live contest, which is not a
+thing to test with. So: the URL is confirmed, the request body is the same one the working
+endpoint takes, and only the round trip itself is unproven.
+
+### Registration IS checked, and it is the most valuable thing the tool says
+
+An earlier draft of this entry said registration could not be checked, because
+`ContestNode` has no `registered` field. That was true of GraphQL and wrong about the API:
+**`/contest/api/info/{slug}/` returns `registered` for the calling account**, and it
+answers before a contest opens, which is exactly when it is worth knowing.
+
+This matters more than anything else here. An unregistered submission is judged, comes
+back **Accepted**, and scores nothing — the same silent failure the separate submit
+endpoint exists to prevent, one level up, and one nobody notices until the standings do
+not move. So `leetui contest` and `leetui contest pull` both check it and say so loudly,
+naming the page with the button on it. LeetCode has no registration endpoint, so this is
+reported, not fixed.
+
+The same response carries the **real difficulty** (`1`/`2`/`3`), which is why `Summary()`
+passes a difficulty through instead of always leaving it blank. The rule that it is never
+*derived from credit* is unchanged — it is either the real one or empty.
+
+**Both are enrichment, never load-bearing.** They need a session; the browse path is
+GraphQL and works signed out exactly as before. A failed enrichment is silence, not an
+error: "not registered" and "could not ask" must not look the same, which is why
+`RegistrationKnown` exists alongside `Registered`.
+
+---
+
 ## Open items
 
 - [ ] Which browsers browser-cookie-import supports at v1 (Chrome only, or + Firefox/Arc/Brave)
@@ -670,4 +1105,4 @@ The override table (D-003) stays the first authority in both directions. A curat
   default of 2 is conservative, not proof of a ceiling — finding the actual limit means
   provoking one, which risks an account. `internal/syncer/cost_test.go` re-runs the
   measurement.
-- [ ] Whether premium study plans get a dedicated view or fold into company packs
+- [x] Whether premium study plans get a dedicated view or fold into company packs — **their own view on `P`** (D-031). They are not premium, they are not timeframed, and they arrive in one request; the only thing they share with a pack is the picker widget.

@@ -137,10 +137,134 @@ answer a question about one company. See **D-006a** for the reasoning and the en
 and **D-006b** for the `companyTagStats` shortcut that was rejected.
 
 Carried forward:
-- Premium study plans (Top Interview 150 and friends) are `favoriteQuestionList` under a
-  different slug — the same plumbing, no view yet
+- ~~Premium study plans are `favoriteQuestionList` under a different slug~~ — **done, and
+  the guess was wrong twice over.** They are `studyPlanV2Detail`, not `favoriteQuestionList`,
+  and they are not premium. See **Study plans** below and **D-031**
 - The `ASKED BY` column shows company slugs rather than display names, so Meta reads as
   `facebook` there. Consistent with the tag column, which is also slugs
+
+## Phase 3b — Study plans ✅ **COMPLETE**
+
+- [x] **Study plans** (`P`) — Top Interview 150, LeetCode 75, Top 100 Liked, SQL 50,
+      Binary Search, Graph Theory and friends. Pick a plan, work it in the author's order.
+      One step, not two: a plan has no timeframe
+- [x] **They are free.** Plan contents read **signed out** — a free account gets all 150
+      problems of Top Interview 150. This is the inverse of company packs, whose registry
+      is free and whose contents are premium (D-031)
+- [x] **One request per plan.** `studyPlanV2Detail` returns every question and every
+      chapter at once. Google's pack is 24 requests; Top Interview 150 is one
+- [x] **Curriculum order** — the board sorts by `plan_rank`, so Array/String comes before
+      Two Pointers. The `ASKED BY` column becomes `CHAPTER`, since the two lists are
+      mutually exclusive and a plan's chapter is what that slot should say
+- [x] **Progress in the picker** — `18/150 · 12%`, computed locally against the problems
+      table, so it works without a session
+
+**Verified against the live API signed out** — `TestLiveStudyPlanSchema` catches LeetCode
+moving a field, `TestLiveStudyPlanSlugs` catches it renaming a plan (it already has:
+the website's URL says `sql-50` and the slug is `top-sql-50`), and
+`TestLiveStudyPlanEndToEnd` pulls a real plan into a real database and checks the board
+comes back in curriculum order rather than by problem number.
+
+**The registry is a union.** Tag discovery works signed out but its vocabulary is five
+curated tags that miss Top 100 Liked, Binary Search, Graph Theory and every premium plan,
+so a seed list of 17 slugs is unioned with the sweep and each entry confirmed by a real
+fetch. See **D-031**.
+
+## Phase 3c — Importance marks ✅ **COMPLETE**
+
+The second pass. Working a study plan once is browsing; working it twice is studying, and
+the second time you only want the problems that taught you something.
+
+- [x] **`+` and `-`** — important / unimportant on the row under the cursor, pressing the
+      same key again withdraws the verdict. Shown in a `MARK` column beside `TODO`, since
+      both are the user's own annotations rather than LeetCode's data
+- [x] **`-` demotes rather than deletes** (**D-032a**) — an unimportant problem greys out
+      whole and sinks to the bottom of *every* sort, but stays in the collection, in
+      search, and in its study plan
+- [x] **`+` promotes, symmetrically** (**D-032b**) — important floats to the top and is
+      gilded, unmarked sits in the middle. This deliberately overrides a study plan's
+      curriculum order, which is what a redo pass wants: the second time through you are
+      working the shortlist, not the syllabus
+
+## Phase 3d — The board is allowed to be pleased ✅ **COMPLETE**
+
+- [x] **A verdict sweep on Accepted** (**D-033**) — the verdict travels through a colour
+      band and settles into its normal green. The only animation besides the flip, and a
+      deliberate, documented exception to the rule that the flip is the whole motion budget
+- [x] **Tier badges from the judge's own percentiles** — `✦ FAST` (>50% on one axis),
+      `✦ DOUBLE 50` (>50% on both), `✦ TOP 10` (≥90% on both). Better results sweep longer
+- [x] **The memory percentile is plumbed through** — it was on the wire and never shown,
+      and "double 50" needs both halves
+- [x] **`ui.celebrate` = off | subtle | full**, default full. `subtle` keeps the badge and
+      the figures and schedules no frames at all; `ui.reduce_motion` outranks `full` and
+      degrades it to `subtle`
+
+A missing percentile means "not reported", never "beats nobody", so a judge that returns
+no figures produces a plain pass rather than a bad grade.
+- [x] **`i`** — cycles the board all → important → unimportant, sorted by verdict
+- [x] **`leetui mark`** — `up`, `down`, `clear`, `list`, with `--json`, `--up`, `--down`
+      and `--note`. Built so an agent can triage a list on the user's behalf; the contract
+      is in [`docs/AGENTS.md`](AGENTS.md)
+- [x] **Its own table, not a todo flag** — a todo empties as you solve it, a verdict
+      outlives the solve. "Solved **and** worth doing again" is the query the feature
+      exists to answer, and the todo list cannot express it (**D-032**)
+- [x] **Ternary, never a score** — up, down, or no opinion, so no operation needs to read
+      a value before writing one and two agents cannot clobber each other
+
+Marks survive a re-sync and may be written for problems this machine has not pulled yet,
+on the same terms as the todo list (D-022).
+
+## Phase 3e — Contests ✅ **COMPLETE**
+
+The third curated list, and the only one with a clock.
+
+- [x] **Contests** (`C`) — the schedule, then one contest's problems on the board. `C`
+      sits beside `P` for plans and `c` for companies because the gesture is the same
+      one: pick a list, work it in its own order
+- [x] **Sorted by `credit`** — 3/4/5/6 across a weekly's four problems, which is the
+      scoring weight and also the order the problems are meant to be read in. It is
+      **not** a difficulty: the contest API sends none, and Easy/Medium/Medium/Hard is a
+      guess a weekly breaks routinely, so difficulty stays blank until the next
+      problem-list sync supplies the real one (**D-036**)
+- [x] **A countdown in the rail** while a contest is upcoming or live, amber only while
+      it is running. The clock is the whole reason this is a mode and not a saved filter
+- [x] **Browsing works signed out** — both the schedule and the question list are public,
+      so a free account can see what is coming and what is in it. Submitting is the one
+      part that needs a session
+- [x] **The CLI matters more here than the app** — `leetui contest` is the schedule with
+      its countdown, `leetui contest <slug>` one contest's problems, and
+      **`leetui contest pull <slug>`** lays out every problem's folder in one command.
+      Ninety minutes is not the time to learn a screen; an editor should be open on the
+      first problem before the timer starts
+- [x] **`leetui contest submit <slug> [problem]` is its own verb** — the ordinary
+      endpoint accepts a submission during a contest, judges it, returns Accepted, and
+      scores nothing. Only `/contest/api/{contest}/problems/{slug}/submit/` counts, and
+      the two return the same shape, so a wrong call looks exactly like a right one until
+      the standings do not move. Neither command guesses which one was meant (**D-036**)
+
+**Migration 7** adds `contests` and `problem_contests`. `problem_contests` carries no
+foreign key to `problems` and stores its own `question_id`, because a live contest's
+problems are not in the problem set — they are added when it ends, and a key would reject
+the exact rows this feature exists to store. The todo/marks bargain of D-022, again.
+
+- [x] **A registration warning**, which is the most valuable thing the tool says.
+      `/contest/api/info/{slug}/` returns `registered` for the calling account, and it
+      answers before the contest opens. An unregistered submission is judged, comes back
+      **Accepted**, and scores nothing, so `leetui contest` and `leetui contest pull` both
+      check it and name the page with the button on it
+- [x] **The real difficulty**, from the same response — `credit` is never mapped onto one
+
+**How far the submit path was verified, stated plainly.** Its URL is confirmed and the
+round trip is not. A GET to `/contest/api/{c}/problems/{s}/submit/` returns **405 Method
+Not Allowed** — a wrong path returns 404, so the path exists and POST is what it wants,
+and it behaves identically to the ordinary submit endpoint this app has shipped for
+months. Proving the rest means making a real scoring submission to a live contest, which
+is not a thing to test with. Its 404 names the contest page rather than failing obscurely.
+
+**Cloudflare guards `/contest/api/`, and a session is the key.** Every path under it
+answers 403 with a challenge to an anonymous client whatever the user agent, which reads
+as needing a headless browser or a stealth driver. It does not: with the session cookie
+attached the same paths answer 200. Verified with the app's own credentials. See D-036.
 
 ## Interlude — CLI seam ✅ **COMPLETE**
 
@@ -301,6 +425,30 @@ whole reason a verdict lands.
 cannot enable it for you.
 
 ---
+
+## Repository audit — 2026-09-22
+
+- [x] Reject stale board/detail/editorial results; keep selection stable on refresh
+      and route navigation to the visible, focused pane.
+- [x] Preserve study-plan status and contest countdowns in narrow layouts, including
+      names containing wide Unicode characters.
+- [x] Preserve statement search terms across refreshes, index collection-seeded
+      problems, and persist tags transactionally for filtering and search.
+- [x] Validate incomplete API pages and premium-gated plans; propagate checkpoint
+      failures and write related completion/account state atomically.
+- [x] Run and submit the actual selected local solution, including alternate checkouts
+      and custom filenames, rather than a different workspace copy.
+- [x] Preserve existing solution/testcase files; compare large JSON integers exactly
+      and retain inner ordering for permutation and partition answers.
+- [x] Improve website keyboard navigation, narrow layouts, install deep links,
+      clipboard recovery, reduced-motion handling, and recording failure recovery.
+- [x] Verify the integrated Go changes with `go test -race ./...`, `go vet ./...`,
+      and `go build ./...`.
+- [ ] Recorded terminal text still has contrast findings in the browser accessibility
+      audit; website controls/content pass when recording text is excluded.
+
+Browser regression checks live in `site/tools/check_site.cjs` and require Playwright
+and `@axe-core/playwright`; `CHROME` can select an installed Chrome executable.
 
 ## Environment notes
 

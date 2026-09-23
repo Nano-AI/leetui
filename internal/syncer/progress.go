@@ -7,6 +7,8 @@ const (
 	PhaseProblems  Phase = "problems"
 	PhaseDetail    Phase = "detail"
 	PhaseCompanies Phase = "companies"
+	PhasePlans     Phase = "plans"
+	PhaseContests  Phase = "contests"
 )
 
 // Progress is emitted as work proceeds.

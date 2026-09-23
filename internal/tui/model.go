@@ -42,12 +42,18 @@ type Model struct {
 	// per row. Refreshed with the rows.
 	todo map[string]bool
 
+	// marks holds the importance verdict per slug (D-032), on the same terms as todo:
+	// read once with the rows, written through on a keypress. Absent means no opinion.
+	marks map[string]store.Mark
+
 	// Board state.
-	rows      []store.Row
-	cursor    int
-	scroll    int // index of the first visible row
-	filter    store.Filter
-	totalRows int
+	rows       []store.Row
+	rowsSeq    int
+	rowsFilter store.Filter // filter used by the last accepted row snapshot
+	cursor     int
+	scroll     int // index of the first visible row
+	filter     store.Filter
+	totalRows  int
 
 	// Search.
 	searching bool
@@ -71,6 +77,7 @@ type Model struct {
 	editorialMD      string
 	editorialImages  []render.Image
 	editorialLoading bool
+	editorialSeq     int
 
 	// Company packs (D-006).
 	//
@@ -87,6 +94,31 @@ type Model struct {
 	// timeframe picker can say which are a keypress away and which need a pull.
 	packChoice store.Company
 	packCounts map[leetcode.Timeframe]int
+
+	// Study plans (D-031).
+	//
+	// plan is the plan currently filtering the board, zero when browsing everything.
+	// plans is the registry, loaded once and filtered in memory — a couple of dozen rows.
+	// Mutually exclusive with pack: the board is sorted by one or the other, never both.
+	plan       planSel
+	plans      []store.Plan
+	planIdx    int
+	planFilter textinput.Model
+
+	// Contests (D-036).
+	//
+	// The same four fields as a plan, and one difference in how they are used: contest
+	// SURVIVES leaving the board filter, because the rail counts the contest down and a
+	// cleared selection would stop the clock mid-contest.
+	contest       contestSel
+	contests      []store.Contest
+	contestIdx    int
+	contestFilter textinput.Model
+
+	// contestPhase is the phase the selected contest was in on the last tick, and exists
+	// only so the upcoming→live crossing can be noticed once. Without a remembered value
+	// there is no edge to detect, only a level.
+	contestPhase leetcode.Phase
 
 	// Auth.
 	authInput textinput.Model
@@ -115,6 +147,10 @@ type Model struct {
 	// Submission queue.
 	queue      []queueItem
 	nextFlapID int
+
+	// celebrate is the colour sweep running over an Accepted verdict (D-033). The zero
+	// value is not celebrating, which is also what it settles back to.
+	celebrate celebration
 
 	// Sync.
 	syncing      bool
@@ -182,6 +218,15 @@ type queueItem struct {
 	Memory     string // "20.2 MB"
 	Percentile float64
 
+	// MemoryPct is the memory percentile. Kept beside the runtime one because a result
+	// is only a "double 50" if both halves say so (D-033), and because "beats 94% on
+	// time, 12% on memory" is a different sentence from "beats 94%".
+	MemoryPct float64
+
+	// Tier grades the figures once, when the verdict lands, so the badge does not have
+	// to be recomputed on every frame of every repaint.
+	Tier celebrationTier
+
 	// Correct and Total are how far a failing submission got. Nothing else on screen
 	// distinguishes "wrong on case 3 of 63" from "wrong on 62 of 63", and those call for
 	// completely different next moves.
@@ -199,6 +244,12 @@ func (q queueItem) stats() string {
 		}
 		if q.Memory != "" {
 			out += " · " + q.Memory
+		}
+		// The memory percentile only earns its width when it is there. A judge that
+		// reported no figure must not render as "beats 0%", which would read as a result
+		// rather than as an absence.
+		if q.MemoryPct > 0 {
+			out += fmt.Sprintf(" · beats %.0f%%", q.MemoryPct)
 		}
 		return strings.TrimPrefix(out, " · ")
 	case q.Total > 0:
@@ -229,6 +280,16 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 	companyIn.Placeholder = "type to narrow"
 	companyIn.CharLimit = 60
 
+	planIn := textinput.New()
+	planIn.Prompt = ""
+	planIn.Placeholder = "type to narrow"
+	planIn.CharLimit = 60
+
+	contestIn := textinput.New()
+	contestIn.Prompt = ""
+	contestIn.Placeholder = "type to narrow"
+	contestIn.CharLimit = 60
+
 	// The remembered language wins over the configured default: what you were writing
 	// last time is a better guess than a preference set once during setup.
 	lang, ok := runner.Lookup(cfg.LastLang)
@@ -252,6 +313,8 @@ func New(cfg config.Config, st *store.Store, cl *leetcode.Client, sy *syncer.Syn
 		search:        search,
 		authInput:     authIn,
 		companyFilter: companyIn,
+		planFilter:    planIn,
+		contestFilter: contestIn,
 	}
 }
 
@@ -260,7 +323,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		secondTick(),
 		watchCmd(),
-		m.loadRows(),
+		m.queryRows(),
 		m.loadAccount(),
 	)
 }

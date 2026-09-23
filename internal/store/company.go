@@ -154,6 +154,12 @@ func (s *Store) SetPack(ctx context.Context, company string, tf string, items []
 		if _, err := link.ExecContext(ctx, q.Slug, company, q.Frequency, tf); err != nil {
 			return fmt.Errorf("link %s to %s: %w", q.Slug, company, err)
 		}
+		if err := setPayloadTagsTx(ctx, tx, q.Slug, q.Tags); err != nil {
+			return err
+		}
+		if err := reindexTx(ctx, tx, q.Slug); err != nil {
+			return err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {

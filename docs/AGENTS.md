@@ -30,7 +30,7 @@ two-sum                          the slug
 ```
 
 **Output is plain text on stdout**, progress and errors on stderr. No colour, no box
-drawing. `todo` additionally offers `--json`.
+drawing. `todo` and `mark` additionally offer `--json`.
 
 **Flags may appear anywhere**, before or after the problem:
 
@@ -85,6 +85,92 @@ the entry is still valid, there is just less known about it.
 
 The list is ordered **oldest first**. It is a queue: the thing added three weeks ago is
 the one most in danger of being forgotten.
+
+### `leetui mark` — which problems were worth doing
+
+A verdict per problem, kept so a **second pass** through a study plan or a company pack
+can skip what taught nothing and revisit what did.
+
+This is the surface to use when a human asks you to triage a list — "go through Top
+Interview 150 and flag the ones worth redoing". It is the one place where your judgment is
+written down somewhere the app will show them.
+
+```sh
+leetui mark up two-sum                       # worth doing again
+leetui mark down 3sum                        # not worth another pass
+leetui mark up two-sum --note "hash-map insight"
+leetui mark up two-sum 3sum lru-cache        # several at once
+leetui mark clear two-sum
+leetui mark                                  # list, human-readable
+leetui mark --json                           # list, for parsing
+leetui mark --json --up                      # only the important ones
+leetui mark --json --down                    # only the written-off ones
+```
+
+`important` / `unimportant` and bare `+` / `-` are accepted as synonyms for `up` / `down`.
+
+**Three states, not a score.** A problem is `up`, `down`, or unmarked. There is no
+counter to increment, so you never have to read a value before writing one.
+
+**The mark reorders the board.** `up` floats a problem to the top of every ordering and
+gilds it; `down` sinks it to the bottom and greys it; unmarked sits between them.
+
+**`down` demotes; it does not delete.** A problem you mark down stays in the collection,
+stays searchable, and stays in its study plan. This matters for how you should use it:
+marking something `down` is cheap and reversible, so triaging aggressively costs the user
+nothing. It is not a destructive operation and does not need confirming.
+
+**A mark is not a todo.** They answer different questions and neither touches the other:
+
+| | means | when solved |
+|---|---|---|
+| `leetui todo` | "get to this" — a queue | you take it off |
+| `leetui mark` | "this was worth doing" — a judgment | **it stays** |
+
+"Solved **and** worth doing again" is the state that makes a second pass possible, and the
+todo list cannot express it. That is why this exists separately.
+
+**Every operation is idempotent.** Marking twice is not an error. Flipping `up` to `down`
+takes one call, not a clear first. Clearing something unmarked is not an error. You never
+need to check before you act.
+
+**An empty `--note` never erases an existing one**, so a bulk pass cannot wipe a reason a
+human wrote. Pass a real note to replace it.
+
+You may mark a problem this machine has not synced yet; the verdict survives until it is.
+
+The JSON is a stable array — never `null`:
+
+```json
+[
+  {
+    "slug": "two-sum",
+    "mark": "up",
+    "title": "Two Sum",
+    "difficulty": "Easy",
+    "id": 1,
+    "status": "ac",
+    "note": "hash-map insight",
+    "marked_at": "2026-08-09T22:22:54Z",
+    "url": "https://leetcode.com/problems/two-sum/"
+  }
+]
+```
+
+`mark` is `up` or `down` — always present, always one of those two. The remaining fields
+behave exactly as `todo`'s do, including being omitted for an unsynced problem.
+
+Ordered **newest first**, the opposite of the todo list. A todo is a queue where the
+oldest item is most at risk of being forgotten; a mark is a judgment, and the most recent
+one is the one still being acted on.
+
+**In the app**, `+` and `-` set the verdict on the row under the cursor and `i` cycles the
+board through all → important → unimportant, in a column headed `MARK`.
+
+A mark you write from here reaches the database at once, but the board does not poll it —
+an already-open leetui picks it up the next time it reloads its rows, which any search,
+filter change, sync, or restart does. The same is true of `todo`. If a human is watching
+while you triage, tell them to press `i` twice to see the marks land.
 
 ### `leetui pull <problem>` — lay out the files
 
@@ -211,6 +297,37 @@ done
 
 Note the loop calls `run`, not `submit`. Submitting is the user's decision.
 
+## A second worked loop — triage, then redo
+
+The pattern `mark` was built for. A human works through Top Interview 150, an agent records
+which ones were worth the time, and a later pass re-does only those.
+
+Triaging, one problem at a time as they are reviewed:
+
+```sh
+leetui mark up   lru-cache      --note "eviction order is the whole problem"
+leetui mark down remove-element --note "same as the one before it"
+```
+
+Then the re-do pass — solved **and** still marked important, which is exactly the query
+the todo list could not express:
+
+```sh
+leetui mark --json --up \
+  | jq -r '.[] | select(.status == "ac") | .slug' \
+  | while read -r slug; do
+      leetui pull "$slug"      # fresh scaffold; your old solution is never overwritten
+      echo "redo: $slug"
+    done
+```
+
+To see what is left untriaged in a plan, diff the marks against what the human has solved:
+
+```sh
+leetui mark --json | jq -r '.[].slug' | sort > /tmp/marked
+# ... compare against the plan's slugs; anything absent has no verdict yet
+```
+
 ---
 
 ## Configuration
@@ -242,4 +359,7 @@ never on disk, and never printed — `leetui` will not hand you a session token.
 - **Push.** There is no command for it. Publishing happens from the interactive app, from
   a keypress, behind a confirmation naming the remote — never from a script.
 - **Sync the whole problem set.** That is thousands of throttled requests; press `S` in
-  the app. Individual problems are fetched on demand by `pull`, `run`, and `todo add`.
+  the app. Individual problems are fetched on demand by `pull`, `run`, `todo add`, and
+  `mark up`/`mark down`.
+- **Pull a study plan.** There is no subcommand for it — press `P` in the app. `mark`
+  works on any problem regardless of which plan surfaced it, so triage does not need one.

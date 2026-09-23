@@ -52,7 +52,9 @@ func (m Model) toggleEditorial() (tea.Model, tea.Cmd) {
 //
 // Editorials are large and most are never read, so they are fetched one at a time on
 // request rather than synced in bulk — the same bargain as problem statements (D-009).
-func (m Model) fetchEditorial(slug string) tea.Cmd {
+func (m *Model) fetchEditorial(slug string) tea.Cmd {
+	m.editorialSeq++
+	seq := m.editorialSeq
 	sy := m.sync
 	width := m.detailWidth()
 
@@ -62,18 +64,18 @@ func (m Model) fetchEditorial(slug string) tea.Cmd {
 
 		e, err := sy.Editorial(ctx, slug, false)
 		if e == nil {
-			return editorialMsg{slug: slug, err: err}
+			return editorialMsg{slug: slug, seq: seq, err: err}
 		}
 		if e.Content == "" {
 			// Gated, or an editorial that exists with nothing readable in it. The pane
 			// renders the lock from the row itself.
-			return editorialMsg{slug: slug, editorial: e, err: err}
+			return editorialMsg{slug: slug, seq: seq, editorial: e, err: err}
 		}
 		md, images, rerr := render.Editorial(e.Content, width)
 		if rerr != nil {
-			return editorialMsg{slug: slug, editorial: e, err: rerr}
+			return editorialMsg{slug: slug, seq: seq, editorial: e, err: rerr}
 		}
-		return editorialMsg{slug: slug, editorial: e, markdown: md, images: images, err: err}
+		return editorialMsg{slug: slug, seq: seq, editorial: e, markdown: md, images: images, err: err}
 	}
 }
 

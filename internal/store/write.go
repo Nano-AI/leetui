@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -79,7 +78,6 @@ func (s *Store) UpsertSummaries(ctx context.Context, items []leetcode.ProblemSum
 		if _, err := tx.ExecContext(ctx, `DELETE FROM problem_tags WHERE problem_slug = ?`, it.Slug); err != nil {
 			return fmt.Errorf("clear tags for %s: %w", it.Slug, err)
 		}
-		tagNames := make([]string, 0, len(it.Tags))
 		for _, t := range it.Tags {
 			if _, err := tagIns.ExecContext(ctx, t.Slug, t.Name); err != nil {
 				return fmt.Errorf("insert tag %s: %w", t.Slug, err)
@@ -87,10 +85,9 @@ func (s *Store) UpsertSummaries(ctx context.Context, items []leetcode.ProblemSum
 			if _, err := linkIns.ExecContext(ctx, it.Slug, t.Slug); err != nil {
 				return fmt.Errorf("link tag %s: %w", t.Slug, err)
 			}
-			tagNames = append(tagNames, t.Name)
 		}
 
-		if err := reindexTx(ctx, tx, it.Slug, it.Title, strings.Join(tagNames, " ")); err != nil {
+		if err := reindexTx(ctx, tx, it.Slug); err != nil {
 			return err
 		}
 	}
@@ -164,30 +161,16 @@ func (s *Store) SetDetail(ctx context.Context, p *leetcode.Problem) error {
 		}
 	}
 
-	// Reindex with the statement text so full-text search covers problem bodies.
-	tagNames := make([]string, 0, len(p.Tags))
-	for _, t := range p.Tags {
-		tagNames = append(tagNames, t.Name)
+	if err := setPayloadTagsTx(ctx, tx, p.Slug, p.Tags); err != nil {
+		return err
 	}
-	body := stripHTML(p.Content) + " " + strings.Join(tagNames, " ")
-	if err := reindexTx(ctx, tx, p.Slug, p.Title, body); err != nil {
+	// Reindex with persisted tags and statement text in the same transaction.
+	if err := reindexTx(ctx, tx, p.Slug); err != nil {
 		return err
 	}
 
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit detail: %w", err)
-	}
-	return nil
-}
-
-// reindexTx replaces a problem's FTS row.
-func reindexTx(ctx context.Context, tx *sql.Tx, slug, title, body string) error {
-	if _, err := tx.ExecContext(ctx, `DELETE FROM problems_fts WHERE slug = ?`, slug); err != nil {
-		return fmt.Errorf("clear fts for %s: %w", slug, err)
-	}
-	if _, err := tx.ExecContext(ctx,
-		`INSERT INTO problems_fts (slug, title, body) VALUES (?,?,?)`, slug, title, body); err != nil {
-		return fmt.Errorf("index %s: %w", slug, err)
 	}
 	return nil
 }

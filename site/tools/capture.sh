@@ -19,12 +19,27 @@ cd "$(dirname "$0")/../.."
 OUT=site/shots
 SESSION=leetui-shot
 BIN=${LEETUI:-leetui}
+SOCKET="leetui-capture-$$"
+INNER="${SOCKET}-inner"
+OUTER="${SOCKET}-outer"
+# Use private servers; a failed capture must not kill a reader's tmux session.
+tmux() { command tmux -L "$SOCKET" "$@"; }
+cleanup() {
+  command tmux -L "$SOCKET" kill-server 2>/dev/null || true
+  command tmux -L "$INNER" kill-server 2>/dev/null || true
+  command tmux -L "$OUTER" kill-server 2>/dev/null || true
+  [ -z "${REC:-}" ] || rm -f "$REC"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+printf -v BIN_Q '%q' "$BIN"
 mkdir -p "$OUT"
 
 start() { # start <cols> <rows>
   tmux kill-session -t "$SESSION" 2>/dev/null || true
   tmux new-session -d -s "$SESSION" -x "$1" -y "$2"
-  tmux send-keys -t "$SESSION" "clear; TERM=xterm-256color $BIN" Enter
+  tmux send-keys -t "$SESSION" "clear; TERM=xterm-256color $BIN_Q" Enter
   sleep 3
 }
 
@@ -40,13 +55,50 @@ shot() { # shot <name> [ansi2svg args...]
 start 158 42
 shot board
 
-# A problem, open. Statement on the left; on the right the solution file that
-# is really on this disk, so the pane shows a path and a language, not a stub.
-#
-# G first: "valid paren" matches half a dozen problems and the cursor lands on
-# the top one, which is 32. 20 is the one with a solution beside it.
-keys / v a l i d Space p a r e n Enter G Enter
-shot detail
+# The editor split: leetui on the left, the real nvim on the right, holding the
+# real solution file. `e` asks tmux for the pane, so the only way to photograph
+# it is to photograph tmux itself — hence one session nested inside another. The
+# outer one sees the inner window already composited, divider and all, which is
+# what a reader would see.
+editor_shot() {
+  local I="command tmux -L $INNER" O="command tmux -L $OUTER" c work_q
+  printf -v work_q '%q' "$WORK/0020-valid-parentheses"
+  $O kill-server 2>/dev/null || true; $I kill-server 2>/dev/null || true
+  $O new-session -d -s cap -x 150 -y 28
+  $O send-keys -t cap "clear; TERM=xterm-256color tmux -L $INNER new-session -s ed -x 150 -y 28" Enter
+  sleep 2.5
+
+  # The inner tmux is scenery, so it says nothing: its status bar carries the
+  # session name and this machine's hostname, and its active-pane border is a
+  # green that belongs to the judge (D-017) and to nothing else on this page.
+  $I set -t ed -g status off
+  $I set -t ed -g pane-border-style "fg=#2A2D36"
+  $I set -t ed -g pane-active-border-style "fg=#2A2D36"
+
+  $I send-keys -t ed "cd $work_q && clear && TERM=xterm-256color $BIN_Q" Enter
+  sleep 4
+  for c in / v a l i d Space p a r e n Enter; do $I send-keys -t ed "$c"; sleep 0.45; done
+  sleep 0.7; $I send-keys -t ed G; sleep 0.7
+  $I send-keys -t ed Enter; sleep 2.5
+  $I send-keys -t ed e; sleep 6            # nvim needs a moment to paint
+
+  # Three things about a real editor do not survive being photographed:
+  #  - relativenumber prints "1 1 2 3" around the cursor, which reads as a bug
+  #  - the statusline is powerline glyphs from a Nerd Font, and a browser
+  #    falling back to a symbol font draws them as boxes at the wrong width
+  #  - tmux trims trailing blanks, so a painted background stops at each line's
+  #    last character and the block comes out ragged; matching the terminal's
+  #    own background leaves nothing to trim
+  $I send-keys -t ed ':set number norelativenumber laststatus=0 signcolumn=no' Enter
+  sleep 1
+  $I send-keys -t ed ':hi Normal guibg=NONE ctermbg=NONE | hi EndOfBuffer guibg=NONE ctermbg=NONE | hi CursorLine guibg=NONE ctermbg=NONE | hi LineNr guibg=NONE ctermbg=NONE' Enter
+  sleep 2
+
+  $O capture-pane -t cap -e -p | python3 site/tools/ansi2svg.py -o "$OUT/editor.svg"
+  $I kill-server 2>/dev/null || true; $O kill-server 2>/dev/null || true
+}
+WORK=${LEETUI_WORKSPACE:-$HOME/leetcode}
+editor_shot
 
 # Search runs against the local database, so it answers while you type.
 keys Escape Escape / t r e e
@@ -70,9 +122,8 @@ shell() { # shell <name> <command> <settle-seconds> [ansi2svg args...]
     | python3 site/tools/ansi2svg.py -o "$OUT/$name.svg" "$@"
 }
 
-WORK=${LEETUI_WORKSPACE:-$HOME/leetcode}
-shell doctor "leetui doctor" 4
-shell run    "cd 0020-valid-parentheses && leetui run" 6 --crop 2:12
+shell doctor "$BIN_Q doctor" 4
+shell run    "cd 0020-valid-parentheses && $BIN_Q run" 6 --crop 2:12
 
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 
@@ -80,11 +131,16 @@ tmux kill-session -t "$SESSION" 2>/dev/null || true
 # meant to show a signed-in session — that is the point — but nobody needs this
 # machine's home directory.
 python3 - "$OUT" <<'SCRUB'
-import pathlib, re, sys, os
+import pathlib, re, sys, os, subprocess
 home = os.path.expanduser('~')
+host = subprocess.run(['hostname'], capture_output=True, text=True).stdout.strip()
 for f in pathlib.Path(sys.argv[1]).glob('*.svg'):
     t = f.read_text()
     n = t.replace(home, '/Users/you')
+    # Belt and braces: the shots are driven so nothing prints a hostname, but a
+    # prompt or a status line that starts doing so should not reach the site.
+    for h in filter(None, [host, host.split('.')[0]]):
+        n = n.replace(h, 'this-machine')
     if n != t:
         f.write_text(n)
         print(f'scrubbed {f.name}')
@@ -119,7 +175,7 @@ hold() { sleep 0.25; frame "$1"; }   # one frame, held long enough to read
 
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 tmux new-session -d -s "$SESSION" -x 120 -y 34
-tmux send-keys -t "$SESSION" "clear; TERM=xterm-256color $BIN" Enter
+tmux send-keys -t "$SESSION" "clear; TERM=xterm-256color $BIN_Q" Enter
 sleep 3
 
 hold 1100                                  # the board, sitting there

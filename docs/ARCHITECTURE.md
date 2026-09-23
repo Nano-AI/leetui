@@ -20,6 +20,7 @@ Current: 245 files, ~27,715 lines, mean 113, max 263.
 cmd/leetui/                 main.go dispatch · tui.go the app · cli.go the subcommands
                             cmd_solve.go · cmd_submit.go · cmd_todo.go · report.go
                             cmd_doctor.go what this machine can do · cmd_image.go
+                            cmd_contest.go the contest verbs, submit among them (D-036)
                             watch.go the results as their own pane
 internal/
   config/     config.go types · keymap.go bindings · defaults.go · load.go · resolve.go
@@ -32,12 +33,15 @@ internal/
   leetcode/   client.go construction · transport.go GraphQL+errors · api.go queries
               queries.go documents · models.go wire types · submit.go judge · rest.go
               company.go packs+timeframes · editorial.go · queries_premium.go
+              contest.go schedule+phases+contest judge (D-036) · queries_contest.go
   store/      open.go · schema.go migrations · state.go checkpoints · fts.go
               types.go rows · write.go upserts · query.go filters · order.go sorts
               get.go · stats.go · company.go registry+packs · editorial.go cache
               todo.go the user's own list (D-022) · progress.go solved/attempted
+              contest.go schedule+contents, no foreign key to problems (D-036)
   syncer/     syncer.go · progress.go · problems.go the resumable job · detail.go
               companies.go registry+one pack · editorial.go
+              contests.go schedule+one contest's questions
   render/     html.go converter · walk.go dispatch · inline.go · blocks.go
               codeblock.go example blocks painted to full width
               inline_image.go kitty + iTerm2 encoders, tmux passthrough

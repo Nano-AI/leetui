@@ -46,8 +46,21 @@ func helpGroups() []helpGroup {
 			{"E", "choose the editor"},
 			{"", "saving re-runs the tests; leetui run -w for a pane of its own"},
 		}},
-		{"premium", [][2]string{
+		{"worth redoing", [][2]string{
+			{"+", "important — gilds it, floats it to the top"},
+			{"-", "unimportant — greys it, sinks it to the bottom"},
+			{"", "never removed; press the key again to undo"},
+			{"i", "cycle all → important → unimportant"},
+			{"", "a verdict survives solving, unlike a todo"},
+			{"", "leetui mark up <problem> from a script"},
+		}},
+		{"lists", [][2]string{
+			{"P", "study plans — Top Interview 150 and friends, free"},
+			{"C", "contests — the schedule, and a countdown while one runs"},
 			{"c", "browse company lists, then a timeframe"},
+			{"", "each one sorts the board by its own order"},
+		}},
+		{"premium", [][2]string{
 			{"d", "read the official editorial"},
 			{"t T", "start-stop the timer, reset it"},
 		}},

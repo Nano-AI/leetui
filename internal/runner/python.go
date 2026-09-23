@@ -56,10 +56,10 @@ sys.path.insert(0, _here)
 sys.path.insert(0, os.path.join(_here, "..", %q))
 
 from %s import run  # noqa: E402
-from solution import Solution  # noqa: E402
+%s
 
 run(Solution, %q, %s, mutates=%s)
-`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), meta.Name, string(types), mutates)
+`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), l.pythonImport("Solution"), meta.Name, string(types), mutates)
 
 	if err := os.WriteFile(filepath.Join(dir, pyEntryFile), []byte(entry), 0o644); err != nil {
 		return fmt.Errorf("write python entry point: %w", err)
@@ -180,13 +180,21 @@ sys.path.insert(0, _here)
 sys.path.insert(0, os.path.join(_here, "..", %q))
 
 from %s import run_design  # noqa: E402
-from solution import %s  # noqa: E402
+%s
 
 run_design(%s, %s)
-`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), meta.Classname, meta.Classname, string(encoded))
+`, workspace.GlobalsDir, strings.TrimSuffix(pyDriverFile, ".py"), l.pythonImport(meta.Classname), meta.Classname, string(encoded))
 
 	if err := os.WriteFile(filepath.Join(dir, pyEntryFile), []byte(entry), 0o644); err != nil {
 		return fmt.Errorf("write python design entry point: %w", err)
 	}
 	return nil
+}
+
+func (l *Local) pythonImport(class string) string {
+	if l.SolutionFile == "" {
+		return fmt.Sprintf("from solution import %s", class)
+	}
+	return fmt.Sprintf("import runpy\nsys.path.insert(0, %q)\n%s = runpy.run_path(%q)[%q]",
+		filepath.Dir(l.SolutionFile), class, l.SolutionFile, class)
 }

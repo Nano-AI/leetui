@@ -18,7 +18,7 @@ import (
 // the common case needs no typing at all.
 func (m Model) viewCompanies() string {
 	rows := m.visibleCompanies()
-	width := minInt(maxInt(m.width-8, 44), 68)
+	width := maxInt(m.width, 4)
 
 	filter := components.Frame{
 		Title:   "company",
@@ -60,7 +60,7 @@ func (m Model) viewCompanies() string {
 	return lipgloss.JoinVertical(lipgloss.Left, "",
 		filter.Render(" "+m.companyFilter.View()),
 		list.Render(b.String()),
-		hint)
+		lipgloss.NewStyle().Width(width).Render(hint))
 }
 
 // companyLine is one registry row: the name, how many problems LeetCode lists, and how

@@ -18,7 +18,8 @@ func Default() Config {
 		RunAfterEdit:  true,
 		OpenStatement: true,
 		UI: UI{
-			Mouse: true,
+			Mouse:     true,
+			Celebrate: CelebrateFull,
 		},
 		Sync: Sync{
 			// Deliberately conservative. LeetCode publishes no rate limit, so this is

@@ -95,6 +95,14 @@ func TestLocateOutsideAProblemFolder(t *testing.T) {
 	}
 }
 
+func TestLocateRejectsMissingPathsAndBlankSlugs(t *testing.T) {
+	for _, arg := range []string{filepath.Join(t.TempDir(), "0001-two-sum", "solution.py"), "   "} {
+		if slug, err := Locate(arg); err == nil {
+			t.Errorf("Locate(%q) accepted %q", arg, slug)
+		}
+	}
+}
+
 // TestLocatePrefersAnExistingPath: a slug that happens to match a directory in the
 // working directory must not be misread as a path to somewhere else.
 func TestLocatePrefersAnExistingPath(t *testing.T) {

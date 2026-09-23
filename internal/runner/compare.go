@@ -2,7 +2,8 @@ package runner
 
 import (
 	"encoding/json"
-	"math"
+	"io"
+	"math/big"
 	"reflect"
 	"sort"
 	"strings"
@@ -37,17 +38,22 @@ func Compare(actual, expected string, rule Rule) bool {
 		}
 	}
 	if rule.Unordered {
-		return compareUnordered(av, ev)
+		return compareUnordered(av, ev, rule.OrderedRows)
 	}
 	return reflect.DeepEqual(av, ev)
 }
 
 func parseJSON(s string) (any, bool) {
 	var v any
-	if err := json.Unmarshal([]byte(s), &v); err != nil {
+	d := json.NewDecoder(strings.NewReader(s))
+	d.UseNumber()
+	if err := d.Decode(&v); err != nil {
 		return nil, false
 	}
-	return v, true
+	if d.Decode(new(any)) != io.EOF {
+		return nil, false
+	}
+	return exactNumbers(v), true
 }
 
 func normalizeSpace(s string) string {
@@ -57,10 +63,11 @@ func normalizeSpace(s string) string {
 // compareFloats handles answers judged to a tolerance, e.g. median or average problems.
 // applied is false when neither side is numeric, so the caller can fall through.
 func compareFloats(a, e any, eps float64) (ok, applied bool) {
-	af, aIsNum := a.(float64)
-	ef, eIsNum := e.(float64)
+	af, aIsNum := a.(exactNumber)
+	ef, eIsNum := e.(exactNumber)
 	if aIsNum && eIsNum {
-		return math.Abs(af-ef) <= eps, true
+		diff := new(big.Rat).Sub(af.rat(), ef.rat())
+		return diff.Abs(diff).Cmp(new(big.Rat).SetFloat64(eps)) <= 0, true
 	}
 
 	al, aIsList := a.([]any)
@@ -83,10 +90,11 @@ func compareFloats(a, e any, eps float64) (ok, applied bool) {
 	return false, false
 }
 
-// compareUnordered treats top-level lists as multisets, recursively.
+// compareUnordered treats top-level lists as multisets. Nested lists are also
+// unordered unless the rule says their elements form a sequence.
 //
 // Used for problems that say "in any order" — permutations, subsets, group anagrams.
-func compareUnordered(a, e any) bool {
+func compareUnordered(a, e any, orderedRows bool) bool {
 	al, aok := a.([]any)
 	el, eok := e.([]any)
 	if !aok || !eok {
@@ -96,24 +104,36 @@ func compareUnordered(a, e any) bool {
 		return false
 	}
 
-	ak := canonicalKeys(al)
-	ek := canonicalKeys(el)
+	ak := canonicalKeys(al, orderedRows)
+	ek := canonicalKeys(el, orderedRows)
 	sort.Strings(ak)
 	sort.Strings(ek)
 	return reflect.DeepEqual(ak, ek)
 }
 
-// canonicalKeys renders each element to a stable string, sorting nested lists first so
-// [[1,2],[3]] and [[2,1],[3]] compare equal.
-func canonicalKeys(items []any) []string {
+// canonicalKeys renders each element to a stable string. Without orderedRows,
+// nested lists are sorted so [[1,2],[3]] and [[2,1],[3]] compare equal.
+func canonicalKeys(items []any, orderedRows bool) []string {
 	out := make([]string, len(items))
 	for i, item := range items {
-		out[i] = canonical(item)
+		out[i] = canonical(item, !orderedRows)
 	}
 	return out
 }
 
-func canonical(v any) string {
+func canonical(v any, unordered bool) string {
+	if n, ok := v.(exactNumber); ok {
+		return "number:" + string(n)
+	}
+	if m, ok := v.(map[string]any); ok {
+		parts := make([]string, 0, len(m))
+		for k, val := range m {
+			key, _ := json.Marshal(k)
+			parts = append(parts, string(key)+":"+canonical(val, unordered))
+		}
+		sort.Strings(parts)
+		return "{" + strings.Join(parts, ",") + "}"
+	}
 	list, ok := v.([]any)
 	if !ok {
 		b, _ := json.Marshal(v)
@@ -121,8 +141,10 @@ func canonical(v any) string {
 	}
 	parts := make([]string, len(list))
 	for i, item := range list {
-		parts[i] = canonical(item)
+		parts[i] = canonical(item, unordered)
 	}
-	sort.Strings(parts)
+	if unordered {
+		sort.Strings(parts)
+	}
 	return "[" + strings.Join(parts, ",") + "]"
 }

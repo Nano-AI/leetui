@@ -11,6 +11,16 @@ import (
 
 // postJSON sends a JSON body to a problem-scoped endpoint.
 func (c *Client) postJSON(ctx context.Context, path, slug string, body, out any) error {
+	return c.postJSONTo(ctx, path, BaseURL+"/problems/"+slug+"/", body, out)
+}
+
+// postJSONTo sends a JSON body to an endpoint with an explicit Referer.
+//
+// The Referer is a parameter rather than derived because a contest submission is posted
+// from the contest's copy of the problem page, not the problem's own (D-036). LeetCode
+// rejects a submission whose Referer does not plausibly name the page it came from, so
+// the two cannot share one rule.
+func (c *Client) postJSONTo(ctx context.Context, path, referer string, body, out any) error {
 	if err := c.limiter.Wait(ctx); err != nil {
 		return fmt.Errorf("rate limiter: %w", err)
 	}
@@ -26,12 +36,20 @@ func (c *Client) postJSON(ctx context.Context, path, slug string, body, out any)
 	if err != nil {
 		return fmt.Errorf("build request: %w", err)
 	}
-	c.setHeaders(req, BaseURL+"/problems/"+slug+"/")
+	c.setHeaders(req, referer)
 
 	return c.doJSON(req, path, out)
 }
 
 func (c *Client) getJSON(ctx context.Context, path string, out any) error {
+	return c.getJSONFrom(ctx, path, BaseURL+"/problemset/all/", out)
+}
+
+// getJSONFrom reads an endpoint with an explicit Referer.
+//
+// Same reason postJSONTo exists: the contest REST API answers a request that comes from a
+// contest page and not one that claims to come from the problem set.
+func (c *Client) getJSONFrom(ctx context.Context, path, referer string, out any) error {
 	if err := c.limiter.Wait(ctx); err != nil {
 		return fmt.Errorf("rate limiter: %w", err)
 	}
@@ -43,7 +61,7 @@ func (c *Client) getJSON(ctx context.Context, path string, out any) error {
 	if err != nil {
 		return fmt.Errorf("build request: %w", err)
 	}
-	c.setHeaders(req, BaseURL+"/problemset/all/")
+	c.setHeaders(req, referer)
 
 	return c.doJSON(req, path, out)
 }

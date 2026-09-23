@@ -47,13 +47,15 @@ func (s *Syncer) Account(ctx context.Context) (leetcode.UserStatus, error) {
 	if err != nil {
 		return st, err
 	}
-	_ = s.store.SetState(ctx, store.KeyUsername, st.Username)
 	premium := "0"
 	if st.IsPremium {
 		premium = "1"
 	}
-	_ = s.store.SetState(ctx, store.KeyIsPremium, premium)
-	return st, nil
+	err = s.store.SetStates(ctx, map[string]string{
+		store.KeyUsername:  st.Username,
+		store.KeyIsPremium: premium,
+	})
+	return st, err
 }
 
 func max(a, b int) int {

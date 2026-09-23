@@ -2,6 +2,7 @@ package tui
 
 import (
 	"errors"
+	"reflect"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,6 +25,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.search.Width = maxInt(m.width-20, 20)
 		m.authInput.Width = maxInt(m.width-20, 20)
 		m.companyFilter.Width = maxInt(m.width-20, 20)
+		m.planFilter.Width = maxInt(m.width-20, 20)
+		m.contestFilter.Width = maxInt(m.width-20, 20)
 
 		// Re-render whichever reading is on screen at the new width. Rendering both
 		// would wrap the hidden one to a width it may never be shown at.
@@ -39,13 +42,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.timerRunning {
 			m.elapsed += time.Second
 		}
+		// The contest just started. Pull it now: the questions did not exist a second
+		// ago, and this is the one refresh nobody should have to ask for.
+		if now := time.Now(); m.contestOpened(now) {
+			m.contestPhase = m.contest.PhaseAt(now)
+			return m, tea.Batch(secondTick(), m.beginContest(m.contest.Slug),
+				m.checkRegistration(),
+				status(m.contest.Title+" has started. Pulling the problems…", false))
+		} else if m.contest.Active() {
+			m.contestPhase = m.contest.PhaseAt(now)
+		}
 		return m, secondTick()
 
 	case rowsMsg:
+		if msg.seq != m.rowsSeq {
+			return m, nil
+		}
 		if msg.err != nil {
 			return m, status("Could not read the local database: "+msg.err.Error(), true)
 		}
-		m.rows = msg.rows
+		slug := m.currentSlug()
+		keepSelection := reflect.DeepEqual(m.rowsFilter, msg.filter)
+		m.rows, m.rowsFilter = msg.rows, msg.filter
+		if keepSelection && slug != "" {
+			for i, row := range m.rows {
+				if row.Slug == slug {
+					m.cursor = i
+					break
+				}
+			}
+		}
 		if m.cursor >= len(m.rows) {
 			m.cursor = maxInt(len(m.rows)-1, 0)
 		}
@@ -61,7 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, m.beginSync()
 			}
 		}
-		return m, tea.Batch(m.loadDetailForCursor(), m.loadTodo())
+		return m, tea.Batch(m.loadDetailForCursor(), m.loadTodo(), m.loadMarks())
 
 	case detailMsg:
 		// A response for a problem the cursor already left is dropped: statements are
@@ -98,7 +124,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, m.fetchDetail(msg.slug, msg.seq)
 
-	case editorialMsg, todoMsg, companiesMsg, packCountsMsg:
+	case editorialMsg, todoMsg, marksMsg, companiesMsg, packCountsMsg, plansMsg, planGroupsMsg,
+		contestsMsg, contestRegistrationMsg:
 		return m.handleContentMsg(msg)
 
 	case browserImportMsg:
@@ -173,6 +200,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.status, m.statusErr = "", false
 		}
 		return m, nil
+
+	case celebrateTickMsg:
+		return m.handleCelebrateTick(msg)
 
 	case components.FlipTickMsg:
 		var cmds []tea.Cmd

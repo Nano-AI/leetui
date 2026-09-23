@@ -28,6 +28,9 @@ type Solved struct {
 	// Filename is the solution file inside the problem folder, e.g. "solution.go".
 	Filename string
 
+	// Dir, when set, is the selected problem folder rather than a reconstructed one.
+	Dir string
+
 	// Runtime and Percentile come from the judge. Both optional; an absent figure is
 	// left out of the subject rather than guessed at.
 	Runtime    string
@@ -74,6 +77,9 @@ func Commit(ctx context.Context, root string, git config.Git, s Solved) (vcs.Com
 // is a perfectly ordinary state to be committing from.
 func commitPaths(ws workspace.Workspace, git config.Git, s Solved) []string {
 	dir := ws.Dir(s.ID, s.Slug)
+	if s.Dir != "" {
+		dir = s.Dir
+	}
 	want := []string{workspace.ReadmeFile, workspace.TestcasesFile}
 	if s.Filename != "" {
 		want = append(want, s.Filename)

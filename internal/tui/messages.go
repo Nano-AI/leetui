@@ -20,8 +20,10 @@ type (
 
 	// rowsMsg carries board rows from the store.
 	rowsMsg struct {
-		rows []store.Row
-		err  error
+		seq    int
+		filter store.Filter
+		rows   []store.Row
+		err    error
 	}
 
 	// detailMsg carries a problem's rendered statement.
@@ -46,6 +48,7 @@ type (
 	// editorialMsg carries a problem's rendered official solution. A gated editorial
 	// arrives with editorial set and err ErrPremiumRequired — the pane needs both.
 	editorialMsg struct {
+		seq       int
 		slug      string
 		editorial *store.Editorial
 		markdown  string
@@ -70,6 +73,43 @@ type (
 		company string
 		counts  map[leetcode.Timeframe]int
 		err     error
+	}
+
+	// marksMsg carries every importance verdict, keyed by slug.
+	marksMsg struct {
+		marks map[string]store.Mark
+		err   error
+	}
+
+	// plansMsg carries the study plan registry from the store.
+	plansMsg struct {
+		plans []store.Plan
+		err   error
+	}
+
+	// planGroupsMsg carries a plan's problem-to-chapter map, so the board's GROUP column
+	// costs one query rather than one per row.
+	planGroupsMsg struct {
+		plan   string
+		groups map[string]string
+		err    error
+	}
+
+	// contestsMsg carries the contest schedule from the store.
+	contestsMsg struct {
+		contests []store.Contest
+		err      error
+	}
+
+	// contestRegistrationMsg answers "is this account signed up for that contest".
+	//
+	// Carries its contest so a late answer cannot warn about a contest the board has
+	// since moved off, and an err that every handler treats as "unknown": signed out the
+	// question cannot be asked, and silence is the only honest response to that.
+	contestRegistrationMsg struct {
+		contest    string
+		registered bool
+		err        error
 	}
 
 	// browserImportMsg carries the result of reading cookies out of a browser.

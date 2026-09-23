@@ -74,6 +74,13 @@ type UI struct {
 	// Mouse enables click and scroll.
 	Mouse bool `toml:"mouse"`
 
+	// Celebrate is how much an Accepted verdict is allowed to make of itself (D-033):
+	// "off", "subtle", or "full". Empty means the default, "full".
+	//
+	// ReduceMotion outranks it — "full" degrades to "subtle" rather than animating, so
+	// there is one answer to "will this move" and it is the accessibility setting.
+	Celebrate string `toml:"celebrate"`
+
 	// ShowTags and ShowHints are off by default, because both give the approach away.
 	//
 	// "hash-table" printed beside a problem answers the question the problem is asking,

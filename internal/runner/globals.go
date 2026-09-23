@@ -59,25 +59,42 @@ func writeGlobalDriver(dir, name, embedded string) error {
 // Narrow on purpose: one exact string, and only when it is present. Nothing below the
 // marker is read, let alone touched.
 func migrateInclude(dir, name string) error {
-	solution := filepath.Join(dir, "solution.cpp")
+	return migrateSolutionInclude(filepath.Join(dir, "solution.cpp"), name, workspace.GlobalRef(name))
+}
+
+func migrateSolutionInclude(solution, name, reference string) error {
 	body, err := os.ReadFile(solution)
 	if err != nil {
 		// No solution yet is the ordinary case on a fresh pull.
 		return nil
 	}
 
-	old := fmt.Sprintf("#include %q", name)
-	if !bytes.Contains(body, []byte(old)) {
+	// Only a complete include line in our scaffolding may be migrated. A bare
+	// solution, comment, or include inside the submission region belongs to the user.
+	marker := bytes.Index(body, []byte("// "+markStart))
+	if marker < 0 {
 		return nil
 	}
-	updated := bytes.Replace(body, []byte(old),
-		[]byte(fmt.Sprintf("#include %q", workspace.GlobalRef(name))), 1)
+	old := []byte(fmt.Sprintf("#include %q", name))
+	offset := 0
+	for _, line := range bytes.SplitAfter(body[:marker], []byte("\n")) {
+		if bytes.Equal(bytes.TrimSuffix(bytes.TrimSuffix(line, []byte("\n")), []byte("\r")), old) {
+			break
+		}
+		offset += len(line)
+	}
+	if offset == marker {
+		return nil
+	}
+	updated := append([]byte(nil), body[:offset]...)
+	updated = append(updated, []byte(fmt.Sprintf("#include %q", reference))...)
+	updated = append(updated, body[offset+len(old):]...)
 
 	if err := os.WriteFile(solution, updated, 0o644); err != nil {
 		return fmt.Errorf("migrate include in %s: %w", solution, err)
 	}
 	// The stale copy is dead weight now, and leaving it means the old include would
 	// still resolve — so the migration would look optional until the day it was not.
-	_ = os.Remove(filepath.Join(dir, name))
+	_ = os.Remove(filepath.Join(filepath.Dir(solution), name))
 	return nil
 }

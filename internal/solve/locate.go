@@ -32,6 +32,9 @@ var folderName = regexp.MustCompile(`^(\d{1,5})-(.+)$`)
 // arg may be a slug ("two-sum"), a folder name ("0001-two-sum"), a path to either the
 // folder or a file inside it, or empty to mean the working directory.
 func Locate(arg string) (string, error) {
+	if arg != "" && strings.TrimSpace(arg) == "" {
+		return "", ErrNoProblem
+	}
 	if arg == "" {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -54,6 +57,8 @@ func Locate(arg string) (string, error) {
 			return slug, nil
 		}
 		return "", fmt.Errorf("%s is not inside a problem folder: %w", arg, ErrNoProblem)
+	} else if !errors.Is(err, os.ErrNotExist) || strings.ContainsAny(arg, `/\\`) || arg == "." || arg == ".." {
+		return "", fmt.Errorf("resolve %s: %w", arg, err)
 	}
 
 	// Not a path. A bare folder name carries its id; strip it.

@@ -148,6 +148,61 @@ public:
 	}
 }
 
+// A vector of nodes, which is how every "merge k" problem states its input.
+//
+// C++ had ListNode and TreeNode but not vectors of them, so merge-k-sorted-lists
+// failed to generate at all: "no C++ type for metaData type \"ListNode[]\"". Go
+// had carried the same four keys since it was written.
+func TestCppNodeVectors(t *testing.T) {
+	l, lang := cppLang(t)
+
+	dir := genCpp(t, l, lang, "merge-k-sorted-lists",
+		`{"name":"mergeKLists","params":[{"name":"lists","type":"ListNode[]"}],
+		  "return":{"type":"ListNode"}}`, `
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        ListNode dummy, *tail = &dummy;
+        while (true) {
+            ListNode** best = nullptr;
+            for (auto& l : lists) if (l && (!best || l->val < (*best)->val)) best = &l;
+            if (!best) break;
+            tail->next = *best; tail = *best; *best = (*best)->next;
+        }
+        tail->next = nullptr;
+        return dummy.next;
+    }
+};
+`)
+	res := runCppCase(t, l, lang, dir, "merge-k-sorted-lists",
+		[]TestCase{
+			{Input: "[[1,4,5],[1,3,4],[2,6]]", Expected: "[1,1,2,3,4,4,5,6]"},
+			{Input: "[]", Expected: "[]"},
+			{Input: "[[]]", Expected: "[]"},
+		})
+	if !res.Passed() {
+		for i, c := range res.Cases {
+			t.Errorf("lists case %d: actual=%q err=%v", i+1, c.Actual, c.Err)
+		}
+	}
+
+	// The tree side of the same gap, and it returns a vector of nodes rather
+	// than taking one, so dump resolves through dump(TreeNode*) as well.
+	dir = genCpp(t, l, lang, "forest-echo",
+		`{"name":"echoForest","params":[{"name":"roots","type":"TreeNode[]"}],
+		  "return":{"type":"TreeNode[]"}}`, `
+class Solution {
+public:
+    vector<TreeNode*> echoForest(vector<TreeNode*>& roots) { return roots; }
+};
+`)
+	res = runCppCase(t, l, lang, dir, "forest-echo",
+		[]TestCase{{Input: "[[1,2,3],[4]]", Expected: "[[1,2,3],[4]]"}})
+	if !res.Passed() {
+		t.Errorf("forest: actual=%q err=%v", res.Cases[0].Actual, res.Cases[0].Err)
+	}
+}
+
 func TestCppCompileErrorIsReported(t *testing.T) {
 	l, lang := cppLang(t)
 	dir := genCpp(t, l, lang, "two-sum", twoSumMeta, `

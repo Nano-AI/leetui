@@ -25,14 +25,23 @@ type GlyphSet struct {
 	Tried  string
 	Locked string
 	Todo   string
+
+	// Important and Unimportant are the importance marks (D-032). They are ASCII in BOTH
+	// sets, deliberately: "+" and "-" are exactly the keys that produce them, so the
+	// column needs no legend beyond its header, and neither character can be drawn two
+	// cells wide the way an Ambiguous-width arrow could.
+	Important   string
+	Unimportant string
 }
 
 var (
 	unicodeGlyphs = GlyphSet{
-		Solved: "✓", // U+2713
-		Tried:  "◐", // U+25D0 — half filled, for partly done
-		Locked: "⊘", // U+2298 — only ever drawn without premium
-		Todo:   "●", // U+25CF
+		Solved:      "✓", // U+2713
+		Tried:       "◐", // U+25D0 — half filled, for partly done
+		Locked:      "⊘", // U+2298 — only ever drawn without premium
+		Todo:        "●", // U+25CF
+		Important:   "+", // ASCII on purpose — see GlyphSet
+		Unimportant: "-",
 	}
 
 	// asciiGlyphs are chosen to survive anything, including a non-UTF-8 locale.
@@ -40,10 +49,12 @@ var (
 	// "~" for tried reads as "approximately there", which is the same idea the half-filled
 	// circle carries.
 	asciiGlyphs = GlyphSet{
-		Solved: "x",
-		Tried:  "~",
-		Locked: "-",
-		Todo:   "*",
+		Solved:      "x",
+		Tried:       "~",
+		Locked:      "-",
+		Todo:        "*",
+		Important:   "+",
+		Unimportant: "-",
 	}
 )
 

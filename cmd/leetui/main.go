@@ -34,7 +34,7 @@ func main() {
 // leading bare word is treated as a subcommand — which also means a future flag can never
 // be mistaken for one.
 func dispatch(args []string) int {
-	if len(args) == 0 || args[0][0] == '-' {
+	if len(args) == 0 || (len(args[0]) > 0 && args[0][0] == '-') {
 		switch args := args; {
 		case len(args) == 1 && (args[0] == "-h" || args[0] == "--help"):
 			usage(os.Stdout)
