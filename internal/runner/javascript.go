@@ -120,6 +120,13 @@ func (l *Local) runJS(ctx context.Context, dir string, lang Lang, cases []TestCa
 		return Result{}, fmt.Errorf("no generated entry point in %s: %w", dir, err)
 	}
 
+	args := []string{entry}
+	if lang.Slug == "typescript" {
+		// Node only strips types by default from 22.18 / 23.6. Asking for it explicitly
+		// makes every Node since 22.6 run solution.ts, and is a no-op on newer ones.
+		args = []string{"--experimental-strip-types", "--disable-warning=ExperimentalWarning", entry}
+	}
+
 	started := time.Now()
 	result := Result{Cases: make([]CaseResult, 0, len(cases))}
 	for _, tc := range cases {
@@ -127,7 +134,7 @@ func (l *Local) runJS(ctx context.Context, dir string, lang Lang, cases []TestCa
 			return result, err
 		}
 		result.Cases = append(result.Cases,
-			l.runBinaryCase(ctx, dir, "node", []string{entry}, tc, rule))
+			l.runBinaryCase(ctx, dir, "node", args, tc, rule))
 	}
 	result.Elapsed = time.Since(started)
 	return result, nil
