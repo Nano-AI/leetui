@@ -89,6 +89,7 @@ func (m Model) submitCmd(d *store.Detail, lang runner.Lang, flapID int) tea.Cmd 
 
 		id, err := client.Submit(ctx, leetcode.Submission{
 			Slug: d.Slug, QuestionID: d.QuestionID, Lang: lang.Slug, Code: code,
+			StudyPlanSlug: model.plan.Slug,
 		})
 		if err != nil {
 			return judgeMsg{flapID: flapID, err: err}

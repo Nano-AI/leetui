@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -127,6 +128,8 @@ type Submission struct {
 	QuestionID string
 	Lang       string
 	Code       string
+	// StudyPlanSlug identifies the plan the problem was opened from, if any.
+	StudyPlanSlug string
 }
 
 // Submit sends a solution to the judge and returns the id to poll.
@@ -139,7 +142,14 @@ func (c *Client) Submit(ctx context.Context, s Submission) (string, error) {
 	var out struct {
 		SubmissionID json.Number `json:"submission_id"`
 	}
-	if err := c.postJSON(ctx, "/problems/"+s.Slug+"/submit/", s.Slug, body, &out); err != nil {
+	problemPath := "/problems/" + s.Slug + "/"
+	referer := BaseURL + problemPath
+	if s.StudyPlanSlug != "" {
+		body["study_plan_slug"] = s.StudyPlanSlug
+		query := url.Values{"envType": {"study-plan-v2"}, "envId": {s.StudyPlanSlug}}
+		referer += "?" + query.Encode()
+	}
+	if err := c.postJSONTo(ctx, problemPath+"submit/", referer, body, &out); err != nil {
 		return "", err
 	}
 	if out.SubmissionID.String() == "" {
