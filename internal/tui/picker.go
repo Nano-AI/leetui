@@ -157,7 +157,7 @@ func (m Model) choose() (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		chosen := m.editors[m.pickIdx]
-		m.cfg.Editor = chosen.Command
+		m.cfg.Editor = chosen.ConfigValue()
 
 		// Persist it: an editor chosen once should not have to be chosen again.
 		if err := m.cfg.Save(); err != nil {

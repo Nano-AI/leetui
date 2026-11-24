@@ -164,27 +164,52 @@ func resolve(c candidate) string {
 	if p, err := exec.LookPath(c.bin); err == nil {
 		return p
 	}
-	if c.macApp != "" && runtime.GOOS == "darwin" {
-		if fi, err := os.Stat(c.macApp); err == nil && !fi.IsDir() {
-			return c.macApp
-		}
+	if c.macApp != "" && runtime.GOOS == "darwin" && isFile(c.macApp) {
+		return c.macApp
 	}
 	return ""
 }
 
 // Lookup finds a detected editor by name or by command, so a configured value survives
-// whichever form the user wrote.
+// whichever form the user wrote. A configured path that no longer exists falls back to
+// its basename, so a binary moved by a package manager is still found on PATH.
 func Lookup(nameOrCommand string) (Editor, bool) {
 	if nameOrCommand == "" {
 		return Editor{}, false
 	}
-	for _, e := range Detect() {
+	found := Detect()
+	if e, ok := match(found, nameOrCommand); ok {
+		return e, true
+	}
+	if filepath.IsAbs(nameOrCommand) && !isFile(nameOrCommand) {
+		return match(found, filepath.Base(nameOrCommand))
+	}
+	return Editor{}, false
+}
+
+func match(found []Editor, nameOrCommand string) (Editor, bool) {
+	for _, e := range found {
 		if e.Name == nameOrCommand || e.Command == nameOrCommand ||
 			filepath.Base(e.Command) == nameOrCommand {
 			return e, true
 		}
 	}
 	return Editor{}, false
+}
+
+func isFile(path string) bool {
+	fi, err := os.Stat(path)
+	return err == nil && !fi.IsDir()
+}
+
+// ConfigValue is the form to persist: the bare name when PATH resolves it, so the choice
+// survives the binary moving, and the absolute path otherwise.
+func (e Editor) ConfigValue() string {
+	base := filepath.Base(e.Command)
+	if p, err := exec.LookPath(base); err == nil && p == e.Command {
+		return base
+	}
+	return e.Command
 }
 
 // FromCommand builds an Editor for a command leetui does not know about, so a

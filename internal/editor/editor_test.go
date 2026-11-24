@@ -1,6 +1,8 @@
 package editor
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -90,5 +92,47 @@ func TestFromCommand(t *testing.T) {
 	}
 	if _, args := e.Launch("/tmp/x.py"); len(args) != 1 || !strings.HasSuffix(args[0], "x.py") {
 		t.Errorf("launch args = %v", args)
+	}
+}
+
+func fakeNvim(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "nvim"), nil, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	return dir
+}
+
+func TestLookupFallsBackForMissingPaths(t *testing.T) {
+	bin, off := fakeNvim(t), fakeNvim(t)
+	t.Setenv("PATH", bin)
+	gone := filepath.Join(t.TempDir(), "nvim")
+
+	for _, tc := range []struct{ in, want string }{
+		{"nvim", filepath.Join(bin, "nvim")},
+		{gone, filepath.Join(bin, "nvim")},
+		{filepath.Join(t.TempDir(), "not-an-editor"), ""},
+		{filepath.Join(off, "nvim"), ""},
+	} {
+		got, ok := Lookup(tc.in)
+		if ok != (tc.want != "") || got.Command != tc.want {
+			t.Errorf("Lookup(%q) = %q, %v; want %q", tc.in, got.Command, ok, tc.want)
+		}
+	}
+}
+
+func TestConfigValue(t *testing.T) {
+	bin, off := fakeNvim(t), fakeNvim(t)
+	t.Setenv("PATH", bin)
+
+	for _, tc := range []struct{ cmd, want string }{
+		{filepath.Join(bin, "nvim"), "nvim"},
+		{filepath.Join(off, "nvim"), filepath.Join(off, "nvim")},
+		{"/Applications/X.app/bin/code", "/Applications/X.app/bin/code"},
+	} {
+		if got := (Editor{Command: tc.cmd}).ConfigValue(); got != tc.want {
+			t.Errorf("ConfigValue(%q) = %q, want %q", tc.cmd, got, tc.want)
+		}
 	}
 }

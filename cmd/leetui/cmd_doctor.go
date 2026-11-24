@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/Nano-AI/leetui/internal/auth"
@@ -52,15 +53,7 @@ func runDoctor(a *app, args []string) (int, error) {
 			l.Display, engine.MissingToolchain(l))
 	}
 
-	fmt.Fprintln(w, "\neditor")
-	if e, ok := editor.Lookup(a.cfg.Editor); ok {
-		fmt.Fprintf(w, "  %-14s %s\n", "editor", e.Name)
-	} else if found := editor.Detect(); len(found) > 0 {
-		fmt.Fprintf(w, "  %-14s %s (detected)\n", "editor", found[0].Name)
-	} else {
-		problems++
-		fmt.Fprintf(w, "  %-14s none found — set editor in %s\n", "editor", a.cfg.Path())
-	}
+	problems += reportEditor(w, a.cfg.Editor, a.cfg.Path())
 
 	if s, ok := editor.DetectSplitter(); ok {
 		fmt.Fprintf(w, "  %-14s %s — e opens a pane beside leetui\n", "splitter", s.Name)
@@ -88,6 +81,30 @@ func runDoctor(a *app, args []string) (int, error) {
 	}
 	fmt.Fprintf(w, "%s to look at, listed above.\n", plural(problems, "thing"))
 	return exitOK, nil
+}
+
+// reportEditor prints the editor e will launch, and counts it as a problem when that
+// command does not exist.
+func reportEditor(w io.Writer, configured, cfgPath string) int {
+	fmt.Fprintln(w, "\neditor")
+	if e, ok := editor.Lookup(configured); ok {
+		fmt.Fprintf(w, "  %-14s %s\n", "editor", e.Name)
+		return 0
+	}
+	if configured != "" {
+		if _, err := exec.LookPath(configured); err == nil {
+			fmt.Fprintf(w, "  %-14s %s\n", "editor", configured)
+			return 0
+		}
+		fmt.Fprintf(w, "  %-14s %s not found - fix editor in %s\n", "editor", configured, cfgPath)
+		return 1
+	}
+	if found := editor.Detect(); len(found) > 0 {
+		fmt.Fprintf(w, "  %-14s %s (detected)\n", "editor", found[0].Name)
+		return 0
+	}
+	fmt.Fprintf(w, "  %-14s none found — set editor in %s\n", "editor", cfgPath)
+	return 1
 }
 
 // reportGraphics says whether figures in a statement can be drawn, and what is stopping

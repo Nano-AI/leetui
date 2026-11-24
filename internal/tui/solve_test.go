@@ -2,9 +2,11 @@ package tui
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/Nano-AI/leetui/internal/config"
 	"github.com/Nano-AI/leetui/internal/editor"
 	"github.com/Nano-AI/leetui/internal/leetcode"
 	"github.com/Nano-AI/leetui/internal/runner"
@@ -188,4 +190,21 @@ func detailWithSnippets(slugs ...string) *store.Detail {
 		d.Snippets[s] = "stub"
 	}
 	return d
+}
+
+func TestEditorPickerPersistsBareName(t *testing.T) {
+	m := boot(t, true, 120, 34)
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "nvim"), nil, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir)
+
+	next, _ := m.openEditorPicker()
+	m = drive(t, next.(Model), key("enter"))
+
+	cfg, err := config.Load()
+	if err != nil || cfg.Editor != "nvim" {
+		t.Fatalf("saved editor = %q, %v; want nvim", cfg.Editor, err)
+	}
 }
